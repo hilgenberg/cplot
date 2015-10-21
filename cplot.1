@@ -1,0 +1,174 @@
+.TH "CPLOT" 1 "2015-10-11" "CPlot 2.0"
+.SH NAME
+cplot - function plotter
+.SH SYNOPSIS
+.B cplot
+[\fIfile\fR]
+[\fIfunction\fR]
+\#-----------------------------------------------------------------------------------------
+.SH DESCRIPTION
+\fBcplot\fR plots real and complex functions, as well as 2d and 3d vector fields.
+.PP
+For an overview and the various settings, please refer to the HTML documentation
+that should come with the program (probably in /usr/share/doc/cplot/ or similar).
+This man page only describes the options, command interface and plot window controls.
+\#-----------------------------------------------------------------------------------------
+.SH OPTIONS
+(not implemented yet)
+.TP
+.BI "\-d " "value" " \fR|\fB \-\-display " "value"
+Set $DISPLAY to \fIvalue\fR (:0 or host:12, cf. X documentation).
+.TP
+.BI "\-g " "value" " \fR|\fB \-\-geometry " "value"
+Set initial window geometry. Value: WxH+X+Y with integers (meaning pixels) or
+percentages (integers with a trailing %)  W,H,X,Y, which are
+width, height, horizontal and vertical offsets in pixels. +X is between left screen edge and left
+window edge. +Y from the top. \-X and \-Y for the bottom-right. ~X and ~Y between window and 
+screen center (positive values move the window towards the bottom-right). Pieces can be 
+left out or set to * to use the matching default pieces (50%x50%~0~0).
+.PD 0
+.br
+Examples:
+.br
+50%x50%+0+0 fills the top-left quarter of the screen.
+.br
+50%x50%-0+0 top-right quarter
+.br
+100x100--50+-50 -- 100 pixel square, centered at top-right screen edge, 3/4 of window beyond screen edges.
+.br
+***-0 or *x**-0 -- default size and horizontal position, but moved to bottom of screen.
+.br
+50%x50%~-50%~-50% -- top-left quarter again.
+.PD
+\#-----------------------------------------------------------------------------------------
+.SH RETURN VALUE
+.PD 0
+.TP
+.B 0
+Success.
+.TP
+.B 1
+Error connecting to X server or opening windows.
+.PD
+\#-----------------------------------------------------------------------------------------
+.SH COMMANDS
+Commands are case-insensitive, but symbol names are not. Arguments are separated by whitespace
+unless quoted (double quotes and/or backslashes, the usual).
+.br
+The usual readline functions work (tab-completion, history, ...).
+\#-----------------------------------------------------------------------------------------
+.TP
+\fI(nothing)\fR
+A blank line switches keyboard focus to the plot window.
+Pressing <Enter> or <Tab> on the plot window switches back to the terminal.
+\#-----------------------------------------------------------------------------------------
+.TP
+\fBhelp\fR|\fBh\fR [\fIcommand\fR]
+Show help (usage mainly) on \fIcommand\fR or list all commands.
+\#-----------------------------------------------------------------------------------------
+.TP
+.BR quit "|" q
+Close window and quit. Ctrl-D also works.
+\#-----------------------------------------------------------------------------------------
+.TP
+.PD 0
+\fBls\fR|\fBlist\fR [\fBall\fR|\fBfunctions\fR|\fBparameters\fR|\fBgraphs\fR|\fBconstants\fR|\fBvariables\fR|\fBbuiltins\fR]...
+Lists the specified items. Items can be shortened to their first letter.
+.br
+\fBls\fR is equivalent to \fBls fpg\fR.
+.PD
+\#-----------------------------------------------------------------------------------------
+.TP
+\fBread\fR|\fBr\fR \fIfile\fR
+Loads \fIfile\fR, replacing all graphs, parameters, definitions and settings.
+.TP
+.BR "write " [\fIfile\fR]
+Saves \fIfile\fR. If \fIfile\fR is not given, uses the file path from the last read command.
+\#-----------------------------------------------------------------------------------------
+.TP
+\fBselect\fR|\fBsel\fR [\fIgraph_index\fR]
+Prints or changes the currently selected graph.
+Other commands like \fBgraph\fR or \fBls v\fR operate on this graph.
+Indexes start at 0 and negative indexes count from the end of the list.
+The \fBselect\fR is optional (entering just an integer will select the matching graph).
+\#-----------------------------------------------------------------------------------------
+.TP
+\fBgraph\fR|\fBg\fR [\fIf1\fR [\fB; \fIf2\fR [\fB; \fIf3\fR]]]
+Prints (same as \fBls\fR) or changes the selected graph.
+Tab-completion works only on a blank function and will fill in the current expressions
+for editing. Passing \fIfi\fR as \fB-\fR keeps the current expression for that component.
+.br
+Quoting is not needed, because \fB;\fR separates the fields.
+.TP
+\fBparam\fR|\fBp\fR \fIparameter\fR [\fIvalue\fR]
+Prints (same as \fBls\fR again) or changes the value of the named parameter.
+\fIvalue\fR can be any expression (f.e. \fBparam x 2x\fR doubles the value of x).
+\#-----------------------------------------------------------------------------------------
+.TP
+\fBanimate\fR|\fBanim\fR \fIparameter\fR \fIv0\fR \fIv1\fR [\fIdt\fR] [\fBrepeat\fR|\fBlinear\fR|\fBsine\fR|\fBpingpong\fR] [\fIreps\fR]
+Animates the parameter from \fIv0\fR (\fB-\fR for the current value) to \fIv1\fR over
+the duration of \fIdt\fR seconds (default: 1).
+.br
+The modes are:
+.br
+\fBrepeat\fR (default): Second repetition starts at \fIv0\fR again.
+.br
+\fBlinear\fR: Second repetition goes from \fIv1\fR to \fIv1+(v1-v0)\fR, etc.
+.br
+\fBsine\fR: Uses a sine wave (odd repetition counts end on \fIv1\fR, even ones on \fIv0\fR).
+.br
+\fBpingpong\fR: Second repetition goes from \fIv1\fR back to \fIv0\fR, etc.
+.br
+For \fIreps\fR=1, \fBrepeat\fR, \fBlinear\fR and \fBpingpong\fR are the same.
+.br
+The modes can be shortened to their first letter and \fIreps\fR=\fB*\fR loops until
+the animation is stopped with the \fBstop\fR command.
+.br
+Example: \fBanim p - p+2 0.7 l*\fR increments p by 2 every 0.7 seconds (because of using linear mode -- the "p+2" is only evaluated once).
+.br
+See below for the plot window variant (<\fIn\fR> + arrows).
+.TP
+\fBstop\fR|\fB.\fR [\fIparameter\fR] ...
+Stops the animations for all or the given parameters. As does hitting <.> on the plot window.
+\#-----------------------------------------------------------------------------------------
+.TP
+.BR re " | " im " | " abs " | " asre " | " asim
+Set projection mode to re(f), im(f), abs(f), abs(f)*sgn(re(f)), abs(f)*sgn(im(f)) repectively. Applies to C -> C functions and has no effect on real functions, vector fields, etc.
+\#-----------------------------------------------------------------------------------------
+.SH WINDOW COMMANDS (COMMON)
+Arrow keys
+.SH WINDOW COMMANDS (2D PLOTS)
+Arrow keys
+.SH WINDOW COMMANDS (3D PLOTS)
+Arrow keys
+.SH EXAMPLES
+.TP
+.B "cplot sinx"
+Plots sin(x) with the visual settings from ~/.config/cplot/default.cplot if that file exists.
+.TP
+.B "cplot 'gamma(z) ;' p im"
+Shows imaginary part of the complex gamma function.
+Quoting parentheses may or may not be needed, depending on your shell.
+Quoting the semicolon is needed in most shells.
+.TP
+.B "cplot x + y/2 \\\; fg ff0000"
+Draws some function with red fill color. Quoting the function is not needed (the arguments are automatically combined into a single function).
+.TP
+.B "cplot 'x + y/2' : fg ff0000"
+Same thing. Colons and semicolons are equivalent.
+\#-----------------------------------------------------------------------------------------
+.SH FILES
+.TP
+.B "$HOME/.config/cplot/config"
+configuration file
+.TP
+.B "$PREFIX/share/cplot/gallery/"
+Default gallery folder (used by open without arguments). 
+\#-----------------------------------------------------------------------------------------
+.SH BUGS
+This needs a real GUI.
+.SH AUTHOR
+.MT th@zoon.cc
+Torsten Hilgenberg
+.ME
+

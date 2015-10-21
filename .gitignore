@@ -1,0 +1,10 @@
+*.o
+/cplot
+*.dblite
+
+*.swp
+*.cc_
+*.h_
+
+/Gallery/
+/User Gallery/
