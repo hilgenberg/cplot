@@ -19,6 +19,7 @@ Work in progress. Build needs:
 - libz, libpthread, libreadline
 - libX11, libXi
 - GL, GLU, GLEW
+- pangocairo
 - boost headers
 
 After building (just *scons* and there's no release build yet),
