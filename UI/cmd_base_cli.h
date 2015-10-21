@@ -6,9 +6,6 @@
 #include <vector>
 #include "Command.h"
 
-bool is_int(const std::string &s, int &v_);
-bool has_prefix(const std::string &s, const char *p, size_t &l);
-
 struct CommandInfo
 {
 	CommandInfo(const char *n, const char *n2, CID cid,

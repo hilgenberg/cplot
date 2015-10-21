@@ -6,34 +6,6 @@
 #include <algorithm>
 #include "../Utility/StringFormatting.h"
 
-bool is_int(const std::string &s, int &v_)
-{
-	int v = 0;
-	int sign = 1;
-	size_t i = 0, n = s.length();
-	if (!n) return false;
-	if      (s[0] == '-'){ ++i; sign = -1; }
-	else if (s[0] == '+'){ ++i;            }
-	if (i >= n) return false;
-
-	for (; i < n; ++i)
-	{
-		char c = s[i];
-		if (!isdigit(c)) return false;
-		v *= 10; v += c - '0';
-	}
-	v_ = sign * v;
-	return true;
-}
-bool has_prefix(const std::string &s, const char *p, size_t &l)
-{
-	l = strlen(p);
-	if (s.length() < l) return false;
-	if (strncasecmp(s.c_str(), p, l) != 0) return false;
-	while (l < s.length() && isspace(s[l])) ++l;
-	return true;
-}
-
 //---------------------------------------------------------------------------------------------
 //--- CLI Command Helpers ---------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------

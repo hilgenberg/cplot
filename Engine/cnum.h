@@ -175,6 +175,8 @@ bool prints_sum(const cnum &z);  // x+iy, x-iy
  */
 cnum evaluate(const std::string &s, const Namespace &ns);
 
+cnum evaluate(const std::string &s); // in default RootNamespace
+
 /** @} */
 
 inline void sincos(double angle, double &sin_value, double &cos_value)

@@ -43,6 +43,10 @@ double parse_double(const std::string &s, const Namespace &ns)
 #define VALUES(...) values=[]{ const char *v[]={__VA_ARGS__}; return std::vector<std::string>(v,v+sizeof(v)/sizeof(v[0]));}
 void Plot::init_properties()
 {
+	//-----------------------------------------------------------------------------------
+	// PlotOptions
+	//-----------------------------------------------------------------------------------
+
 	Property &fog = props["fog"];
 	fog.desc = "fog density";
 	fog.vis  = [this]{ return axis.type() != Axis::Rect; };
@@ -55,11 +59,50 @@ void Plot::init_properties()
 	aa.set  = [this](const std::string &v){ options.aa_mode = parse_aa(v); };
 	aa.VALUES("off", "lines", "4x", "8x", "4a", "8a");
 		
+	Property &ccp = props["ccp"];
+	ccp.desc = "custom clipping plane";
+	ccp.vis  = [this]{ return axis.type() != Axis::Rect; };
+	ccp.get  = [this]()->std::string{ return 
+			!options.clip.on() ? "off" :
+			options.clip.locked() ? "lock" : "on"; };
+	ccp.set  = [this](const std::string &s)
+	{
+		GL_ClippingPlane &p = options.clip;
+		if (s == "off" || s == "0") p.on(false);
+		else if (s == "on" || s == "1"){ p.on(true); p.locked(false); }
+		else if (s == "lock" || s == "locked" || s == "l"){ p.on(true); p.locked(true); }
+		else throw error("Not a valid clip state", s);
+	};
+	ccp.VALUES("off", "on", "locked");
+	
+	Property &ccd = props["ccd"];
+	ccd.desc = "custom clipping plane distance";
+	ccd.vis  = ccp.vis;
+	ccd.get  = [this]()->std::string{ return format("%g", -options.clip.distance()); };
+	ccd.set  = [this](const std::string &s)
+	{
+		GL_ClippingPlane &p = options.clip;
+		double d = parse_double(s, ns);
+		if (d < -2.0) d = -2.0; else if (d > 2.0) d = 2.0;
+		p.distance((float)-d);
+	};
+
+	//-----------------------------------------------------------------------------------
+	// Axis
+	//-----------------------------------------------------------------------------------
+
 	Property &ac = props["ac"];
 	ac.desc = "axis color";
 	ac.vis  = [this]{ return !axis.options.hidden; };
 	ac.get  = [this]{ return axis.options.axis_color.to_string(); };
+	ac.set  = [this](const std::string &s){ axis.options.axis_color = s; };
 	ac.type = PT_Color;
+
+	Property &bg = props["bg"];
+	bg.desc = "background color";
+	bg.get  = [this]{ return axis.options.background_color.to_string(); };
+	bg.set  = [this](const std::string &s){ axis.options.background_color = s; };
+	bg.type = PT_Color;
 
 	Property &ax = props["axis"];
 	ax.desc = "axis state";
@@ -84,31 +127,10 @@ void Plot::init_properties()
 	};
 	ax.VALUES("off", "on", "line", "grid", "polar");
 
-	Property &ccp = props["ccp"];
-	ccp.desc = "custom clipping plane";
-	ccp.vis  = [this]{ return axis.type() != Axis::Rect; };
-	ccp.get  = [this]()->std::string{ return 
-			!options.clip.on() ? "off" :
-			options.clip.locked() ? "lock" : "on"; };
-	ccp.set  = [this](const std::string &s)
-	{
-		GL_ClippingPlane &p = options.clip;
-		if (s == "off" || s == "0") p.on(false);
-		else if (s == "on" || s == "1"){ p.on(true); p.locked(false); }
-		else if (s == "lock" || s == "locked" || s == "l"){ p.on(true); p.locked(true); }
-		else throw error("Not a valid clip state", s);
-	};
-	ccp.VALUES("off", "on", "locked");
-	Property &ccd = props["ccd"];
-	ccd.desc = "custom clipping plane distance";
-	ccd.vis  = ccp.vis;
-	ccd.get  = [this]()->std::string{ return format("%g", -options.clip.distance()); };
-	ccd.set  = [this](const std::string &s)
-	{
-		GL_ClippingPlane &p = options.clip;
-		double d = parse_double(s, ns);
-		if (d < -2.0) d = -2.0; else if (d > 2.0) d = 2.0;
-		p.distance((float)-d);
-	};
-}
+	// TODO: axis.options.label_font, axis.options.light
+	// TODO: axis.ranges, centers
 
+	//-----------------------------------------------------------------------------------
+	// Camera
+	//-----------------------------------------------------------------------------------
+}

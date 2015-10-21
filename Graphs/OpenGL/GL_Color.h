@@ -41,6 +41,7 @@ struct GL_Color : public Serializable
 
 	std::string to_string() const;
 	GL_Color &operator= (const std::string &s); // throws if parsing fails
+	void hsl(double h, double s, double l); // leaves a as is
 
 	static const std::map<std::string, GL_Color> named_colors(); // red, green, ...
 };

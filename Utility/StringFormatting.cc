@@ -3,6 +3,7 @@
 #include <cstdarg>
 #include <vector>
 #include <cassert>
+#include <cstring>
 
 std::string format(const char *fmt, ...)
 {
@@ -36,3 +37,41 @@ std::string spaces(int n)
 	if (n <= 0) return std::string();
 	return std::string(n, ' ');
 }
+
+bool is_int(const std::string &s, int &v_)
+{
+	int v = 0;
+	int sign = 1;
+	size_t i = 0, n = s.length();
+	if (!n) return false;
+	if      (s[0] == '-'){ ++i; sign = -1; }
+	else if (s[0] == '+'){ ++i;            }
+	if (i >= n) return false;
+
+	for (; i < n; ++i)
+	{
+		char c = s[i];
+		if (!isdigit(c)) return false;
+		v *= 10; v += c - '0';
+	}
+	v_ = sign * v;
+	return true;
+}
+
+bool has_prefix(const char *s, const char *p, bool ignore_case)
+{
+	size_t l = strlen(p);
+	if (strlen(s) < l) return false;
+	auto cmp = ignore_case ? strncasecmp : strncmp;
+	return cmp(s, p, l) == 0;
+}
+
+bool has_prefix(const std::string &s, const char *p, bool ignore_case)
+{
+	size_t l = strlen(p);
+	if (s.length() < l) return false;
+	auto cmp = ignore_case ? strncasecmp : strncmp;
+	return cmp(s.c_str(), p, l) == 0;
+}
+
+

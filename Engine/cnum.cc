@@ -1,6 +1,7 @@
 #include "cnum.h"
 #include "../Utility/StringFormatting.h"
 #include "Namespace/Namespace.h"
+#include "Namespace/RootNamespace.h"
 #include "Namespace/Expression.h"
 #include "Namespace/Constant.h"
 
@@ -61,6 +62,14 @@ cnum evaluate(const std::string &s, const Namespace &ns)
 {
 	ParsingResult result;
 	cnum v = Expression::parse(s, &ns, result);
+	return result.ok ? v : UNDEFINED;
+}
+
+cnum evaluate(const std::string &s)
+{
+	static RootNamespace rns;
+	ParsingResult result;
+	cnum v = Expression::parse(s, &rns, result);
 	return result.ok ? v : UNDEFINED;
 }
 

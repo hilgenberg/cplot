@@ -1,5 +1,18 @@
 #include "cmd_base.h"
 
+// case insensitive and skips whitespace after the prefix
+// l will be total length of the token (prefix + whitespace)
+// returns true iff found.
+static bool eat_prefix(const std::string &s, const char *p, size_t &l)
+{
+	l = strlen(p);
+	if (s.length() < l) return false;
+	if (strncasecmp(s.c_str(), p, l) != 0) return false;
+	while (l < s.length() && isspace(s[l])) ++l;
+	return true;
+}
+
+
 static bool animate(const std::vector<std::string> &args)
 {
 	int na = (int)args.size();
@@ -30,15 +43,15 @@ static bool animate(const std::vector<std::string> &args)
 	if (i < na) // check for type
 	{
 		size_t l = 0;
-		if      (has_prefix(args[i], "linear", l)) type = 'l';
-		else if (has_prefix(args[i], "repeat", l)) type = 'r';
-		else if (has_prefix(args[i], "pingpong", l)) type = 'p';
-		else if (has_prefix(args[i], "ping-pong", l)) type = 'p';
-		else if (has_prefix(args[i], "sine", l)) type = 's';
-		else if (has_prefix(args[i], "l", l)) type = 'l';
-		else if (has_prefix(args[i], "r", l)) type = 'r';
-		else if (has_prefix(args[i], "p", l)) type = 'p';
-		else if (has_prefix(args[i], "s", l)) type = 's';
+		if      (eat_prefix(args[i], "linear", l)) type = 'l';
+		else if (eat_prefix(args[i], "repeat", l)) type = 'r';
+		else if (eat_prefix(args[i], "pingpong", l)) type = 'p';
+		else if (eat_prefix(args[i], "ping-pong", l)) type = 'p';
+		else if (eat_prefix(args[i], "sine", l)) type = 's';
+		else if (eat_prefix(args[i], "l", l)) type = 'l';
+		else if (eat_prefix(args[i], "r", l)) type = 'r';
+		else if (eat_prefix(args[i], "p", l)) type = 'p';
+		else if (eat_prefix(args[i], "s", l)) type = 's';
 
 		if (l < args[i].length())
 		{
