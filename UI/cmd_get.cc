@@ -7,7 +7,7 @@ void cmd_get(PlotWindow &w, Command &cmd)
 		cmd.error("get: invalid arguments");
 		return;
 	}
-	Argument &arg = cmd.args[0];
+	Argument arg = cmd.args[0];
 
 	if (arg.type != Argument::I)
 	{
@@ -31,6 +31,20 @@ void cmd_get(PlotWindow &w, Command &cmd)
 				Parameter &p = *(Parameter*)e;
 				if (!all && !used.count(&p)) continue;
 				cmd.args.push_back(p.name());
+			}
+			break;
+		}
+
+		case '.': // property names
+		{
+			for (auto &i : w.plot.properties())
+			{
+				cmd.args.push_back(i.first);
+			}
+			const Graph *cg = w.plot.current_graph();
+			if (cg) for (auto &i : cg->properties())
+			{
+				cmd.args.push_back(i.first);
 			}
 			break;
 		}

@@ -2,11 +2,11 @@
 
 static bool parse_ls(const std::vector<std::string> &args)
 {
-	#define N 8
-	const char *S[N]   = { "all", "builtins", "variables", "constants", "functions", "parameters", "graphs", "settings" };
-	const char *H[N-1] = { "Builtin Functions", "Variables", "Constants", "Function Definitions", "Parameters", "Graphs", NULL /* no Settings header */ };
+	#define N 7
+	const char *S[N]   = { "all", "builtins", "variables", "constants", "functions", "parameters", "graphs" };
+	const char *H[N-1] = { "Builtin Functions", "Variables", "Constants", "Function Definitions", "Parameters", "Graphs" };
 	bool f[N] = { false };
-	if (args.empty()) f[1] = f[2] = f[3] = true;
+	if (args.empty()) f[4] = f[5] = f[6] = true;
 	else for (auto &s_ : args)
 	{
 		const char *s = s_.c_str();
@@ -32,7 +32,7 @@ static bool parse_ls(const std::vector<std::string> &args)
 	for (int i = 1; i < N; ++i)
 	{
 		if (!f[0] && !f[i]) continue;
-		if (headers){ printf("\n"); if (H[i-1]) printf("[%s]\n", H[i-1]); }
+		if (headers) printf("\n[%s]\n", H[i-1]);
 		cmd.send(CID::LS, S[i][0]);
 	}
 	#undef N
@@ -42,7 +42,7 @@ static bool parse_ls(const std::vector<std::string> &args)
 //--------------------------------------------------------------------------------------------
 
 CommandInfo ci_ls("ls", "list", CID::LS, parse_ls,
-"ls [all | functions | parameters | graphs | settings | constants | variables | builtins | <afpgscvb>]", "Lists the matching items.");
+"ls [all | functions | parameters | graphs | constants | variables | builtins | <afpgcvb>]", "Lists the matching items.");
 
 //--------------------------------------------------------------------------------------------
 
@@ -237,21 +237,7 @@ void cmd_ls(PlotWindow &w, Command &cmd)
 			break;
 		}
 
-		case 's':
-		{
-			printf("[Plot Settings]\n");
-			w.plot.print_properties();
-
-			const Graph *cg = w.plot.current_graph();
-			if (!cg) break;
-
-			printf("\n[Graph Settings]\n");
-			cg->print_properties();
-			break;
-		}
-
 		default: throw std::logic_error("Invalid argument");
-	
 	}
 }
 

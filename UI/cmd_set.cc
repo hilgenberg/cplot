@@ -3,9 +3,8 @@
 static bool parse_set(const std::vector<std::string> &args)
 {
 	int na = (int)args.size();
-	if (na < 1) return false;
 	std::vector<Argument> a;
-	a.emplace_back(args[0]); // property name
+	if (na > 0) a.emplace_back(args[0]); // property name
 	if (na > 1)
 	{
 		a.emplace_back(args[1]); // value
@@ -21,21 +20,35 @@ static bool parse_set(const std::vector<std::string> &args)
 
 //---------------------------------------------------------------------------------------------
 
-CommandInfo ci_set("set", NULL, CID::SET, parse_set, "set <property> [value]",
-"Changes or prints plot and graph settings.");
+CommandInfo ci_set("set", NULL, CID::SET, parse_set, "set [property] [value]",
+"Lists, prints or changes plot and graph settings.");
 
 //---------------------------------------------------------------------------------------------
 
 void cmd_set(PlotWindow &w, Command &cmd)
 {
+	const Graph *cg = w.plot.current_graph();
+	
+	if (cmd.args.empty())
+	{
+		printf("[Plot Settings]\n");
+		w.plot.print_properties();
+
+		if (!cg) return;
+
+		printf("\n[Graph Settings]\n");
+		cg->print_properties();
+		return;
+	}
+
 	auto &name = cmd.get_str(0);
 	auto &P = w.plot.properties();
 	Property *p = NULL;
 	auto i = P.find(name);
 	if (i != P.end()) p = &i->second;
-	else if (w.plot.current_graph())
+	else if (cg)
 	{
-		auto &Q = w.plot.current_graph()->properties();
+		auto &Q = cg->properties();
 		i = Q.find(name);
 		if (i != Q.end()) p = &i->second;
 	}

@@ -31,7 +31,7 @@ static const char *
 static std::function<char*(const char *, int)> current_completer;
 static char *gen(const char *text, int i){ return current_completer(text, i); }
 
-static const char *LS_ARGS[] = {"all", "functions", "parameters", "graphs", "settings", "constants", "variables", "builtins", NULL};
+static const char *LS_ARGS[] = {"all", "functions", "parameters", "graphs", "constants", "variables", "builtins", NULL};
 static const char *ANIM_TYPES[] = {"repeat", "linear", "sine", "pingpong", NULL};
 
 static char *complete_enum(const char *s, int i, const std::vector<std::string> &values, bool ignore_case)
@@ -136,6 +136,21 @@ static char ** complete(const char *text, int start, int end)
 		case CID::LS:
 			current_completer = [](const char *s, int i){ return complete_enum(s, i, LS_ARGS, true); };
 			return rl_completion_matches((char*)text, gen);
+
+		case CID::SET:
+			if (idx == 1)
+			{
+				if (!cmd.send(CID::GET, '.')) return NULL;
+				std::vector<std::string> p;
+				for (auto &r : cmd.args) p.push_back(r.s);
+				current_completer = [p](const char *s, int i){ return complete_enum(s, i, p, false); };
+				return rl_completion_matches((char*)text, gen);
+			}
+			else if (idx == 2)
+			{
+				// TODO: complete depending on property type
+			}
+			break;
 		
 		case CID::READ:
 			if (idx != 1) break;
