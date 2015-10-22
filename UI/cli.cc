@@ -178,7 +178,7 @@ static char ** complete(const char *text, int start, int end)
 			if (idx == 0) return NULL;
 			return rl_completion_matches((char*)text, complete_graph);
 
-		case CID::SELECT:
+		case CID::CG:
 		{
 			if (idx != 1) break;
 			if (!cmd.send(CID::GET, '#')) return NULL;

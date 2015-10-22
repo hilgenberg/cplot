@@ -1,6 +1,6 @@
 #include "cmd_base.h"
 
-static bool gselect(const std::vector<std::string> &args)
+static bool cg(const std::vector<std::string> &args)
 {
 	if (args.size() > 1) return false;
 	std::vector<Argument> a;
@@ -10,18 +10,18 @@ static bool gselect(const std::vector<std::string> &args)
 		if (!is_int(args[0], i)) return false;
 		a.emplace_back(i);
 	}
-	cmd.send(CID::SELECT, std::move(a));
+	cmd.send(CID::CG, std::move(a));
 	return true;
 }
 
 //---------------------------------------------------------------------------------------------
 
-CommandInfo ci_select("select", "sel", CID::SELECT, gselect, "select [graph_number] | graph_number",
+CommandInfo ci_select("cg", NULL, CID::CG, cg, "cg [graph_number] | graph_number",
 "Sets or prints the index of the currently selected graph.");
 
 //---------------------------------------------------------------------------------------------
 
-void cmd_select(PlotWindow &w, Command &cmd)
+void cmd_cg(PlotWindow &w, Command &cmd)
 {
 	int n = w.plot.number_of_graphs();
 	if (cmd.args.empty())

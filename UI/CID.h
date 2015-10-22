@@ -10,7 +10,7 @@ enum class CID // CommandID
 	STOP,   // args: [p]
 	GET,    // arg0: what to return (internal command)
 	SET,    // args: prop [value] (not internal!)
-	SELECT, // [arg0]: graph number
+	CG,     // [arg0]: graph number
 	GRAPH,  // args: comp_idx (0 for all), f1, ...
 	PARAM,  // args: pname, value
 	FOCUS,  // args: none

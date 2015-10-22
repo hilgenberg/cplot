@@ -2,23 +2,20 @@
 
 static bool help(const std::vector<std::string> &args)
 {
-	const char *cols = getenv("COLUMNS");
-	int x = 0, w = cols ? atoi(cols) : 0;
 	if (args.empty())
 	{
+		std::set<std::string> names;
 		printf("\nValid commands are:\n");
 		for (CommandInfo **ci = cli_commands; *ci; ++ci)
 		{
 			CommandInfo &c = **ci;
-			int n = strlen(c.name);
-			if (c.name2) n += 1+strlen(c.name2);
-			bool last = !(ci+1);
-			if (!last) n += 2;
-			if (w > 0 && x > 0 && x+n > w){ puts("\n"); x = 0; }
-			printf("%s", c.name);
-			if (c.name2) printf("/%s", c.name2);
-			if (!last) printf(", ");
-			x += n;
+			names.insert(c.name2 ? format("%s/%s", c.name, c.name2) : c.name);
+		}
+		bool first = true;
+		for (auto &s : names)
+		{
+			if (!first) printf(", "); first = false;
+			printf("%s", s.c_str());
 		}
 		printf("\n\nFor help on a specific command: help <command>\n"
 		       "Details are in the man page.\n");
