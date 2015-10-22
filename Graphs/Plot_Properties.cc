@@ -104,6 +104,13 @@ void Plot::init_properties()
 	bg.set  = [this](const std::string &s){ axis.options.background_color = s; };
 	bg.type = PT_Color;
 
+	Property &af = props["af"];
+	af.desc = "axis font";
+	af.vis  = [this]{ return !axis.options.hidden; };
+	af.get  = [this]{ return axis.options.label_font.to_string(); };
+	af.set  = [this](const std::string &s){ axis.options.label_font = s; };
+	af.type = PT_Font;
+
 	Property &ax = props["axis"];
 	ax.desc = "axis state";
 	ax.vis  = [this]{ return axis.type() != Axis::Invalid; };

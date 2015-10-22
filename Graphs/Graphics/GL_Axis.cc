@@ -226,7 +226,7 @@ void GL_Axis::draw2D() const
 		
 		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 		
-		GL_Font font("Lucida Grande", 9.0f);
+		GL_Font font(axis.options.label_font);
 		font.color = caxis;
 		labelCache.font(font);
 		labelCache.start();
@@ -286,7 +286,8 @@ void GL_Axis::draw3D() const
 
 	// XYZ-labels
 	labelCache.start();
-	GL_Font font("Lucida Grande", 18.0f);
+	GL_Font font(axis.options.label_font);
+	font.size *= 2.0f;
 	font.color = axis.options.axis_color;
 	labelCache.font(font);
 	
@@ -544,7 +545,8 @@ void GL_Axis::drawSphere() const
 
 	// labels
 	labelCache.start();
-	GL_Font font("Lucida Grande", 26.0f);
+	GL_Font font(axis.options.label_font);
+	font.size *= 3.0f;
 	font.color = caxis;
 	caxis.set();
 	labelCache.font(font);

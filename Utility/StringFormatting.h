@@ -32,6 +32,7 @@ inline std::exception error(const char *what, const std::string &who, bool stupi
 // TODO: Does not handle overflow/underflow
 // TODO: There's probably a faster library function for this
 bool is_int(const std::string &s, int &value);
+bool is_int(const char *s, int &value);
 
 bool has_prefix(const std::string &s, const char *prefix, bool ignore_case);
 bool has_prefix(const char *s, const char *prefix, bool ignore_case);

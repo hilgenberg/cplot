@@ -15,6 +15,9 @@ struct GL_Font : public Serializable
 	virtual void load(Deserializer &s);
 	bool visible() const{ return color.visible() && size > 1e-12f; }
 	bool operator== (const GL_Font &f) const{ return name==f.name && color==f.color && fabs(size-f.size) < 1e-12f; }
+
+	std::string to_string() const;
+	GL_Font& operator= (const std::string &s);
 };
 	
 std::ostream &operator<<(std::ostream &os, const GL_Font &f);

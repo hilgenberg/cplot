@@ -38,10 +38,26 @@ std::string spaces(int n)
 	return std::string(n, ' ');
 }
 
+bool is_int(const char *s, int &v_)
+{
+	int v = 0, sign = 1;
+	if      (*s == '-'){ ++s; sign = -1; }
+	else if (*s == '+'){ ++s;            }
+	if (!*s) return false;
+
+	for (; *s; ++s)
+	{
+		char c = *s;
+		if (!isdigit(c)) return false;
+		v *= 10; v += c - '0';
+	}
+	v_ = sign * v;
+	return true;
+}
+
 bool is_int(const std::string &s, int &v_)
 {
-	int v = 0;
-	int sign = 1;
+	int v = 0, sign = 1;
 	size_t i = 0, n = s.length();
 	if (!n) return false;
 	if      (s[0] == '-'){ ++i; sign = -1; }
