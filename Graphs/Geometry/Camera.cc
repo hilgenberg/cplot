@@ -222,6 +222,9 @@ void Camera::zoom(double f)
 
 void Camera::normalize()
 {
+	if (!std::isnormal(z) || z > 25.0) z = 25.0;
+	else if (z < .1) z = .1;
+
 	assert(fov > 0.0 && fov < M_PI);
 	assert(z > 0.0);
 	// used to normalize the rotation here

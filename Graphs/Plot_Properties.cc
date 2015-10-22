@@ -196,7 +196,7 @@ void Plot::init_properties()
 	ax.VALUES("off", "on", "line", "grid", "polar");
 
 	// TODO: axis.options.light
-	// TODO: axis.ranges, centers
+
 	Property &rx = props["rx"], &ry = props["ry"], &rz = props["rz"], &irx = props["irx"], &iry = props["iry"];
 	rx.desc  = "axis x range";
 	ry.desc  = "axis y range";
@@ -221,4 +221,28 @@ void Plot::init_properties()
 	//-----------------------------------------------------------------------------------
 	// Camera
 	//-----------------------------------------------------------------------------------
+
+	Property &zoom = props["zoom"];
+	zoom.desc = "camera zoom";
+	zoom.vis  = [this]{ return axis.type() != Axis::Rect; };
+	zoom.get  = [this]()->std::string{ return format("%g", 1.0/camera.zoom()); };
+	zoom.set  = [this](const std::string &s){ camera.set_zoom(1.0/parse_double(s, ns)); };
+
+	Property &phi = props["cam.phi"];
+	phi.desc = "camera rotation in degrees";
+	phi.vis  = zoom.vis;
+	phi.get  = [this]()->std::string{ return format("%.2g", camera.phi()); };
+	phi.set  = [this](const std::string &s){ camera.set_phi(parse_double(s, ns)); };
+
+	Property &psi = props["cam.psi"];
+	psi.desc = "camera elevation in degrees";
+	psi.vis  = zoom.vis;
+	psi.get  = [this]()->std::string{ return format("%.2g", camera.psi()); };
+	psi.set  = [this](const std::string &s){ camera.set_psi(parse_double(s, ns)); };
+
+	Property &theta = props["cam.theta"];
+	theta.desc = "camera roll in degrees";
+	theta.vis  = zoom.vis;
+	theta.get  = [this]()->std::string{ return format("%.2g", camera.theta()); };
+	theta.set  = [this](const std::string &s){ camera.set_theta(parse_double(s, ns)); };
 }

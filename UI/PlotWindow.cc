@@ -188,12 +188,12 @@ bool PlotWindow::handle_key(KeySym key, const char *s, bool release)
 			case 'G': if (g && g->toggle_grid(true)) redraw(); return true;
 
 			case 'e': plot.axis.equal_ranges(); plot.recalc(); redraw(); return true;
-			case 'u': view(  0,  90); return true;
-			case 'U': view(  0, -90); return true;
-			case 'f': view(  0, 0.3); return true;
-			case 'F': view(180, 0.3); return true;
-			case 'r': view(-90, 0.3); return true;
-			case 'R': view( 90, 0.3); return true;
+			case 't': view(  0,  90); return true;
+			case 'T': view(  0, -90); return true;
+			case 'f': view(  0,   0); return true;
+			case 'F': view(180,   0); return true;
+			case 's': view(-90,   0); return true;
+			case 'S': view( 90,   0); return true;
 			case 'z': plot.axis.reset_center(); plot.recalc(); redraw(); return true;
 
 			/*
@@ -208,12 +208,6 @@ bool PlotWindow::handle_key(KeySym key, const char *s, bool release)
 			case 'V': [settingsBox  cycle:settingsBox.vfMode      direction:-1]; return;
 
 			case 'e': [axisBox equalRanges]; return;
-			case 'u': [axisBox     topView]; return;
-			case 'U': [axisBox  bottomView]; return;
-			case 'f': [axisBox   frontView]; return;
-			case 'F': [axisBox    backView]; return;
-			case 'r': [axisBox   rightView]; return;
-			case 'R': [axisBox    leftView]; return;
 			case 'z': [axisBox  centerAxis]; return;*/
 
 			case '\r':
