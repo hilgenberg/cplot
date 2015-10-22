@@ -41,9 +41,19 @@ struct Plot : public Serializable, public PropertyList
 	double               pixel_size() const{ return camera.pixel_size(axis); }
 	Axis::Type           axis_type() const;
 	std::set<Parameter*> used_parameters() const;
+	int used_inrange() const
+	{
+		int R = 0; 
+		for (Graph *g : graphs)
+		{
+			if (g->options.hidden) continue;
+			int r = g->inRangeDimension();
+			if (r > R) R = r;
+		}
+		return R;
+	}
 
 	Namespace           &ns;
-	
 	Axis                 axis;
 	Camera               camera;
 	PlotOptions          options;

@@ -23,6 +23,9 @@ struct Property
 	bool visible() const{ return !vis || vis(); }
 };
 
+#define VALUES(...) values=[]{ const char *v[]={__VA_ARGS__}; return std::vector<std::string>(v,v+sizeof(v)/sizeof(v[0]));}
+// for static list of values - usage: prop.VALUES("foo", "bar");
+
 class PropertyList
 {
 public:
