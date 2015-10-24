@@ -118,13 +118,17 @@ void GraphOptions::load(Deserializer &s)
 	}
 }
 
-Graph::Graph(Plot &p) : plot(p), gl(NULL), ex(NULL), m_type(R_R), m_coords(GC_Cartesian), m_mode(GM_Graph), m_gl_class(-1), m_need_update(true)
+Graph::Graph(Plot &p)
+: plot(p)
+, gl(NULL), ex(NULL)
+, m_type(R_R), m_coords(GC_Cartesian), m_mode(GM_Graph)
+, m_gl_class(-1), m_need_update(true)
 {
 	ins.link(&p.ns);
 }
 
 Graph::Graph(const Graph &g)
-: plot(g.plot)
+: PropertyList(), plot(g.plot)
 , options(g.options)
 , m_f1(g.m_f1), m_f2(g.m_f2), m_f3(g.m_f3)
 , m_type(g.m_type)

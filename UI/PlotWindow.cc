@@ -286,13 +286,17 @@ void PlotWindow::draw()
 
 	if (plot.axis_type() == Axis::Invalid)
 	{
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
+		glMatrixMode(GL_PROJECTION); glLoadIdentity();
 		double hr = plot.camera.aspect();
 		glOrtho(-1.0, 1.0, -hr, hr, -1.0, 1.0);
+		glMatrixMode(GL_MODELVIEW); glLoadIdentity();
+
 		float y = 0.0f;
 		glClearColor(y, y, y, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glDepthMask(GL_FALSE);
+		glDisable(GL_DEPTH_TEST);
+
 		double r = std::min(hr, 1.0/hr)*0.5, x0=0.0, y0=0.0;
 		y = 0.035f;
 		glColor4f(y, y, y, 1.0f);

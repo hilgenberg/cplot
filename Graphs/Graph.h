@@ -308,6 +308,7 @@ public:
 
 protected:
 	virtual void init_properties();
+	virtual const Namespace &pns() const;
 
 private:
 	std::string m_f1, m_f2, m_f3;

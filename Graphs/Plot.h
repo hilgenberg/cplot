@@ -90,6 +90,7 @@ struct Plot : public Serializable, public PropertyList
 
 protected:
 	virtual void init_properties();
+	virtual const Namespace &pns() const { return ns; }
 
 private:
 	std::vector<Graph*> graphs;

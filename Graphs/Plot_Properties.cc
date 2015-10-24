@@ -34,74 +34,6 @@ static inline AntialiasMode parse_aa(const std::string &s)
 	throw error("Not a valid aa mode", s);
 }
 
-double parse_double(const std::string &s, const Namespace &ns)
-{
-	cnum v = evaluate(s, ns);
-	if (!defined(v) || !is_real(v)) throw error("Not a real number", s);
-	return v.real();
-}
-
-void parse_range(const std::string &s, const Namespace &ns, double &c0, double &r0)
-{
-	// input range is [c0-r0, c0+r0]
-	// syntax: [x0,x1], (x0,x1), [x0;x1], (x0;x1)
-	//         xm+-r, r, xm+-
-
-	size_t n = s.length(); if (!n) throw std::runtime_error("Invalid range");
-
-	// intervals
-	if (s[0] == '(' && s[n-1] == ')' || s[0] == '[' && s[n-1] == ']')
-	{
-		int pl = 0, nc = 0, c;
-		for (size_t i = 1; i+1 < n; ++i)
-		{
-			switch (s[i])
-			{
-				case '(': ++pl; break;
-				case ')': --pl; break;
-				case ',':
-				case ';': if (!pl){ ++nc; c = i; } break;
-			}
-		}
-		if (nc == 1)
-		{
-			double a = parse_double(s.substr(1, c-1), ns);
-			double b = parse_double(s.substr(c+1, n-c-2), ns);
-			c0 = (a+b)*0.5;
-			r0 = fabs(b-a)*0.5;
-			return;
-		}
-	}
-
-	// m +- r
-	int pl = 0, pm = -1;
-	for (size_t i = 0; i < n; ++i)
-	{
-		switch (s[i])
-		{
-			case '(': ++pl; break;
-			case ')': --pl; break;
-			case '+': if (!pl && i+1 < n && s[i+1] == '-') pm = i; break;
-		}
-	}
-	if (pm == 0)
-	{
-		r0 = fabs(parse_double(s.substr(2), ns));
-	}
-	else if (pm > 0)
-	{
-		// 1+-2
-		double a = parse_double(s.substr(0, pm), ns);
-		double b = parse_double(s.substr(pm+2), ns);
-		c0 = a;
-		r0 = fabs(b);
-	}
-	else
-	{
-		c0 = parse_double(s, ns);
-	}
-}
-
 void Plot::init_properties()
 {
 	//-----------------------------------------------------------------------------------
@@ -111,8 +43,8 @@ void Plot::init_properties()
 	Property &fog = props["fog"];
 	fog.desc = "fog density";
 	fog.vis  = [this]{ return axis.type() != Axis::Rect; };
-	fog.get  = [this]{ return format("%g", options.fog); };
-	fog.set  = [this](const std::string &s){ options.fog = parse_double(s, ns); };
+	fog.get  = [this]{ return format_percentage(options.fog); };
+	fog.set  = [this](const std::string &s){ options.fog = parse_percentage(s); };
 
 	Property &aa = props["aa"];
 	aa.desc = "antialiasing mode";
@@ -139,13 +71,12 @@ void Plot::init_properties()
 	Property &ccd = props["ccd"];
 	ccd.desc = "custom clipping plane distance";
 	ccd.vis  = ccp.vis;
-	ccd.get  = [this]()->std::string{ return format("%g", -options.clip.distance()); };
+	ccd.get  = [this]()->std::string{ return format_double(-options.clip.distance()); };
 	ccd.set  = [this](const std::string &s)
 	{
-		GL_ClippingPlane &p = options.clip;
-		double d = parse_double(s, ns);
+		double d = parse_double(s);
 		if (d < -2.0) d = -2.0; else if (d > 2.0) d = 2.0;
-		p.distance((float)-d);
+		options.clip.distance((float)-d);
 	};
 
 	//-----------------------------------------------------------------------------------
@@ -207,16 +138,16 @@ void Plot::init_properties()
 	rz.vis  = [this]{ return axis.type() == Axis::Box; };
 	irx.vis = [this]{ return used_inrange() > 0; };
 	iry.vis = [this]{ return used_inrange() > 1; };
-	rx.get  = [this]()->std::string{ return format("[%g;%g]", axis.min(0), axis.max(0)); };
-	ry.get  = [this]()->std::string{ return format("[%g;%g]", axis.min(1), axis.max(1)); };
-	rz.get  = [this]()->std::string{ return format("[%g;%g]", axis.min(2), axis.max(2)); };
-	irx.get = [this]()->std::string{ return format("[%g;%g]", axis.in_min(0), axis.in_max(0)); };
-	iry.get = [this]()->std::string{ return format("[%g;%g]", axis.in_min(1), axis.in_max(1)); };
-	rx.set  = [this](const std::string &s){ double c = axis.center(0), r = axis.range(0); parse_range(s,ns,c,r); axis.center(0,c); axis.range(0,r); update(CH_AXIS_RANGE); };
-	ry.set  = [this](const std::string &s){ double c = axis.center(1), r = axis.range(1); parse_range(s,ns,c,r); axis.center(1,c); axis.range(1,r); update(CH_AXIS_RANGE); };
-	rz.set  = [this](const std::string &s){ double c = axis.center(2), r = axis.range(2); parse_range(s,ns,c,r); axis.center(2,c); axis.range(2,r); update(CH_AXIS_RANGE); };
-	irx.set = [this](const std::string &s){ double c = axis.in_center(0), r = axis.in_range(0); parse_range(s,ns,c,r); axis.in_center(0,c); axis.in_range(0,r); update(CH_IN_RANGE); };
-	iry.set = [this](const std::string &s){ double c = axis.in_center(1), r = axis.in_range(1); parse_range(s,ns,c,r); axis.in_center(1,c); axis.in_range(1,r); update(CH_IN_RANGE); };
+	rx.get  = [this]()->std::string{ return format_range(axis.min(0), axis.max(0), true); };
+	ry.get  = [this]()->std::string{ return format_range(axis.min(1), axis.max(1), true); };
+	rz.get  = [this]()->std::string{ return format_range(axis.min(2), axis.max(2), true); };
+	irx.get = [this]()->std::string{ return format_range(axis.in_min(0), axis.in_max(0), true); };
+	iry.get = [this]()->std::string{ return format_range(axis.in_min(1), axis.in_max(1), true); };
+	rx.set  = [this](const std::string &s){ double c = axis.center(0), r = axis.range(0); parse_range(s,c,r); axis.center(0,c); axis.range(0,r); update(CH_AXIS_RANGE); };
+	ry.set  = [this](const std::string &s){ double c = axis.center(1), r = axis.range(1); parse_range(s,c,r); axis.center(1,c); axis.range(1,r); update(CH_AXIS_RANGE); };
+	rz.set  = [this](const std::string &s){ double c = axis.center(2), r = axis.range(2); parse_range(s,c,r); axis.center(2,c); axis.range(2,r); update(CH_AXIS_RANGE); };
+	irx.set = [this](const std::string &s){ double c = axis.in_center(0), r = axis.in_range(0); parse_range(s,c,r); axis.in_center(0,c); axis.in_range(0,r); update(CH_IN_RANGE); };
+	iry.set = [this](const std::string &s){ double c = axis.in_center(1), r = axis.in_range(1); parse_range(s,c,r); axis.in_center(1,c); axis.in_range(1,r); update(CH_IN_RANGE); };
 
 	//-----------------------------------------------------------------------------------
 	// Camera
@@ -225,24 +156,24 @@ void Plot::init_properties()
 	Property &zoom = props["zoom"];
 	zoom.desc = "camera zoom";
 	zoom.vis  = [this]{ return axis.type() != Axis::Rect; };
-	zoom.get  = [this]()->std::string{ return format("%g", 1.0/camera.zoom()); };
-	zoom.set  = [this](const std::string &s){ camera.set_zoom(1.0/parse_double(s, ns)); };
+	zoom.get  = [this]()->std::string{ return format_double(1.0/camera.zoom()); };
+	zoom.set  = [this](const std::string &s){ camera.set_zoom(1.0/parse_double(s)); };
 
 	Property &phi = props["cam.phi"];
 	phi.desc = "camera rotation in degrees";
 	phi.vis  = zoom.vis;
 	phi.get  = [this]()->std::string{ return format("%.2g", camera.phi()); };
-	phi.set  = [this](const std::string &s){ camera.set_phi(parse_double(s, ns)); };
+	phi.set  = [this](const std::string &s){ camera.set_phi(parse_double(s)); };
 
 	Property &psi = props["cam.psi"];
 	psi.desc = "camera elevation in degrees";
 	psi.vis  = zoom.vis;
 	psi.get  = [this]()->std::string{ return format("%.2g", camera.psi()); };
-	psi.set  = [this](const std::string &s){ camera.set_psi(parse_double(s, ns)); };
+	psi.set  = [this](const std::string &s){ camera.set_psi(parse_double(s)); };
 
 	Property &theta = props["cam.theta"];
 	theta.desc = "camera roll in degrees";
 	theta.vis  = zoom.vis;
 	theta.get  = [this]()->std::string{ return format("%.2g", camera.theta()); };
-	theta.set  = [this](const std::string &s){ camera.set_theta(parse_double(s, ns)); };
+	theta.set  = [this](const std::string &s){ camera.set_theta(parse_double(s)); };
 }

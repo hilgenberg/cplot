@@ -4,6 +4,7 @@
 #include <string>
 #include <functional>
 #include <stdio.h>
+#include <stdarg.h>
 
 enum PropertyType{ PT_Color, PT_Bool, PT_Font, PT_Other };
 
@@ -21,46 +22,30 @@ struct Property
 	PropertyType type;
 
 	bool visible() const{ return !vis || vis(); }
+
+	void set_enum(int &x, ...);
+	void set_enum(std::function<void(void)> post_set, int &x, ...);
+private:
+	void set_enum(std::function<void(void)> ps, int &x, va_list va);
 };
 
 #define VALUES(...) values=[]{ const char *v[]={__VA_ARGS__}; return std::vector<std::string>(v,v+sizeof(v)/sizeof(v[0]));}
 // for static list of values - usage: prop.VALUES("foo", "bar");
 
+class Namespace;
 class PropertyList
 {
 public:
+	PropertyList() = default;
+	PropertyList(const PropertyList &) : props(/*don't copy*/){}
+
 	std::map<std::string, Property> &properties() const
 	{
 		if (props.empty()) const_cast<PropertyList*>(this)->init_properties();
 		return const_cast<std::map<std::string, Property> &>(props);
 	}
 
-	void print_properties() const
-	{
-		if (props.empty()) const_cast<PropertyList*>(this)->init_properties();
-		std::vector<const std::string *> N, D;
-		std::vector<std::string> V;
-		int l1 = 0, l2 = 0, l;
-		for (auto &i : props)
-		{
-			const Property &p = i.second;
-			if (!p.visible() || !p.get) continue;
-			N.push_back(&i.first);
-			std::string v = p.get(); V.push_back(v);
-			D.push_back(&p.desc);
-			l = (int)i.first.length(); if (l > l1) l1 = l;
-			l = (int)v.length();       if (l > l2) l2 = l;
-		}
-
-		l = (int)N.size();
-		for (int i = 0; i < l; ++i)
-		{
-			printf("%-*s = %-*s (%s)\n", 
-					l1, (*N[i]).c_str(), 
-					l2, V[i].c_str(), 
-					(*D[i]).c_str());
-		}
-	}
+	void print_properties() const;
 
 protected:
 	mutable std::map<std::string, Property> props;
@@ -68,12 +53,16 @@ protected:
 	// this should actually be const, but the setters would need too
 	// much casting if we enforce that
 	virtual void init_properties() = 0;
+
+	virtual const Namespace &pns() const = 0;
+
+	double parse_double(const std::string &s) const;
+	double parse_percentage(const std::string &s) const; // in [0,1]
+	bool   parse_bool(const std::string &s) const;
+	void parse_range(const std::string &s, double &c0, double &r0) const;
+	std::string format_double(double d) const;
+	std::string format_percentage(double d) const;
+	std::string format_bool(bool b) const;
+	std::string format_range(double a, double b, bool minmax) const; // minmax: range is [a,b], else [a-b, a+b] (a = center, b = halfrange)
 };
-
-class GL_Color;
-std::string format(const GL_Color &c);
-void parse(const std::string &s, GL_Color &c);
-
-std::string format(double x);
-void parse(const std::string &s, double &x);
 
