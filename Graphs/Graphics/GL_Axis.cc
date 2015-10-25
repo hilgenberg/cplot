@@ -546,7 +546,7 @@ void GL_Axis::drawSphere() const
 	// labels
 	labelCache.start();
 	GL_Font font(axis.options.label_font);
-	font.size *= 3.0f;
+	font.size *= 2.0f;
 	font.color = caxis;
 	caxis.set();
 	labelCache.font(font);
