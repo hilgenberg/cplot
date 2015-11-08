@@ -255,7 +255,7 @@ static void arities(const PreTokens &T0, int i, int &a_min, int &a_max)
 	if (!t){ a_min = -1; a_max = 0; return; }
 	switch (t->type)
 	{
-		case PreToken::TT_Space:  assert(false); break;
+		case PreToken::TT_Space:  assert(false); a_min = a_max = -1; break;
 		case PreToken::TT_CBar:   a_min = -1; a_max = 0; break;
 		case PreToken::TT_List:   a_min = a_max = (int)t->children.size(); break;
 		case PreToken::TT_Tree:   a_min = a_max = (t->pt ? (int)t->pt->num_children() : 0); break;
@@ -281,10 +281,11 @@ static void arities(const PreTokens &T0, int i, int &a_min, int &a_max)
 					
 				case Token::TT_Pow: a_min = -1; a_max = 0; break; // same as postfix operator
 					
-				default: assert(false); break;
+				default: assert(false); a_min = a_max = -1; break;
 			}
 			break;
 		}
+		default: assert(false); a_min = a_max = -1; break;
 	}
 }
 

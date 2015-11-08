@@ -1,8 +1,14 @@
 #include "Functions.h"
-#include <cassert>
 
-#define BITS(x) (*(uint64_t*)&(x))
-#define RET(x) return (*(double*)&(x))
+union Bits
+{
+	double d; uint64_t i;
+	inline Bits(double   x) : d(x){}
+	inline Bits(uint64_t x) : i(x){}
+};
+
+#define BITS(x) (Bits(x).i)
+#define RET(x) return Bits(x).d
 #define CPX(X) do{ ret.real(X(z.real(), w.real())); ret.imag(X(z.imag(), w.imag())); }while(0)
 #define CP1(X) do{ ret.real(X(z.real())); ret.imag(X(z.imag())); }while(0)
 static inline double FMOD(double x,double y){ return x - y*floor(x/y); }
@@ -313,6 +319,4 @@ void IBIT (const cnum &z, const cnum &w, cnum &ret){ CPX(IBIT); }
 void I_XOR(const cnum &z, const cnum &w, cnum &ret){ CPX(I_XOR); }
 void I_OR (const cnum &z, const cnum &w, cnum &ret){ CPX(I_OR ); }
 void I_AND(const cnum &z, const cnum &w, cnum &ret){ CPX(I_AND); }
-
-
 

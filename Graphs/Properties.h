@@ -23,10 +23,26 @@ struct Property
 
 	bool visible() const{ return !vis || vis(); }
 
-	void set_enum(int &x, ...);
-	void set_enum(std::function<void(void)> post_set, int &x, ...);
-private:
-	void set_enum(std::function<void(void)> ps, int &x, va_list va);
+	struct EnumCvt
+	{
+		std::function<void(int)> set;
+		std::function<int(void)> get;
+		std::function<void(void)> post_set;
+
+		template<typename T> explicit EnumCvt(T &t)
+		: set([&t](int i){ t = (T)i; })
+		, get([&t](){ return (int)t; })
+		{
+		}
+		template<typename T, typename F> EnumCvt(T &t, F ps)
+		: set([&t](int i){ t = (T)i; })
+		, get([&t](){ return (int)t; })
+		, post_set(ps)
+		{
+		}
+	};
+
+	void set_enum(const EnumCvt &cvt, ...);
 };
 
 #define VALUES(...) values=[]{ const char *v[]={__VA_ARGS__}; return std::vector<std::string>(v,v+sizeof(v)/sizeof(v[0]));}

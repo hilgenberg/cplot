@@ -56,7 +56,7 @@ struct ThreadInfo
 					riemann(z, p);
 					p *= (float)(1.0 - 0.0008 * ( (u - ia.in_min[0]) / ia.in_range[0] + (v - ia.in_min[1]) / ia.in_range[1]));
 					break;
-				default: assert(false); break;
+				default: assert(false); exists=false; break;
 			}
 		}
 	}
@@ -167,6 +167,7 @@ struct ThreadInfo
 				
 			default:
 				assert(false);
+				exists = false;
 				break;
 		}
 	}
@@ -269,6 +270,7 @@ struct ThreadInfo
 				
 			default:
 				assert(false);
+				exists = false;
 				break;
 		}
 	}
@@ -360,6 +362,7 @@ struct ThreadInfo
 				
 			default:
 				assert(false);
+				exists = false;
 				break;
 		}
 	}

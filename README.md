@@ -17,12 +17,12 @@ Work in progress. Build needs:
 
 - scons and g++
 - libz, libpthread, libreadline
-- libX11, libXi
+- libX11, libXinput2
 - GL, GLU, GLEW
 - pangocairo
 - boost headers
 
-After building (just *scons* and there's no release build yet),
+After building (just *scons* or *scons --release*),
 try ./cplot test.cplot, press 1 + left/right arrows to change n,
 type *help* for command list, *g csc z^2* to change the function, *q* to quit, ...
 It can actually do quite a bit more, but the UI does not exist yet.

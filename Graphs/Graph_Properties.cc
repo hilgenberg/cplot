@@ -185,8 +185,7 @@ void Graph::init_properties()
 	Property &sm = props["sm"];
 	sm.desc = "shading mode";
 	//TODO vis
-	assert(sizeof(int) == sizeof(ShadingMode));
-	sm.set_enum(RECALC, (int&)options.shading_mode, 
+	sm.set_enum(Property::EnumCvt(options.shading_mode, RECALC), 
 		"points",     Shading_Points,
 		"wireframe",  Shading_Wireframe,
 		"hiddenline", Shading_Hiddenline,
@@ -197,8 +196,7 @@ void Graph::init_properties()
 	Property &hm = props["hm"];
 	hm.desc = "histogram mode";
 	//TODO vis
-	assert(sizeof(int) == sizeof(HistogramMode));
-	hm.set_enum(RECALC, (int&)options.hist_mode, 
+	hm.set_enum(Property::EnumCvt(options.hist_mode, RECALC),
 		"riemann", HM_Riemann,
 		"disc",    HM_Disc,
 		"normal",  HM_Normal,
@@ -207,8 +205,7 @@ void Graph::init_properties()
 	Property &vm = props["vm"];
 	vm.desc = "vector field mode";
 	//TODO vis
-	assert(sizeof(int) == sizeof(VectorfieldMode));
-	vm.set_enum(RECALC, (int&)options.vf_mode, 
+	vm.set_enum(Property::EnumCvt(options.vf_mode, RECALC),
 		"unscaled",   VF_Unscaled,
 		"normalized", VF_Normalized,
 		"direction",  VF_Unit,
@@ -218,8 +215,7 @@ void Graph::init_properties()
 	Property &tm = props["tm"];
 	tm.desc = "texture mode";
 	//TODO vis
-	assert(sizeof(int) == sizeof(TextureProjection));
-	tm.set_enum(RECALC, (int&)options.vf_mode, 
+	tm.set_enum(Property::EnumCvt(options.vf_mode, RECALC),
 		"tile",    TP_Repeat,
 		"center",  TP_Center,
 		"riemann", TP_Riemann,

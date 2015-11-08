@@ -30,8 +30,10 @@ void PropertyList::print_properties() const
 	}
 }
 
-void Property::set_enum(std::function<void(void)> post_set, int &x, va_list ap)
+void Property::set_enum(const EnumCvt &ec, ...)
 {
+	va_list ap; va_start(ap, ec);
+
 	std::map<std::string, int> V;
 	std::map<int, std::string> N;
 	std::vector<std::string>   VS;
@@ -48,34 +50,23 @@ void Property::set_enum(std::function<void(void)> post_set, int &x, va_list ap)
 		V[s0] = v;
 	}
 
-	get = [&x,N]()->std::string
+	get = [ec,N]()->std::string
 	{
-		auto i = N.find(x);
+		auto i = N.find(ec.get());
 		if (i != N.end()) return i->second;
 		return "corrupt";
 	};
-	set = [&x,V,post_set,this](const std::string &s)
+	set = [ec,V,this](const std::string &s)
 	{
 		auto i = V.find(s);
 		if (i != V.end())
 		{
-			x = i->second;
-			if (post_set) post_set();
+			ec.set(i->second);
+			if (ec.post_set) ec.post_set();
 		}
 		else throw std::runtime_error(format("Not a valid %s: \"%s\"", desc.c_str(), s.c_str()));
 	};
 	values = [VS]{ return VS; };
-}
-void Property::set_enum(std::function<void(void)> post_set, int &x, ...)
-{
-	va_list ap; va_start(ap, x);
-	set_enum(post_set, x, ap);
-	va_end(ap);
-}
-void Property::set_enum(int &x, ...)
-{
-	va_list ap; va_start(ap, x);
-	set_enum(std::function<void(void)>(), x, ap);
 	va_end(ap);
 }
 
@@ -131,7 +122,7 @@ void PropertyList::parse_range(const std::string &s, double &c0, double &r0) con
 	// intervals
 	if (s[0] == '(' && s[n-1] == ')' || s[0] == '[' && s[n-1] == ']')
 	{
-		int pl = 0, nc = 0, c;
+		int pl = 0, nc = 0, c = 0;
 		for (size_t i = 1; i+1 < n; ++i)
 		{
 			switch (s[i])

@@ -142,7 +142,7 @@ Rule::Pattern *Rule::Pattern::load(bool replacement, const WorkingTree &t,
 								   const std::map<const Variable *, Range> &types,
 								   std::map<const Variable*, Rule::Pattern*> &vars)
 {
-	Pattern *p;
+	Pattern *p = NULL;
 	
 	switch (t.type)
 	{

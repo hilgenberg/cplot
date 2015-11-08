@@ -482,7 +482,7 @@ ParsingTree *ParsingTree::parse(Token *token, ParsingResult &info, const RootNam
 	// find an operator with lowest precedence
 	//------------------------------------------------------------------------------------------------------------------
 	
-	Token *lowOpToken = NULL; int prec; const Operator *lowOp = NULL; bool implicit = false;
+	Token *lowOpToken = NULL; int prec = -1; const Operator *lowOp = NULL; bool implicit = false;
 	for (Token *t = token; t; t = t->next)
 	{
 		int p; const BinaryOperator *op = NULL; bool imp;
