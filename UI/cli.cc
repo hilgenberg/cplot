@@ -76,7 +76,7 @@ static char *complete_graph(const char *t, int idx)
 	while (isspace(*s)) ++s;
 	if (*s) return NULL;
 
-	if (!cmd.send(CID::GET, (int)'F')) return NULL;
+	if (!cmd.get(GET::CURRENT_GRAPH_EXPRESSIONS)) return NULL;
 	bool first = true;
 	std::string f;
 	for (auto &a : cmd.args)
@@ -140,15 +140,20 @@ static char ** complete(const char *text, int start, int end)
 		case CID::SET:
 			if (idx == 1)
 			{
-				if (!cmd.send(CID::GET, '.')) return NULL;
+				if (!cmd.get(GET::PROPERTY_NAMES)) return NULL;
 				std::vector<std::string> p;
 				for (auto &r : cmd.args) p.push_back(r.s);
 				current_completer = [p](const char *s, int i){ return complete_enum(s, i, p, false); };
 				return rl_completion_matches((char*)text, gen);
 			}
-			else if (idx == 2)
+			else if (idx == 2 && args)
 			{
-				// TODO: complete depending on property type
+				const char *e = args; while (*e && !isspace(*e)) ++e;
+				if (!cmd.get(GET::PROPERTY_VALUES, std::string(args, e))) return NULL;
+				std::vector<std::string> v;
+				for (auto &r : cmd.args) v.push_back(r.s);
+				current_completer = [v](const char *s, int i){ return complete_enum(s, i, v, false); };
+				return rl_completion_matches((char*)text, gen);
 			}
 			break;
 		
@@ -162,7 +167,7 @@ static char ** complete(const char *text, int start, int end)
 		case CID::PARAM:
 			if (idx == 1 || ci->cid == CID::STOP)
 			{
-				if (!cmd.send(CID::GET, 'p')) return NULL;
+				if (!cmd.get(GET::USED_PARAMETER_NAMES)) return NULL;
 				std::vector<std::string> p;
 				for (auto &r : cmd.args) p.push_back(r.s);
 				current_completer = [p](const char *s, int i){ return complete_enum(s, i, p, false); };
@@ -181,7 +186,7 @@ static char ** complete(const char *text, int start, int end)
 		case CID::CG:
 		{
 			if (idx != 1) break;
-			if (!cmd.send(CID::GET, '#')) return NULL;
+			if (!cmd.get(GET::GRAPH_COUNT)) return NULL;
 			int n = cmd.args[0].i;
 			if (n <= 0) return NULL;
 			current_completer = [n](const char *s, int i){ return complete_int(s, i, 0, n-1); };

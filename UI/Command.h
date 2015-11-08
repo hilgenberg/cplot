@@ -53,12 +53,20 @@ public:
 		std::vector<Argument> args(1, a);
 		return send(c, std::move(args));
 	}
+	bool send(CID c, const Argument &a, const Argument &b)
+	{
+		std::vector<Argument> args(1, a);
+		args.push_back(b);
+		return send(c, std::move(args));
+	}
 	bool send(CID c)
 	{
 		std::vector<Argument> args;
 		return send(c, std::move(args));
 	}
 
+	bool get(GET what){ return send(CID::GET, (int)what); }
+	bool get(GET what, const Argument &a){ return send(CID::GET, (int)what, a); }
 
 	void done(){ fflush(stdout); state(false); }
 	void error(const std::string &desc)

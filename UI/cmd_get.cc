@@ -2,9 +2,10 @@
 
 void cmd_get(PlotWindow &w, Command &cmd)
 {
-	if (cmd.args.size() != 1)
+	if (cmd.args.empty())
 	{
 		cmd.error("get: invalid arguments");
+		assert(false);
 		return;
 	}
 	Argument arg = cmd.args[0];
@@ -14,16 +15,18 @@ void cmd_get(PlotWindow &w, Command &cmd)
 		cmd.error("get: invalid argument type");
 		return;
 	}
+	GET what = (GET)arg.i;
 
-	cmd.args.clear();
+	std::vector<Argument> args;
+	std::swap(args, cmd.args);
 	cmd.cid = CID::RETURN;
 
-	switch (arg.i)
+	switch (what)
 	{
-		case 'p': // used parameter names
-		case 'P': // all parameter names
+		case GET::PARAMETER_NAMES:
+		case GET::USED_PARAMETER_NAMES:
 		{
-			bool all = (arg.i == 'P');
+			bool all = (what == GET::PARAMETER_NAMES);
 			std::set<Parameter*> used = w.plot.used_parameters();
 			for (Element *e : w.rns)
 			{
@@ -35,7 +38,7 @@ void cmd_get(PlotWindow &w, Command &cmd)
 			break;
 		}
 
-		case '.': // property names
+		case GET::PROPERTY_NAMES:
 		{
 			for (auto &i : w.plot.properties())
 			{
@@ -49,11 +52,45 @@ void cmd_get(PlotWindow &w, Command &cmd)
 			break;
 		}
 
-		case '#': // graph count
+		case GET::PROPERTY_VALUES:
+		{
+			if (args.size() != 2 || args[1].type != Argument::S)
+			{
+				cmd.error("get: invalid property name");
+				assert(false);
+				return;
+			}
+			std::string &n = args[1].s;
+			auto i = w.plot.properties().find(n);
+			if (i == w.plot.properties().end())
+			{
+				const Graph *cg = w.plot.current_graph();
+				if (cg)
+				{
+					i = cg->properties().find(n);
+					if (i == cg->properties().end())
+					{
+						cmd.error("get: property name not found");
+						return;
+					}
+				}
+			}
+			Property &p = i->second;
+			if (!p.values)
+			{
+				cmd.error("get: not enum type");
+				return;
+			}
+			auto V = p.values();
+			for (auto &v : V) cmd.args.push_back(v);
+			break;
+		}
+
+		case GET::GRAPH_COUNT:
 			cmd.args.push_back((int)w.plot.number_of_graphs());
 			break;
 			
-		case 'F': // current graph def
+		case GET::CURRENT_GRAPH_EXPRESSIONS:
 		{
 			const Graph *cg = w.plot.current_graph();
 			if (!cg){ cmd.error("get: no current graph"); return; }

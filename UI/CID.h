@@ -16,3 +16,12 @@ enum class CID // CommandID
 	FOCUS,  // args: none
 };
 
+enum class GET // things that the GET command can return
+{
+	PARAMETER_NAMES,
+	USED_PARAMETER_NAMES,
+	GRAPH_COUNT,
+	CURRENT_GRAPH_EXPRESSIONS,
+	PROPERTY_NAMES,
+	PROPERTY_VALUES, // arg1: property name
+};
