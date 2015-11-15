@@ -169,6 +169,11 @@ XWindow::XWindow(const std::string &title, char *display_name)
 	};
 	XSetWMProtocols(display, window, proto, 2);
 #endif
+	
+	pid_t pid = getpid();
+	XChangeProperty(display, window, XInternAtom(display, "_NET_WM_PID", False),
+	                XA_CARDINAL, 8 * sizeof(pid_t), PropModeReplace, (unsigned char *)&pid, 1);
+	
 	cdp.release();
 	wdp.release();
 	//~vip is needed
