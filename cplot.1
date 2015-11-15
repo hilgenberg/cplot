@@ -79,6 +79,16 @@ Lists the specified items. Items can be shortened to their first letter.
 .PD
 \#-----------------------------------------------------------------------------------------
 .TP
+\fBrm\fR \fIitem\fR ...
+Deletes the specified items. An item can be a graph index (0, 1, ...), a parameter name,
+or a function definition signature (f(), f(x), f(x,y), ...). The argument names do not have
+to match the ones printed by ls (they can - except for 1-ary functions - also be omitted
+completely, so writing only the commas ("rm f(,,)" instead of "rm f(x,y,z)" f.i.) works
+as well).
+The parantheses are needed to distinguish definitions from parameters though.
+Wildcards are not yet implemented.
+\#-----------------------------------------------------------------------------------------
+.TP
 \fBset\fR [\fIproperty\fR] [\fIvalue\fR]
 Lists (no arguments), prints (one argument), or changes plot and graph properties.
 \#-----------------------------------------------------------------------------------------

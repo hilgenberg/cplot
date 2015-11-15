@@ -93,13 +93,13 @@ CommandInfo *find_command(const char *line, const char **args, int cursor, int *
 //--- Command Info List -----------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------
 
-extern CommandInfo ci_help, ci_ls, ci_anim, ci_stop, ci_graph, ci_param, ci_select, ci_read, ci_set;
+extern CommandInfo ci_help, ci_ls, ci_rm, ci_anim, ci_stop, ci_graph, ci_param, ci_select, ci_read, ci_set;
 
 #define NOOP std::function<bool(const std::vector<std::string>&)>()
 CommandInfo ci_quit("quit", "q", CID::ERROR, NOOP, "quit", "Exits the program.");
 
 CommandInfo *cli_commands[] = {
-	&ci_quit, &ci_help, &ci_anim, &ci_stop, &ci_ls,
+	&ci_quit, &ci_help, &ci_anim, &ci_stop, &ci_ls, &ci_rm,
 	&ci_read, &ci_select, &ci_graph, &ci_param, &ci_set,
 	NULL};
 

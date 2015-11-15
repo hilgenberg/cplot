@@ -6,6 +6,7 @@ enum class CID // CommandID
 	ERROR,  // arg0 is the error string
 	READ,   // arg0 is the file path
 	LS,     // arg0='p' for parameters, etc.
+	RM,     // args: items to delete
 	ANIM,   // args: p, v0, v1, dt, type, reps
 	STOP,   // args: [p]
 	GET,    // arg0: what to return (internal command)
@@ -20,6 +21,7 @@ enum class GET // things that the GET command can return
 {
 	PARAMETER_NAMES,
 	USED_PARAMETER_NAMES,
+	DEFINITION_NAMES,
 	GRAPH_COUNT,
 	CURRENT_GRAPH_EXPRESSIONS,
 	PROPERTY_NAMES,

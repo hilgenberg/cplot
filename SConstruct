@@ -3,6 +3,11 @@ import os
 import fnmatch
 import multiprocessing
 env = Environment(tools=['default','gch'], toolpath='.')
+Decider('MD5-timestamp')
+Help("""
+'scons' builds the debug version,
+'scons --release' the release version.
+""")
 
 # use ncpu jobs
 SetOption('num_jobs', multiprocessing.cpu_count())

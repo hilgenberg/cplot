@@ -85,6 +85,18 @@ struct Plot : public Serializable, public PropertyList
 		}
 		return change;
 	}
+	bool reparse(const std::string &name)
+	{
+		if (name.empty()) return false;
+		bool change = false;
+		for (Graph *g : graphs)
+		{
+			if (!g->uses_object(name)) continue;
+			g->update(CH_EXPRESSION);
+			if (!g->options.hidden) change = true;
+		}
+		return change;
+	}
 	bool needs_update() const{ for (Graph *g : graphs) if (!g->options.hidden && g->needs_update()) return true; return false; }
 	bool at_full_quality() const{ return last_update_was_full_quality; }
 

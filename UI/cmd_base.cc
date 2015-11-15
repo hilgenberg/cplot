@@ -15,6 +15,7 @@ extern void cmd_stop(PlotWindow &w, Command &cmd);
 extern void cmd_ls(PlotWindow &w, Command &cmd);
 extern void cmd_ls(const Parameter &p, const RootNamespace &rns, const std::set<Parameter*> used);
 extern void cmd_ls(const Graph &g, int i, bool selected);
+extern void cmd_rm(PlotWindow &w, Command &cmd);
 extern void cmd_get(PlotWindow &w, Command &cmd);
 extern void cmd_set(PlotWindow &w, Command &cmd);
 extern void cmd_cg(PlotWindow &w, Command &cmd);
@@ -29,6 +30,7 @@ void gui_cmd(Command &cmd, PlotWindow &w)
 		{
 			case CID::READ:   cmd_read (w, cmd); break;
 			case CID::LS:     cmd_ls   (w, cmd); break;
+			case CID::RM:     cmd_rm   (w, cmd); break;
 			case CID::ANIM:   cmd_anim (w, cmd); break;
 			case CID::STOP:   cmd_stop (w, cmd); break;
 			case CID::GET:    cmd_get  (w, cmd); return; //!

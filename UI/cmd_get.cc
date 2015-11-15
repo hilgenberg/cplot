@@ -37,6 +37,32 @@ void cmd_get(PlotWindow &w, Command &cmd)
 			}
 			break;
 		}
+		case GET::DEFINITION_NAMES:
+		{
+			for (Element *e : w.rns)
+			{
+				if (!e->isFunction() || ((Function*)e)->base()) continue;
+				UserFunction &f = *(UserFunction*)e;
+				std::string nm = f.name();
+				nm += '(';
+				auto &V = f.arguments();
+				for (int i = 0, n = f.arity(); i < n; ++i)
+				{
+					if (i > 0) nm += ',';
+					if (n == (int)V.size())
+					{
+						nm += V[i]->name();
+					}
+					else
+					{
+						nm += format("x%d",i+1);
+					}
+				}
+				nm += ')';
+				cmd.args.push_back(nm);
+			}
+			break;
+		}
 
 		case GET::PROPERTY_NAMES:
 		{

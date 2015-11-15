@@ -28,8 +28,19 @@ static const char *
 
 //--- completion helpers -----------------------------------------------------------------------
 
-static std::function<char*(const char *, int)> current_completer;
-static char *gen(const char *text, int i){ return current_completer(text, i); }
+static std::vector<std::function<char*(const char *, int)>> completers;
+static char *gen(const char *text, int i)
+{
+	static int j = 0, i0 = 0;
+	if (i == 0) j = i0 = 0;
+	while (j < (int)completers.size())
+	{
+		char *ret = completers[j](text, i-i0);
+		if (ret) return ret;
+		++j; i0 = i;
+	}
+	return NULL;
+}
 
 static const char *LS_ARGS[] = {"all", "functions", "parameters", "graphs", "constants", "variables", "builtins", NULL};
 static const char *ANIM_TYPES[] = {"repeat", "linear", "sine", "pingpong", NULL};
@@ -134,16 +145,18 @@ static char ** complete(const char *text, int start, int end)
 			break;
 		
 		case CID::LS:
-			current_completer = [](const char *s, int i){ return complete_enum(s, i, LS_ARGS, true); };
+			completers.clear();
+			completers.push_back([](const char *s, int i){ return complete_enum(s, i, LS_ARGS, true); });
 			return rl_completion_matches((char*)text, gen);
 
 		case CID::SET:
+			completers.clear();
 			if (idx == 1)
 			{
 				if (!cmd.get(GET::PROPERTY_NAMES)) return NULL;
 				std::vector<std::string> p;
 				for (auto &r : cmd.args) p.push_back(r.s);
-				current_completer = [p](const char *s, int i){ return complete_enum(s, i, p, false); };
+				completers.push_back([p](const char *s, int i){ return complete_enum(s, i, p, false); });
 				return rl_completion_matches((char*)text, gen);
 			}
 			else if (idx == 2 && args)
@@ -152,7 +165,7 @@ static char ** complete(const char *text, int start, int end)
 				if (!cmd.get(GET::PROPERTY_VALUES, std::string(args, e))) return NULL;
 				std::vector<std::string> v;
 				for (auto &r : cmd.args) v.push_back(r.s);
-				current_completer = [v](const char *s, int i){ return complete_enum(s, i, v, false); };
+				completers.push_back([v](const char *s, int i){ return complete_enum(s, i, v, false); });
 				return rl_completion_matches((char*)text, gen);
 			}
 			break;
@@ -165,17 +178,18 @@ static char ** complete(const char *text, int start, int end)
 		case CID::STOP:
 		case CID::ANIM:
 		case CID::PARAM:
+			completers.clear();
 			if (idx == 1 || ci->cid == CID::STOP)
 			{
 				if (!cmd.get(GET::USED_PARAMETER_NAMES)) return NULL;
 				std::vector<std::string> p;
 				for (auto &r : cmd.args) p.push_back(r.s);
-				current_completer = [p](const char *s, int i){ return complete_enum(s, i, p, false); };
+				completers.push_back([p](const char *s, int i){ return complete_enum(s, i, p, false); });
 				return rl_completion_matches((char*)text, gen);
 			}
 			else if (ci->cid == CID::ANIM && idx == 4 || idx == 5)
 			{
-				current_completer = [](const char *s, int i){ return complete_enum(s, i, ANIM_TYPES, true); };
+				completers.push_back([](const char *s, int i){ return complete_enum(s, i, ANIM_TYPES, true); });
 				return rl_completion_matches((char*)text, gen);
 			}
 
@@ -189,7 +203,26 @@ static char ** complete(const char *text, int start, int end)
 			if (!cmd.get(GET::GRAPH_COUNT)) return NULL;
 			int n = cmd.args[0].i;
 			if (n <= 0) return NULL;
-			current_completer = [n](const char *s, int i){ return complete_int(s, i, 0, n-1); };
+			completers.clear();
+			completers.push_back([n](const char *s, int i){ return complete_int(s, i, 0, n-1); });
+			return rl_completion_matches((char*)text, gen);
+		}
+
+		case CID::RM:
+		{
+			completers.clear();
+			if (!cmd.get(GET::GRAPH_COUNT)) return NULL;
+			int n = cmd.args[0].i;
+			completers.push_back([n](const char *s, int i){ return complete_int(s, i, 0, n-1); });
+			
+			if (!cmd.get(GET::PARAMETER_NAMES)) return NULL;
+			std::vector<std::string> p; for (auto &r : cmd.args) p.push_back(r.s);
+			completers.push_back([p](const char *s, int i){ return complete_enum(s, i, p, false); });
+			
+			if (!cmd.get(GET::DEFINITION_NAMES)) return NULL;
+			std::vector<std::string> d; for (auto &r : cmd.args) d.push_back(r.s);
+			completers.push_back([d](const char *s, int i){ return complete_enum(s, i, d, false); });
+				
 			return rl_completion_matches((char*)text, gen);
 		}
 	}
