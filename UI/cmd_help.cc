@@ -22,7 +22,8 @@ static bool help(const std::vector<std::string> &args)
 	}
 	else if (args.size() == 1)
 	{
-		const std::string &s = args[0];
+		std::string s = args[0];
+		if (s == "=") s = " = ";
 		CommandInfo *match = NULL;
 		for (CommandInfo **ci = cli_commands; *ci; ++ci)
 		{

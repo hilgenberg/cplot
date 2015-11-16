@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+class Expression;
 
 struct ParsingResult
 {
@@ -26,4 +27,6 @@ struct ParsingResult
 		pos = len = 0;
 		if (reset_index) index = 0;
 	}
+
+	void print(const Expression &ex) const;
 };

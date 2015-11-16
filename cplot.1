@@ -71,6 +71,15 @@ Show help (usage mainly) on \fIcommand\fR or list all commands.
 Close window and quit. Ctrl-D also works.
 \#-----------------------------------------------------------------------------------------
 .TP
+\fIitem\fB = \fIvalue\fR ...
+Updates the specified item. An item can be a parameter name (\fIp\fB=\fIv\fR is equivalent to
+\fBparam \fIp\fR \fIv\fR if the parameter already exists (otherwise the former is an error, 
+while the latter will create a new parameter)), a function definition, or a plot/graph property (\fIprop\fB=\fIvalue\fR is equivalent to
+\fBset \fIprop\fR \fIvalue\fR\fR).
+.br
+Examples: \fBf(x,y) = sinx cosy\fR, \fBn=5\fR (if n is a parameter), \fBbg=white\fR.
+\#-----------------------------------------------------------------------------------------
+.TP
 .PD 0
 \fBls\fR|\fBlist\fR [\fBall\fR|\fBfunctions\fR|\fBparameters\fR|\fBgraphs\fR|\fBconstants\fR|\fBvariables\fR|\fBbuiltins\fR]...
 Lists the specified items. Items can be shortened to their first letter.
@@ -97,10 +106,10 @@ Lists (no arguments), prints (one argument), or changes plot and graph propertie
 Loads \fIfile\fR, replacing all graphs, parameters, definitions and settings.
 .TP
 .BR "write " [\fIfile\fR]
-Saves \fIfile\fR. If \fIfile\fR is not given, uses the file path from the last read command.
+Save (if \fIfile\fR is not given) or save as \fIfile\fR.
 \#-----------------------------------------------------------------------------------------
 .TP
-\fBcg\fR [\fIgraph_index\fR]
+[\fBcg\fR] [\fIgraph_index\fR]
 Prints or changes the currently selected graph.
 Other commands like \fBgraph\fR or \fBls v\fR operate on this graph.
 Indexes start at 0 and negative indexes count from the end of the list.
@@ -144,10 +153,6 @@ See below for the plot window variant (<\fIn\fR> + arrows).
 .TP
 \fBstop\fR|\fB.\fR [\fIparameter\fR] ...
 Stops the animations for all or the given parameters. As does hitting <.> on the plot window.
-\#-----------------------------------------------------------------------------------------
-.TP
-.BR re " | " im " | " abs " | " asre " | " asim
-Set projection mode to re(f), im(f), abs(f), abs(f)*sgn(re(f)), abs(f)*sgn(im(f)) repectively. Applies to C -> C functions and has no effect on real functions, vector fields, etc.
 \#-----------------------------------------------------------------------------------------
 .SH WINDOW COMMANDS (COMMON)
 Arrow keys

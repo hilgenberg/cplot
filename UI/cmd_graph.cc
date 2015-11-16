@@ -240,18 +240,7 @@ void cmd_graph(PlotWindow &w, Command &cmd)
 		Expression *x = g.expression();
 		if (!x) throw std::logic_error("NULL expression (this should not happen)");
 		const ParsingResult &r = x->result();
-		printf("%s. At this point:\n", r.info.c_str());
-		std::string &fe = (r.index==0 ? f1 : r.index==1 ? f2 : f3);
-		printf("%s\n%*s", fe.c_str(), (int)r.pos, "");
-		if (r.len == 0)
-		{
-			printf("^--\n");
-		}
-		else
-		{
-			for (size_t i = 0; i < r.len; ++i) putchar('~');
-			putchar('\n');
-		}
+		r.print(*x);
 	}
 
 	w.plot.update_axis();

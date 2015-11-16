@@ -7,6 +7,21 @@
 #include "../Utility/StringFormatting.h"
 
 //---------------------------------------------------------------------------------------------
+//--- Command Info List -----------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
+
+extern CommandInfo ci_help, ci_ls, ci_rm, ci_anim, ci_stop, ci_graph, ci_param, ci_select,
+                   ci_read, ci_write, ci_set, ci_assign;
+
+#define NOOP std::function<bool(const std::vector<std::string>&)>()
+CommandInfo ci_quit("quit", "q", CID::ERROR, NOOP, "quit", "Exits the program.");
+
+CommandInfo *cli_commands[] = {
+	&ci_quit, &ci_help, &ci_anim, &ci_stop, &ci_ls, &ci_rm,
+	&ci_read, &ci_write, &ci_select, &ci_graph, &ci_param,
+	&ci_set, &ci_assign, NULL};
+
+//---------------------------------------------------------------------------------------------
 //--- CLI Command Helpers ---------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------
 
@@ -34,6 +49,31 @@ const char *CommandInfo::matches(const char *s, bool partial) const
 	return NULL;
 }
 
+static const char *skip_expression(const char *s)
+{
+	while (isspace(*s)) ++s;
+	const char *s0 = s;
+	while (*s && !isspace(*s) && *s != '=' && *s != '(' && *s != ')') ++s;
+	if (s == s0) return NULL;
+
+	while (isspace(*s)) ++s;
+	if (*s == '(')
+	{
+		int pl = 1; ++s;
+		while (pl && *s)
+		{
+			switch (*s++)
+			{
+				case '(': ++pl; break;
+				case ')': --pl; break;
+			}
+		}
+		if (pl) return NULL;
+		while (isspace(*s)) ++s;
+	}
+	return s;
+}
+
 CommandInfo *find_command(const char *line, const char **args, int cursor, int *idx)
 {
 	if (cursor < 0 && args && !idx)
@@ -41,9 +81,15 @@ CommandInfo *find_command(const char *line, const char **args, int cursor, int *
 		int i;
 		if (is_int(line, i))
 		{
-			CommandInfo *ci = find_command("select");
 			*args = line;
-			return ci;
+			return &ci_select;
+		}
+
+		const char *s = skip_expression(line);
+		if (s && *s == '=')
+		{
+			*args = line;
+			return &ci_assign;
 		}
 	}
 
@@ -88,18 +134,4 @@ CommandInfo *find_command(const char *line, const char **args, int cursor, int *
 	}
 	return NULL;
 }
-
-//---------------------------------------------------------------------------------------------
-//--- Command Info List -----------------------------------------------------------------------
-//---------------------------------------------------------------------------------------------
-
-extern CommandInfo ci_help, ci_ls, ci_rm, ci_anim, ci_stop, ci_graph, ci_param, ci_select, ci_read, ci_set;
-
-#define NOOP std::function<bool(const std::vector<std::string>&)>()
-CommandInfo ci_quit("quit", "q", CID::ERROR, NOOP, "quit", "Exits the program.");
-
-CommandInfo *cli_commands[] = {
-	&ci_quit, &ci_help, &ci_anim, &ci_stop, &ci_ls, &ci_rm,
-	&ci_read, &ci_select, &ci_graph, &ci_param, &ci_set,
-	NULL};
 

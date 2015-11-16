@@ -5,8 +5,10 @@ enum class CID // CommandID
 	RETURN, // args are the return values
 	ERROR,  // arg0 is the error string
 	READ,   // arg0 is the file path
+	WRITE,  // [arg0] is the file path
 	LS,     // arg0='p' for parameters, etc.
 	RM,     // args: items to delete
+	ASSIGN, // x = y
 	ANIM,   // args: p, v0, v1, dt, type, reps
 	STOP,   // args: [p]
 	GET,    // arg0: what to return (internal command)

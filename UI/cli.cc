@@ -131,6 +131,7 @@ static char ** complete(const char *text, int start, int end)
 	if (ci) switch (ci->cid)
 	{
 		case CID::GET:
+		case CID::ASSIGN:
 		case CID::FOCUS:
 		case CID::RETURN: assert(false); break;
 
@@ -171,6 +172,7 @@ static char ** complete(const char *text, int start, int end)
 			break;
 		
 		case CID::READ:
+		case CID::WRITE:
 			if (idx != 1) break;
 			rl_filename_quoting_desired = 1;
 			return rl_completion_matches((char*)text, rl_filename_completion_function);
@@ -281,9 +283,17 @@ void *cli(void *)
 			printf("Unknown command\n");
 			continue;
 		}
+
+		bool split = (args0 != s);
 		s = (char*)args0;
 		std::vector<std::string> args;
-		while (s && *s)
+		if (!split)
+		{
+			size_t n = strlen(s);
+			while (n > 0 && isspace(s[n-1])) --n;
+			args.emplace_back(s, n);
+		}
+		else while (s && *s)
 		{
 			while (isspace(*s)) ++s;
 			if (!*s) break;
