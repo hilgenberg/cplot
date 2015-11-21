@@ -54,5 +54,5 @@ static bool help(const std::vector<std::string> &args)
 
 //---------------------------------------------------------------------------------------------
 
-CommandInfo ci_help("help", "h", CID::ERROR, help, "help [command]", "Shows help for command or lists all commands.");
+CommandInfo ci_help("help", NULL, CID::ERROR, help, "help [command]", "Shows help for command or lists all commands.");
 

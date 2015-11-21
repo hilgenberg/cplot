@@ -14,7 +14,7 @@ extern CommandInfo ci_help, ci_ls, ci_rm, ci_anim, ci_stop, ci_graph, ci_param, 
                    ci_read, ci_write, ci_set, ci_assign;
 
 #define NOOP std::function<bool(const std::vector<std::string>&)>()
-CommandInfo ci_quit("quit", "q", CID::ERROR, NOOP, "quit", "Exits the program.");
+CommandInfo ci_quit("quit", NULL, CID::ERROR, NOOP, "quit", "Exits the program.");
 
 CommandInfo *cli_commands[] = {
 	&ci_quit, &ci_help, &ci_anim, &ci_stop, &ci_ls, &ci_rm,
@@ -36,13 +36,13 @@ const char *CommandInfo::matches(const char *s, bool partial) const
 		{
 			if (!partial && l < ln) continue;
 			// s="com" matches n="command" partially
-			if (strncasecmp(s, n, l) == 0) return n;
+			if (strncmp(s, n, l) == 0) return n;
 		}
 		else
 		{
 			// but s="commander" does not match n="command"
 			// s="command foo" does match though
-			if (strncasecmp(s, n, ln) != 0) continue;
+			if (strncmp(s, n, ln) != 0) continue;
 			if (isspace(s[ln])) return n;
 		}
 	}

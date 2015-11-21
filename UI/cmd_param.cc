@@ -21,7 +21,7 @@ static bool param(const std::vector<std::string> &args)
 
 //---------------------------------------------------------------------------------------------
 
-CommandInfo ci_param("param", "p", CID::PARAM, param, "param <name> [value]",
+CommandInfo ci_param("param", NULL, CID::PARAM, param, "param <name> [value]",
 "Changes or prints the value of the named parameter.");
 
 //---------------------------------------------------------------------------------------------

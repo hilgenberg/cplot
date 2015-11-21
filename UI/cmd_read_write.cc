@@ -18,10 +18,10 @@ static bool parse_write(const std::vector<std::string> &args)
 
 //--------------------------------------------------------------------------------------------
 
-CommandInfo ci_read("read", "r", CID::READ, parse_read, "read <file>",
+CommandInfo ci_read("read", NULL, CID::READ, parse_read, "read <file>",
 "Loads <file>, replacing the current state with the file's contents.");
 
-CommandInfo ci_write("write", "w", CID::WRITE, parse_write, "write [file]",
+CommandInfo ci_write("write", NULL, CID::WRITE, parse_write, "write [file]",
 "Save to [file]. Will overwrite existing file without confirmation!");
 
 //--------------------------------------------------------------------------------------------

@@ -44,7 +44,7 @@ static char *gen(const char *text, int i)
 
 extern const char *LS_ARGS[], *ANIM_TYPES[], *GRAPH_ARGS[];
 
-static char *complete_enum(const char *s, int i, const std::vector<std::string> &values, bool ignore_case)
+static char *complete_enum(const char *s, int i, const std::vector<std::string> &values, bool ignore_case = false)
 {
 	auto cmp = ignore_case ? strncasecmp : strncmp;
 	static size_t j; if (!i) j = 0;
@@ -55,7 +55,7 @@ static char *complete_enum(const char *s, int i, const std::vector<std::string> 
 	}
 	return NULL;
 }
-static char *complete_enum(const char *s, int i, const char **values, bool ignore_case)
+static char *complete_enum(const char *s, int i, const char **values, bool ignore_case = false)
 {
 	auto cmp = ignore_case ? strncasecmp : strncmp;
 	static int j; if (!i) j = 0;
@@ -140,8 +140,8 @@ static char ** complete(const char *text, int start, int end)
 		case CID::RETURN: assert(false); break;
 
 		case CID::ERROR: // used for local commands
-			if (strcasecmp(ci->name, "quit") == 0) return NULL; // no args
-			if (strcasecmp(ci->name, "help") == 0)
+			if (strcmp(ci->name, "quit") == 0) return NULL; // no args
+			if (strcmp(ci->name, "help") == 0)
 			{
 				if (idx != 1) break;
 				return rl_completion_matches((char*)text, complete_cmd);
@@ -161,7 +161,7 @@ static char ** complete(const char *text, int start, int end)
 				if (!cmd.get(GET::PROPERTY_NAMES)) return NULL;
 				std::vector<std::string> p;
 				for (auto &r : cmd.args) p.push_back(r.s);
-				completers.push_back([p](const char *s, int i){ return complete_enum(s, i, p, false); });
+				completers.push_back([p](const char *s, int i){ return complete_enum(s, i, p); });
 				return rl_completion_matches((char*)text, gen);
 			}
 			else if (idx == 2 && args)
@@ -170,7 +170,7 @@ static char ** complete(const char *text, int start, int end)
 				if (!cmd.get(GET::PROPERTY_VALUES, std::string(args, e))) return NULL;
 				std::vector<std::string> v;
 				for (auto &r : cmd.args) v.push_back(r.s);
-				completers.push_back([v](const char *s, int i){ return complete_enum(s, i, v, false); });
+				completers.push_back([v](const char *s, int i){ return complete_enum(s, i, v); });
 				return rl_completion_matches((char*)text, gen);
 			}
 			break;
@@ -190,7 +190,7 @@ static char ** complete(const char *text, int start, int end)
 				if (!cmd.get(GET::USED_PARAMETER_NAMES)) return NULL;
 				std::vector<std::string> p;
 				for (auto &r : cmd.args) p.push_back(r.s);
-				completers.push_back([p](const char *s, int i){ return complete_enum(s, i, p, false); });
+				completers.push_back([p](const char *s, int i){ return complete_enum(s, i, p); });
 				return rl_completion_matches((char*)text, gen);
 			}
 			else if (ci->cid == CID::ANIM && idx == 4 || idx == 5)
@@ -221,7 +221,7 @@ static char ** complete(const char *text, int start, int end)
 				}
 			}
 			if (ep) completers.push_back([](const char *s, int i){ return complete_graph(s, i, true); });
-			if (!ep) completers.push_back([](const char *s, int i){ return complete_enum(s, i, GRAPH_ARGS, false); });
+			if (!ep) completers.push_back([](const char *s, int i){ return complete_enum(s, i, GRAPH_ARGS, true); });
 			return rl_completion_matches((char*)text, gen);
 		}
 
@@ -245,11 +245,11 @@ static char ** complete(const char *text, int start, int end)
 			
 			if (!cmd.get(GET::PARAMETER_NAMES)) return NULL;
 			std::vector<std::string> p; for (auto &r : cmd.args) p.push_back(r.s);
-			completers.push_back([p](const char *s, int i){ return complete_enum(s, i, p, false); });
+			completers.push_back([p](const char *s, int i){ return complete_enum(s, i, p); });
 			
 			if (!cmd.get(GET::DEFINITION_NAMES)) return NULL;
 			std::vector<std::string> d; for (auto &r : cmd.args) d.push_back(r.s);
-			completers.push_back([d](const char *s, int i){ return complete_enum(s, i, d, false); });
+			completers.push_back([d](const char *s, int i){ return complete_enum(s, i, d); });
 				
 			return rl_completion_matches((char*)text, gen);
 		}
@@ -300,7 +300,7 @@ void *cli(void *)
 		}
 		if (s == S.get()) add_history(s);
 
-		if (!strcasecmp(s, "q") || !strcasecmp(s, "quit")) break;
+		if (!strcmp(s, "quit")) break;
 
 		const char *args0;
 		CommandInfo *ci = find_command(s, &args0, -1);
@@ -379,7 +379,7 @@ void *cli(void *)
 		}
 		else
 		{
-			if (strcasecmp(ci->name, "quit") == 0)
+			if (strcmp(ci->name, "quit") == 0)
 			{
 				printf("quit has no arguments.\n");
 			}

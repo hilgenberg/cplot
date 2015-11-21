@@ -52,10 +52,10 @@ Error connecting to X server or opening windows.
 .PD
 \#-----------------------------------------------------------------------------------------
 .SH COMMANDS
-Commands are case-insensitive, but symbol names are not. Arguments are separated by whitespace
+Commands and symbol names are case-sensitive. Arguments are separated by whitespace
 unless quoted (double quotes and/or backslashes, the usual).
 .br
-The usual readline functions work (tab-completion, history, ...).
+The usual readline operations work (tab-completion, history, ...).
 \#-----------------------------------------------------------------------------------------
 .TP
 \fI(nothing)\fR
@@ -63,11 +63,11 @@ A blank line switches keyboard focus to the plot window.
 Pressing <Enter> or <Tab> on the plot window switches back to the terminal.
 \#-----------------------------------------------------------------------------------------
 .TP
-\fBhelp\fR|\fBh\fR [\fIcommand\fR]
+\fBhelp\fR [\fIcommand\fR]
 Show help (usage mainly) on \fIcommand\fR or list all commands.
 \#-----------------------------------------------------------------------------------------
 .TP
-.BR quit "|" q
+.BR quit
 Close window and quit. Ctrl-D also works.
 \#-----------------------------------------------------------------------------------------
 .TP
@@ -81,7 +81,7 @@ Examples: \fBf(x,y) = sinx cosy\fR, \fBn=5\fR (if n is a parameter), \fBbg=white
 \#-----------------------------------------------------------------------------------------
 .TP
 .PD 0
-\fBls\fR|\fBlist\fR [\fBall\fR|\fBfunctions\fR|\fBparameters\fR|\fBgraphs\fR|\fBconstants\fR|\fBvariables\fR|\fBbuiltins\fR]...
+\fBls\fR [\fBall\fR|\fBfunctions\fR|\fBparameters\fR|\fBgraphs\fR|\fBconstants\fR|\fBvariables\fR|\fBbuiltins\fR]...
 Lists the specified items. Items can be shortened to their first letter.
 .br
 \fBls\fR is equivalent to \fBls fpg\fR.
@@ -102,7 +102,7 @@ Wildcards are not yet implemented.
 Lists (no arguments), prints (one argument), or changes plot and graph properties.
 \#-----------------------------------------------------------------------------------------
 .TP
-\fBread\fR|\fBr\fR \fIfile\fR
+\fBread\fR \fIfile\fR
 Loads \fIfile\fR, replacing all graphs, parameters, definitions and settings.
 .TP
 .BR "write " [\fIfile\fR]
@@ -152,12 +152,12 @@ Quoting is not needed, because \fB;\fR separates the fields.
 For details, refer to the HTML documentation.
 \#-----------------------------------------------------------------------------------------
 .TP
-\fBparam\fR|\fBp\fR \fIparameter\fR [\fIvalue\fR]
+\fBparam\fR \fIparameter\fR [\fIvalue\fR]
 Prints (same as \fBls\fR again) or changes the value of the named parameter.
 \fIvalue\fR can be any expression (f.e. \fBparam x 2x\fR doubles the value of x).
 \#-----------------------------------------------------------------------------------------
 .TP
-\fBanimate\fR|\fBanim\fR \fIparameter\fR \fIv0\fR \fIv1\fR [\fIdt\fR] [\fBrepeat\fR|\fBlinear\fR|\fBsine\fR|\fBpingpong\fR] [\fIreps\fR]
+\fBanimate\fR \fIparameter\fR \fIv0\fR \fIv1\fR [\fIdt\fR] [\fBrepeat\fR|\fBlinear\fR|\fBsine\fR|\fBpingpong\fR] [\fIreps\fR]
 Animates the parameter from \fIv0\fR (\fB-\fR for the current value) to \fIv1\fR over
 the duration of \fIdt\fR seconds (default: 1).
 .br
