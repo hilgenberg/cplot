@@ -5,8 +5,9 @@ import multiprocessing
 env = Environment(tools=['default','gch'], toolpath='.')
 Decider('MD5-timestamp')
 Help("""
-'scons' builds the debug version,
-'scons --release' the release version.
+'scons' builds the debug version
+'scons --release' the release version
+'scons --profiler' for profiling
 """)
 
 # use ncpu jobs
@@ -34,9 +35,17 @@ env['Gch'] = env.Gch(target='pch.h.gch', source=env['precompiled_header'])
 pch = env.Alias('pch', 'pch.h.gch')
 for s in src: env.Depends(s, pch)
 
+# profiling
+AddOption('--profiler', dest='profile', action='store_true', default=False)
+profile = GetOption('profile')
+if profile:
+	print("Profiling enabled");
+	env.Append(CCFLAGS=["-pg"])
+	env.Append(LINKFLAGS=["-pg"])
+
 # release/debug build
 AddOption('--release', dest='release', action='store_true', default=False)
-release = GetOption('release')
+release = (profile or GetOption('release'))
 print(("Release" if release else "Debug")+" Build");
 frel = '-O3 -s -DNDEBUG'
 fdbg = '-Og -DDEBUG -D_DEBUG -g'

@@ -11,3 +11,5 @@
 
 /gch.pyc
 *.gch
+
+/gmon.out
