@@ -152,9 +152,15 @@ Quoting is not needed, because \fB;\fR separates the fields.
 For details, refer to the HTML documentation.
 \#-----------------------------------------------------------------------------------------
 .TP
-\fBparam\fR \fIparameter\fR [\fIvalue\fR]
-Prints (same as \fBls\fR again) or changes the value of the named parameter.
-\fIvalue\fR can be any expression (f.e. \fBparam x 2x\fR doubles the value of x).
+\fBparam\fR [\fIparameter\fR] [\fItype\fR] [\fIvalue\fR]
+Prints (all or the named parameter; same as \fBls\fR again), adds or changes a parameter.
+\fIvalue\fR can be any expression (f.e. \fBparam k 2k\fR doubles the value of k).
+\fItype\fR can be
+\fBR\fR for real,
+\fBC\fR for complex,
+\fBZ\fR for integer,
+\fBA\fR for (real) angle, or
+\fBS\fR for complex angle (some z with |z|=1).
 \#-----------------------------------------------------------------------------------------
 .TP
 \fBanimate\fR \fIparameter\fR \fIv0\fR \fIv1\fR [\fIdt\fR] [\fBrepeat\fR|\fBlinear\fR|\fBsine\fR|\fBpingpong\fR] [\fIreps\fR]
