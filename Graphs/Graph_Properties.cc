@@ -93,21 +93,21 @@ void Graph::init_properties()
 	h.set  = [this](const std::string &s){ options.hidden = parse_bool(s); plot.update_axis(); };
 	h.type = PT_Bool;
 
-	Property &fill = props["fill"];
+	Property &fill = props["fc"];
 	fill.desc = "fill color";
 	fill.vis  = [this]{ return hasFill(); };
 	fill.get  = [this]{ return options.fill_color.to_string(); };
 	fill.set  = [this](const std::string &s){ options.fill_color = s; };
 	fill.type = PT_Color;
 
-	Property &line = props["line"];
+	Property &line = props["lc"];
 	line.desc = "line color";
 	line.vis  = [this]{ return usesLineColor(); };
 	line.get  = [this]{ return options.line_color.to_string(); };
 	line.set  = [this](const std::string &s){ options.line_color = s; };
 	line.type = PT_Color;
 
-	Property &grid = props["grid"];
+	Property &grid = props["gc"];
 	grid.desc = "grid color";
 	grid.vis  = [this]{ return !isVectorField() && !isColor() && hasFill() && options.grid_style != Grid_Off; };
 	grid.get  = [this]{ return options.grid_color.to_string(); };
@@ -128,13 +128,13 @@ void Graph::init_properties()
 	dd.set  = [this](const std::string &s){ options.disco = parse_bool(s); update(CH_UNKNOWN); };
 	dd.type = PT_Bool;
 
-	Property &tex = props["tex"];
+	Property &tex = props["top"];
 	tex.desc = "texture opacity";
 	//TODO tex
 	tex.get = [this]()->std::string{ return format_percentage(options.texture_opacity); };
 	tex.set = [this](const std::string &s){ options.texture_opacity = parse_percentage(s); };
 	
-	Property &rtex = props["rtex"];
+	Property &rtex = props["rop"];
 	rtex.desc = "reflection texture opacity";
 	//TODO rtex
 	rtex.get = [this]()->std::string{ return format_percentage(options.reflection_opacity); };
@@ -152,7 +152,7 @@ void Graph::init_properties()
 	lw.get = [this]()->std::string{ return format_double(options.line_width); };
 	lw.set = [this](const std::string &s){ options.line_width = parse_double(s); };
 	
-	Property &glw = props["glw"];
+	Property &glw = props["gw"];
 	glw.desc = "gridline width";
 	//TODO vis
 	glw.get = [this]()->std::string{ return format_double(options.gridline_width); };
@@ -182,7 +182,7 @@ void Graph::init_properties()
 	q.get = [this]()->std::string{ return format_percentage(options.quality); };
 	q.set = [this](const std::string &s){ options.quality = parse_percentage(s); update(CH_UNKNOWN); };
 
-	Property &sm = props["sm"];
+	Property &sm = props["shade"];
 	sm.desc = "shading mode";
 	//TODO vis
 	sm.set_enum(Property::EnumCvt(options.shading_mode, RECALC), 
@@ -193,7 +193,7 @@ void Graph::init_properties()
 		"smooth",     Shading_Smooth,
 		NULL);
 
-	Property &hm = props["hm"];
+	Property &hm = props["hist"];
 	hm.desc = "histogram mode";
 	//TODO vis
 	hm.set_enum(Property::EnumCvt(options.hist_mode, RECALC),
@@ -202,7 +202,7 @@ void Graph::init_properties()
 		"normal",  HM_Normal,
 		NULL);
 
-	Property &vm = props["vm"];
+	Property &vm = props["vfm"];
 	vm.desc = "vector field mode";
 	//TODO vis
 	vm.set_enum(Property::EnumCvt(options.vf_mode, RECALC),
@@ -222,7 +222,7 @@ void Graph::init_properties()
 		"uv",      TP_UV,
 		NULL);
 
-	Property &bm = props["bm"];
+	Property &bm = props["blend"];
 	bm.desc = "blend mode";
 	bm.get  = [this]
 	{

@@ -52,7 +52,7 @@ void Plot::init_properties()
 	aa.set  = [this](const std::string &v){ options.aa_mode = parse_aa(v); };
 	aa.VALUES("off", "lines", "4x", "8x", "4a", "8a");
 		
-	Property &ccp = props["ccp"];
+	Property &ccp = props["cc"];
 	ccp.desc = "custom clipping plane";
 	ccp.vis  = [this]{ return axis.type() != Axis::Rect; };
 	ccp.get  = [this]()->std::string{ return 
