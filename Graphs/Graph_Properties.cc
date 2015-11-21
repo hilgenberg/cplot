@@ -82,6 +82,7 @@ static const std::vector<std::string> &mask_names()
 void Graph::init_properties()
 {
 	auto RECALC = [this]{ update(CH_UNKNOWN); };
+	auto RECALC2 = [this]{ update(CH_UNKNOWN); plot.update_axis(); };
 
 	//-----------------------------------------------------------------------------------
 	// GraphOptions
@@ -107,12 +108,30 @@ void Graph::init_properties()
 	line.set  = [this](const std::string &s){ options.line_color = s; };
 	line.type = PT_Color;
 
-	Property &grid = props["gc"];
-	grid.desc = "grid color";
-	grid.vis  = [this]{ return !isVectorField() && !isColor() && hasFill() && options.grid_style != Grid_Off; };
-	grid.get  = [this]{ return options.grid_color.to_string(); };
-	grid.set  = [this](const std::string &s){ options.grid_color = s; };
-	grid.type = PT_Color;
+	Property &grid = props["grid"];
+	grid.desc = "grid mode";
+	grid.vis  = [this]{ return !isVectorField() && !isColor() && hasFill(); };
+	grid.get  = [this]()->std::string
+	{
+		auto &g = options.grid_style;
+		return g == Grid_On ? "on" : g == Grid_Full ? "full" : "off";
+	};
+	grid.set  = [this](const std::string &s)
+	{
+		auto &g = options.grid_style;
+		if      (s == "off"  || s == "0") g = Grid_Off;
+		else if (s == "on"   || s == "1") g = Grid_On;
+		else if (s == "full" || s == "f") g = Grid_Full;
+		else throw error("Not a valid grid mode", s);
+	};
+	grid.VALUES("off", "on", "full");
+
+	Property &gc = props["gc"];
+	gc.desc = "grid color";
+	gc.vis  = [this]{ return !isVectorField() && !isColor() && hasFill() && options.grid_style != Grid_Off; };
+	gc.get  = [this]{ return options.grid_color.to_string(); };
+	gc.set  = [this](const std::string &s){ options.grid_color = s; };
+	gc.type = PT_Color;
 
 	Property &clip = props["clip"];
 	clip.desc = "clip to axis";
@@ -154,7 +173,7 @@ void Graph::init_properties()
 	
 	Property &glw = props["gw"];
 	glw.desc = "gridline width";
-	//TODO vis
+	glw.vis = gc.vis;
 	glw.get = [this]()->std::string{ return format_double(options.gridline_width); };
 	glw.set = [this](const std::string &s){ options.gridline_width = parse_double(s); };
 
@@ -170,8 +189,8 @@ void Graph::init_properties()
 	vfs.get = [this]()->std::string{ return format_double(options.vf_scale); };
 	vfs.set = [this](const std::string &s){ options.vf_scale = parse_double(s); };
 
-	Property &hs = props["hs"];
-	hs.desc = "histogram scale";
+	Property &hs = props["sigma"];
+	hs.desc = "histogram sigma";
 	//TODO vis
 	hs.get = [this]()->std::string{ return format_double(options.hist_scale); };
 	hs.set = [this](const std::string &s){ options.hist_scale = parse_double(s); };
@@ -196,7 +215,7 @@ void Graph::init_properties()
 	Property &hm = props["hist"];
 	hm.desc = "histogram mode";
 	//TODO vis
-	hm.set_enum(Property::EnumCvt(options.hist_mode, RECALC),
+	hm.set_enum(Property::EnumCvt(options.hist_mode, RECALC2),
 		"riemann", HM_Riemann,
 		"disc",    HM_Disc,
 		"normal",  HM_Normal,
