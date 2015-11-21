@@ -192,6 +192,7 @@ public:
 		else if (i == 3) f3(f);
 	}
 	void set(std::string f1, std::string f2, std::string f3);
+	bool init(bool all, int type, int coords, int mode, int nf, const std::string &f1, const std::string &f2, const std::string &f3);
 	void swap_fields(int i, int j);
 	const GL_Color &text_color() const; // for graphsBox
 	
@@ -324,7 +325,7 @@ private:
 	mutable int m_gl_class; // used inside gl_graph() only
 	mutable bool m_need_update; // gl needs recomputing
 	
-	void invalidate();
+	void invalidate(bool for_init = false);
 	void fix_mode();   // set to a valid (for current type) mode
 	void fix_coords(); // set to a valid (for current type) coordinate-system
 };

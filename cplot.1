@@ -116,12 +116,41 @@ Indexes start at 0 and negative indexes count from the end of the list.
 The \fBcg\fR is optional (entering just an integer will select the matching graph).
 \#-----------------------------------------------------------------------------------------
 .TP
-\fBgraph\fR|\fBg\fR [\fIf1\fR [\fB; \fIf2\fR [\fB; \fIf3\fR]]]
-Prints (same as \fBls\fR) or changes the selected graph.
-Tab-completion works only on a blank function and will fill in the current expressions
-for editing. Passing \fIfi\fR as \fB-\fR keeps the current expression for that component.
+\fBgraph\fR|\fBg\fR [\fBadd\fR] [\fIX\fR->\fIY\fR] \
+[\fBgraph\fR|\fBimage\fR|\fBriemann\fR|\fBvf\fR|\fBre\fR|\fBim\fR|\fBabs\fR|\fBphase\fR|\
+\fBimplicit\fR|\fBcolor\fR|\fBrcolor\fR|\fBhistogram\fR] \
+[\fBcartesian\fR|\fBpolar\fR|\fBspherical\fR|\fBcylindrical\fR] \
+[\fB--\fR] \
+[\fIf1\fR [\fB; \fIf2\fR [\fB; \fIf3\fR]]]
+Prints (same as \fBls\fR) or changes the selected graph or adds a new graph.
+Tab-completion on a blank function will fill in the current expressions
+for editing. Passing \fIfi\fR as \fB-\fR or empty strings keeps the current expression
+for that component.
 .br
 Quoting is not needed, because \fB;\fR separates the fields.
+.br
+\fIX\fR and \fIY\fR can be
+.BR R , R2 , R3 , C , S1 , S2
+(but not all combinations are valid - see tab-completion or HTML documentation for the list).
+.br
+\fBgraph\fR draws the graph for R->R and R2->R
+.br
+\fBre\fR|\fBim\fR|\fBabs\fR|\fBphase\fR are the projections for C->C
+.br
+\fBimage\fR draws the image for C->C, {R,S1,R2,S2}->{R2,R3}
+.br
+\fBriemann\fR draws the Riemann sphere image for C->C
+.br
+\fBvf\fR is vector field for R2->R2 and R3->R3
+.br
+\fBimplicit\fR draws the zero set for R2->R and R3->R
+.br
+\fBcolor\fR|\fBrcolor\fR textures the preimage range for C->C and R2->R2 (only \fBcolor\fR)
+.br
+\fBhistogram\fR draws histograms for C->C
+.br
+For details, refer to the HTML documentation.
+\#-----------------------------------------------------------------------------------------
 .TP
 \fBparam\fR|\fBp\fR \fIparameter\fR [\fIvalue\fR]
 Prints (same as \fBls\fR again) or changes the value of the named parameter.

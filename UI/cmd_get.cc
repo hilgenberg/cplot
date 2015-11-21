@@ -117,14 +117,21 @@ void cmd_get(PlotWindow &w, Command &cmd)
 			break;
 			
 		case GET::CURRENT_GRAPH_EXPRESSIONS:
+		case GET::ALL_GRAPH_EXPRESSIONS:
 		{
-			const Graph *cg = w.plot.current_graph();
-			if (!cg){ cmd.error("get: no current graph"); return; }
-			const Graph &g = *cg;
-			int nc = g.n_components();
-			if (nc>0) cmd.args.emplace_back(g.f1());
-			if (nc>1) cmd.args.emplace_back(g.f2());
-			if (nc>2) cmd.args.emplace_back(g.f3());
+			bool all = (what == GET::ALL_GRAPH_EXPRESSIONS);
+			int n  = w.plot.number_of_graphs();
+			int i0 = (all ? 0 : w.plot.current_graph_index());
+			int i1 = (all ? n : i0+1);
+			if (all && (i0 < 0 || i0 >= n)){ cmd.error("get: no current graph"); return; }
+			for (int i = i0; i < i1; ++i)
+			{
+				const Graph &g = *w.plot.graph(i);
+				int nc = g.n_components();
+				if (nc>0) cmd.args.emplace_back(g.f1());
+				if (nc>1) cmd.args.emplace_back(g.f2());
+				if (nc>2) cmd.args.emplace_back(g.f3());
+			}
 			break;
 		}
 

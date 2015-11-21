@@ -42,8 +42,7 @@ static char *gen(const char *text, int i)
 	return NULL;
 }
 
-static const char *LS_ARGS[] = {"all", "functions", "parameters", "graphs", "constants", "variables", "builtins", NULL};
-static const char *ANIM_TYPES[] = {"repeat", "linear", "sine", "pingpong", NULL};
+extern const char *LS_ARGS[], *ANIM_TYPES[], *GRAPH_ARGS[];
 
 static char *complete_enum(const char *s, int i, const std::vector<std::string> &values, bool ignore_case)
 {
@@ -77,17 +76,22 @@ static char *complete_nope(const char *, int)
 	return NULL;
 }
 
-static char *complete_graph(const char *t, int idx)
+static char *complete_graph(const char *t, int idx, bool all)
 {
-	if (idx != 0) return NULL;
-	if (*t && t[strlen(t)-1] != ';') return NULL;
-	const char *s = rl_line_buffer;
-	while (isspace(*s)) ++s;
-	while (*s && !isspace(*s)) ++s;
-	while (isspace(*s)) ++s;
-	if (*s) return NULL;
+	static std::vector<std::string> X;
+	if (idx == 0)
+	{
+		if (!cmd.get(all ? GET::ALL_GRAPH_EXPRESSIONS : GET::CURRENT_GRAPH_EXPRESSIONS)) return NULL;
+		for (auto &x : cmd.args)
+		{
+			if (x.type != Argument::S){ assert(false); continue; }
+			X.push_back(x.s);
+		}
+	}
 
-	if (!cmd.get(GET::CURRENT_GRAPH_EXPRESSIONS)) return NULL;
+	if (all) return (idx >= 0 && (size_t)idx < X.size()) ? strdup(X[idx].c_str()) : NULL;
+	
+	if (idx != 0) return NULL;
 	bool first = true;
 	std::string f;
 	for (auto &a : cmd.args)
@@ -196,8 +200,30 @@ static char ** complete(const char *text, int start, int end)
 			}
 
 		case CID::GRAPH:
-			if (idx == 0) return NULL;
-			return rl_completion_matches((char*)text, complete_graph);
+		{
+			completers.clear();
+
+			bool ep = false;
+			const char *s = rl_line_buffer;
+			for (int i = 0, n = strlen(s); i+3 < rl_point && i+3 < n; ++i)
+			{
+				if (isspace(s[i]) && s[i+1]=='-' && s[i+2] == '-' && isspace(s[i+3]))
+				{
+					ep = true;
+					i += 4;
+					while (i < n && isspace(s[i])) ++i;
+					if (i == n)
+					{
+						completers.push_back([](const char *s, int i){ return complete_graph(s, i, false); });
+						return rl_completion_matches((char*)text, gen);
+					}
+					break;
+				}
+			}
+			if (ep) completers.push_back([](const char *s, int i){ return complete_graph(s, i, true); });
+			if (!ep) completers.push_back([](const char *s, int i){ return complete_enum(s, i, GRAPH_ARGS, false); });
+			return rl_completion_matches((char*)text, gen);
+		}
 
 		case CID::CG:
 		{

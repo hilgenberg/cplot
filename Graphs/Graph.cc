@@ -189,7 +189,226 @@ void Graph::load(Deserializer &s)
 	invalidate();
 }
 
-void Graph::invalidate()
+bool Graph::init(bool all, int t, int c, int m, int nf, const std::string &f1, const std::string &f2, const std::string &f3)
+{
+	int nf0 = nf;
+	bool ok = true;
+
+	// type vs output dimension/nf
+	int nnf = 0;
+	switch (t)
+	{
+		case R_R: case R2_R: case R3_R: case C_C: nnf = 1;
+		case R_R2: case R2_R2: case S1_R2: nnf = 2;
+		case S1_R3: case R_R3: case R2_R3: case S2_R3: case R3_R3: nnf = 3;
+		default: break;
+	}
+	if (nnf){ if (!nf) nf = nnf; else if (nf != nnf){ ok = false; t = -1; }}
+
+	// coords vs nf
+	if (all && c < 0) c = GC_Cartesian;
+	switch (c)
+	{
+		case GC_Spherical:
+		case GC_Cylindrical: nnf = 3; break;
+		case GC_Polar:       nnf = 2; break;
+		default:             nnf = 0; break;
+	}
+	if (nnf){ if (!nf) nf = nnf; else if (nf != nnf){ ok = false; c = -1; }}
+
+	// mode => possible types
+	std::set<GraphType> tm1, tm2, tm3;
+	switch (m)
+	{
+		case GM_Graph:
+			tm1.insert( R_R);
+			tm1.insert(R2_R);
+			break;
+			
+		case GM_Implicit:
+			tm1.insert(R2_R);
+			tm1.insert(R3_R);
+			break;
+
+		case GM_Image:
+			tm1.insert( C_C);
+			tm2.insert( R_R2);
+			tm2.insert(S1_R2);
+			tm2.insert(R2_R2);
+			tm3.insert( R_R3);
+			tm3.insert(S1_R3);
+			tm3.insert(R2_R3);
+			tm3.insert(S2_R3);
+			break;
+			
+		case GM_Re: case GM_Im: case GM_Abs: case GM_Phase:
+		case GM_Riemann: case GM_RiemannColor: case GM_Histogram:
+			tm1.insert(C_C);
+			break;
+			
+		case GM_Color:
+			tm2.insert(R2_R2);
+			tm1.insert(C_C);
+			break;
+
+		case GM_VF:
+			tm3.insert(R3_R3);
+			tm2.insert(R2_R2);
+			break;
+
+		default: break;
+	}
+	// mode vs nf and type
+	if (m >= 0)
+	{
+		switch (nf)
+		{
+			case 1: tm2.clear(); tm3.clear(); break;
+			case 2: tm1.clear(); tm3.clear(); break;
+			case 3: tm1.clear(); tm2.clear(); break;
+			default:
+				if      (tm1.empty() && tm2.empty()) nf = 3;
+				else if (tm1.empty() && tm3.empty()) nf = 2;
+				else if (tm2.empty() && tm3.empty()) nf = 1;
+				break;
+		}
+		if (tm1.empty() && tm2.empty() && tm3.empty())
+		{
+			ok = false;
+			m = -1;
+		}
+	}
+	if (m >= 0 && t >= 0)
+	{
+		// if t is not possible with m, throw m away
+		if (!(tm1.count((GraphType)t) + tm2.count((GraphType)t) + tm3.count((GraphType)t)))
+		{
+			ok = false;
+			m = -1;
+		}
+		else
+		{
+			assert(nf > 0); // from t if not from nf0
+			tm1.clear(); tm2.clear(); tm3.clear();
+			(nf==1 ? tm1 : nf==2 ? tm2 : tm3).insert((GraphType)t);
+		}
+	}
+	else if (m >= 0 && tm1.size()+tm2.size()+tm3.size() == 1)
+	{
+		if      (!tm1.empty()){ t = *tm1.begin(); assert(!nf || nf == 1); nf = 1; }
+		else if (!tm2.empty()){ t = *tm2.begin(); assert(!nf || nf == 2); nf = 2; }
+		else if (!tm3.empty()){ t = *tm3.begin(); assert(!nf || nf == 3); nf = 3; }
+	}
+
+	// By now things should be consistent. Apply what's left.
+
+	int no_z = -1, no_y = -1, no_yz = -1; // types to change to if some var is unused
+	if (t >= 0) ;
+	else if (m >= 0)
+	{
+		// favor Rk_Rm over Sk_Rm
+		tm2.erase(S1_R2);
+		tm3.erase(S1_R3);
+		tm3.erase(S2_R3);
+
+		if      (tm1.size() == 1) t = *tm1.begin();
+		else if (tm2.size() == 1) t = *tm2.begin();
+		else if (tm3.size() == 1) t = *tm3.begin();
+		else
+		{
+			switch (m)
+			{
+				case GM_Graph: // R_R or R2_R
+					t = R2_R; no_y = R_R;
+					break;
+			
+				case GM_Implicit: // R2_R or R3_R
+					t = R3_R; no_z = R2_R;
+					break;
+
+				case GM_Image: // R_R2 or R2_R2; R_R3 or R2_R3
+					if (!tm2.empty())
+					{
+						t = R2_R2; no_y = R_R2;
+					}
+					else
+					{
+						t = R2_R3; no_y = R_R3;
+					}
+					break;
+
+				// all other cases should be handled already
+				default: assert(false); t = R_R; break;
+			}
+		}
+	}
+	else if (nf > 0)
+	{
+		switch (nf)
+		{
+			case 1: // R_R, R2_R, R3_R, C_C
+				t = C_C; no_yz = R_R; no_z = R2_R; break;
+
+			case 2: // R_R2, R2_R2, S1_R2
+				t = R2_R2; no_y = R_R2; break;
+
+			case 3: // S1_R3, R_R3, R2_R3, S2_R3, R3_R3
+				t = R3_R3; no_yz = R_R3; no_z = R2_R3; break;
+
+			default: assert(false); break;
+		}
+	}
+	else
+	{
+		// t < 0, m < 0, !nf
+		if (all){ t = R_R; m = GM_Graph; }
+	}
+	if (t >= 0) type((GraphType)t);	
+
+	switch (nf0)
+	{
+		case  3: set(f1,   f2,   f3); break;
+		case  2: set(f1,   f2, m_f3); break;
+		case  1: set(f1, m_f2, m_f3); break;
+		default: break;
+	}
+
+	if (isValid() && (no_z >= 0 || no_y >= 0 || no_yz >= 0))
+	{
+		invalidate(true);
+		if (isValid())
+		{
+			assert(ex);
+			Variable *x = NULL, *y = NULL, *z = NULL;
+			for (const Variable *v_ : vars)
+			{
+				Variable *v = const_cast<Variable*>(v_);
+				if      (v->name() == "x") x = v;
+				else if (v->name() == "y") y = v;
+				else if (v->name() == "z") z = v;
+				else{ assert(false); }
+			}
+			printf("alt %p %p %p\n", x, y, z);
+			auto vs = ex->usedVariables();
+			if (x && !vs.count(x)) x = NULL;
+			if (y && !vs.count(y)) y = NULL;
+			if (z && !vs.count(z)) z = NULL;
+			if (no_yz >= 0 && !y && !z) type((GraphType)no_yz);
+			else if (no_y >= 0 && !y) type((GraphType)no_y);
+			else if (no_z >= 0 && !z) type((GraphType)no_z);
+			printf("alt' %p %p %p\n", x, y, z);
+		}
+		invalidate(false);
+	}
+
+	if (c >= 0) coords((GraphCoords)c);
+	
+	if (m >= 0) mode((GraphMode)m);
+		
+	return ok;
+}
+
+void Graph::invalidate(bool for_init)
 {
 	update(CH_UNKNOWN);
 	delete ex; ex = NULL;
@@ -203,7 +422,19 @@ void Graph::invalidate()
 	#define  ADD(name, arg) if (!ins.find(name,-1) && !ins.find(name,0)) ins.add(new AliasVariable(name, arg));
 	#define ADDP(name, arg) if (!ins.find(name,-1) && !ins.find(name,0)){ xx.strings(arg); ins.add(new AliasVariable(name, xx)); }
 
-	switch (m_type)
+	if (for_init)
+	{
+		x = new Variable("x", true); ins.add(x); vars.push_back(x);
+		y = new Variable("y", true); ins.add(y); vars.push_back(y);
+		z = new Variable("z", true); ins.add(z); vars.push_back(z);
+		ADD("u", x);
+		ADD("v", y);
+		ADD("t", x);
+		ADD("r", x);
+		ADDP("phi",   "x+y");
+		ADDP("theta", "x+y+z");
+	}
+	else switch (m_type)
 	{
 		case  R_R:
 		case  R_R2:

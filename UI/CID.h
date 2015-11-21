@@ -26,6 +26,7 @@ enum class GET // things that the GET command can return
 	DEFINITION_NAMES,
 	GRAPH_COUNT,
 	CURRENT_GRAPH_EXPRESSIONS,
+	ALL_GRAPH_EXPRESSIONS,
 	PROPERTY_NAMES,
 	PROPERTY_VALUES, // arg1: property name
 };

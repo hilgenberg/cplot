@@ -78,9 +78,9 @@ static bool parse_type(const std::string &s0, int &type)
 
 static bool parse_coord(const std::string &s, int &coord)
 {
-	if (s == "cart" || s == "cartesian") coord = GC_Cartesian;
-	else if (s == "polar") coord = GC_Polar;
-	else if (s == "sph" || s == "spherical") coord = GC_Spherical;
+	if      (s == "cart" || s == "cartesian")  coord = GC_Cartesian;
+	else if (s == "polar")                     coord = GC_Polar;
+	else if (s == "sph" || s == "spherical")   coord = GC_Spherical;
 	else if (s == "cyl" || s == "cylindrical") coord = GC_Cylindrical;
 	else return false;
 	return true;
@@ -88,18 +88,21 @@ static bool parse_coord(const std::string &s, int &coord)
 
 static bool parse_mode(const std::string &s, int &mode)
 {
-	if (s == "graph") mode = GM_Graph;
-	else if (s == "image") mode = GM_Image;
-	else if (s == "riemann") mode = GM_Riemann;
-	else if (s == "vf") mode = GM_VF;
-	else if (s == "re") mode = GM_Re;
-	else if (s == "im") mode = GM_Im;
-	else if (s == "abs") mode = GM_Abs;
-	else if (s == "phase") mode = GM_Phase;
-	else if (s == "zero" || s == "implicit") mode = GM_Implicit;
-	else if (s == "color") mode = GM_Color;
-	else if (s == "rcolor") mode = GM_RiemannColor;
-	else if (s == "histogram" || s=="hist" || s=="histo") mode = GM_Histogram;
+	if      (s == "graph")    mode = GM_Graph;
+	else if (s == "image")    mode = GM_Image;
+	else if (s == "riemann")  mode = GM_Riemann;
+	else if (s == "vf")       mode = GM_VF;
+	else if (s == "re")       mode = GM_Re;
+	else if (s == "im")       mode = GM_Im;
+	else if (s == "abs")      mode = GM_Abs;
+	else if (s == "phase")    mode = GM_Phase;
+	else if (s == "zero" || 
+	         s == "implicit") mode = GM_Implicit;
+	else if (s == "color")    mode = GM_Color;
+	else if (s == "rcolor")   mode = GM_RiemannColor;
+	else if (s == "histogram" ||
+	         s == "hist" ||
+	         s == "histo")    mode = GM_Histogram;
 	else return false;
 	return true;
 }
@@ -117,7 +120,7 @@ static bool graph(const std::vector<std::string> &args)
 			++i;
 			break;
 		}
-		else if (!add && (*i == "add" || *i == "new"))
+		else if (!add && *i == "add")
 		{
 			++i;
 			add = true;
@@ -188,8 +191,18 @@ static bool graph(const std::vector<std::string> &args)
 
 //---------------------------------------------------------------------------------------------
 
-CommandInfo ci_graph("graph", "g", CID::GRAPH, graph, "graph [new|add] [domain->range] [re|im|abs|asre|asim] [cart|polar|sph|cyl] [--] [f1|- [; f2|- [; f3|-]]]",
-"Changes or prints the modes and expressions for the selected graph.");
+const char *GRAPH_ARGS[] = {
+	"add", "--", "R->R", "C->C", "R->R2", "R->R3", "R2->R", "R3->R",
+	"S1->R2", "S1->R3", "R2->R3", "S2->R3", "R2->R2", "R3->R3",
+	"graph", "image", "riemann", "vf", "re", "im", "abs", "phase",
+	"implicit", "color", "rcolor", "histogram",
+	"cartesian", "polar", "spherical", "cylindrical", NULL};
+
+CommandInfo ci_graph("graph", "g", CID::GRAPH, graph, "graph [add] [domain->range] "
+	"[graph|image|riemann|vf|re|im|abs|phase|implicit|color|rcolor|histogram] "
+	"[cartesian|polar|spherical|cylindrical] "
+	"[--] [f1|- [; f2|- [; f3|-]]]",
+"Changes or prints the modes and expressions for the selected or a new graph.");
 
 //---------------------------------------------------------------------------------------------
 
@@ -198,8 +211,6 @@ extern void cmd_ls(const Graph &g, int i, bool selected);
 void cmd_graph(PlotWindow &w, Command &cmd)
 {
 	Graph *cg = w.plot.current_graph();
-	if (!cg) throw std::runtime_error("No graph selected");
-	Graph &g = *cg;
 
 	int i = 0, na = (int)cmd.args.size();
 	bool add = (bool)cmd.get_int(i++);
@@ -207,36 +218,57 @@ void cmd_graph(PlotWindow &w, Command &cmd)
 	int gc = cmd.get_int(i++);
 	int gm = cmd.get_int(i++);
 
-	if (!add && gt < 0 && gc < 0 && gm < 0 && i == na)
-	{
-		cmd_ls(g, w.plot.current_graph_index(), false /*it is current, but don't print it here*/);
-		return;
-	}
-
-	if (add)
-	{
-		printf("todo...\n");
-		return;
-	}
-	if (gt >= 0) g.type((GraphType)gt);
-	if (gc >= 0) g.coords((GraphCoords)gc);
-	if (gm >= 0) g.mode((GraphMode)gm);
-
-	//int nc = g.n_components(), nf = na-i;
-	//if (nc < 0 || na > nc) throw std::runtime_error(format("Graph only has %d components (%d given)", nc, na));
+	int nf = na-i; assert(nf <= 3);
 	std::string f1, f2, f3;
-	if (i < na) f1 = cmd.get_str(i++);
-	if (i < na) f2 = cmd.get_str(i++);
-	if (i < na) f3 = cmd.get_str(i++);
+	if (i < na){ f1 = cmd.get_str(i++); if (f1 == "-") f1.clear(); }
+	if (i < na){ f2 = cmd.get_str(i++); if (f2 == "-") f2.clear(); }
+	if (i < na){ f3 = cmd.get_str(i++); if (f3 == "-") f3.clear(); }
 
-	if (f1.empty() || f1 == "-") f1 = g.f1();
-	if (f2.empty() || f2 == "-") f2 = g.f2();
-	if (f3.empty() || f3 == "-") f3 = g.f3();
+	if (!add && gt < 0 && gc < 0 && gm < 0 && !nf)
+	{
+		if (cg)
+		{
+			cmd_ls(*cg, w.plot.current_graph_index(), false /*it is current, but don't print it here*/);
+		}
+		else
+		{
+			printf("No graph selected.\n");
+		}
+		return;
+	}
+
+	if (add || !cg)
+	{
+		bool init_all = !cg; // otherwise it's a copy of cg
+		w.plot.add_graph();
+		cg = w.plot.current_graph();
+		if (!cg) throw std::runtime_error("Creating graph failed.");
+
+		if (!cg->init(init_all, gt, gc, gm, nf, f1, f2, f3))
+		{
+			printf("Type, coordinates, mode and/or number of components don't match.\n");
+		}
+	}
+	else
+	{
+		// TODO: use init here also
+		if (gt >= 0) cg->type((GraphType)gt);
+		if (gc >= 0) cg->coords((GraphCoords)gc);
+		if (gm >= 0) cg->mode((GraphMode)gm);
+
+		if (f1.empty()) f1 = cg->f1();
+		if (f2.empty()) f2 = cg->f2();
+		if (f3.empty()) f3 = cg->f3();
+		cg->set(f1, f2, f3);
+	}
+
+	Graph &g = *cg;
+	int nc = g.n_components();
+	if (nf && nc > nf) printf("Graph has %d components (%d given). Remaining components left unchanged.\n", nc, nf);
+	if (nc < nf) printf("Graph has %d components (%d given). Remaining components will be set but need type change to become effective.\n", nc, nf);
 	
-	g.set(f1, f2, f3);
 	if (!g.isValid())
 	{
-		printf("Graph updated, but there were parsing errors:\n");
 		Expression *x = g.expression();
 		if (!x) throw std::logic_error("NULL expression (this should not happen)");
 		const ParsingResult &r = x->result();

@@ -92,6 +92,8 @@ static bool stop(const std::vector<std::string> &args)
 
 //--------------------------------------------------------------------------------------------
 
+const char *ANIM_TYPES[] = {"repeat", "linear", "sine", "pingpong", NULL};
+
 CommandInfo ci_anim("animate", "anim", CID::ANIM, animate,
 "animate <parameter> <v0|'-'> v1 [dt] [repeat | linear | sine | pingpong | <rlsp>] [repetitions|*]",
 "Animate parameter from v0 (or its current value) to v1 over dt seconds.");

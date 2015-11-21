@@ -242,9 +242,15 @@ Evaluator *Expression::evaluator(const std::vector<const Variable *> &var_order)
 std::set<Parameter*> Expression::usedParameters() const
 {
 	std::set<Parameter*> ps;
-	if (!valid()) return ps;
-	m_wt->collect_parameters(ps);
+	if (valid()) m_wt->collect_parameters(ps);
 	return ps;
+}
+
+std::set<Variable*> Expression::usedVariables() const
+{
+	std::set<Variable*> vs;
+	if (valid()) m_wt->collect_variables(vs);
+	return vs;
 }
 
 bool Expression::uses_object(const std::string &name) const

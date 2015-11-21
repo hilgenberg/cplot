@@ -41,6 +41,8 @@ static bool parse_ls(const std::vector<std::string> &args)
 
 //--------------------------------------------------------------------------------------------
 
+const char *LS_ARGS[] = {"all", "functions", "parameters", "graphs", "constants", "variables", "builtins", NULL};
+
 CommandInfo ci_ls("ls", "list", CID::LS, parse_ls,
 "ls [all | functions | parameters | graphs | constants | variables | builtins | <afpgcvb>]", "Lists the matching items.");
 

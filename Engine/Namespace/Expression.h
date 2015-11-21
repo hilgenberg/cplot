@@ -43,6 +43,7 @@ public:
 	bool constant(bool strong = true) const; // strong -> independent of time (i.e. Parameters are not strong const, 2.3 is)
 	bool deterministic() const;
 	std::set<Parameter*> usedParameters() const;
+	std::set<Variable*>  usedVariables()  const;
 	bool uses_object(const std::string &name) const;
 
 	const ParsingResult &result() const{ if (dirty) parse(); return m_result; }

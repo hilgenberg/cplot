@@ -204,6 +204,20 @@ void WorkingTree::collect_parameters(std::set<Parameter*> &dst) const
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+// collect_variables: find all used Variables
+//----------------------------------------------------------------------------------------------------------------------
+
+void WorkingTree::collect_variables(std::set<Variable*> &dst) const
+{
+	if (type == TT_Variable)
+	{
+		dst.insert(const_cast<Variable*>(variable));
+	}
+	for(auto &c : children) c.collect_variables(dst);
+}
+
+
+//----------------------------------------------------------------------------------------------------------------------
 // evaluate: numeric variant
 // These are the slow evaluations (but with less overhead than setting up an Evaluator object)
 //----------------------------------------------------------------------------------------------------------------------

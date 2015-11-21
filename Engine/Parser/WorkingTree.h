@@ -214,6 +214,7 @@ private:
 	inline cnum evaluate() const{ std::map<const Variable*, cnum> dummy; return evaluate(dummy); }
 	WorkingTree evaluate(const std::map<const Variable*, const WorkingTree *> &values) const;
 	void collect_parameters(std::set<Parameter*> &dst) const;
+	void collect_variables(std::set<Variable*> &dst) const;
 	
 	WorkingTree *derivative(const Variable &x, std::string &error) const;
 	WorkingTree *split_var(const Variable &z, const Variable &x, const Variable &y) const; // f(z) --> f(x+iy)
