@@ -198,9 +198,9 @@ bool Graph::init(bool all, int t, int c, int m, int nf, const std::string &f1, c
 	int nnf = 0;
 	switch (t)
 	{
-		case R_R: case R2_R: case R3_R: case C_C: nnf = 1;
-		case R_R2: case R2_R2: case S1_R2: nnf = 2;
-		case S1_R3: case R_R3: case R2_R3: case S2_R3: case R3_R3: nnf = 3;
+		case R_R: case R2_R: case R3_R: case C_C: nnf = 1; break;
+		case R_R2: case R2_R2: case S1_R2: nnf = 2; break;
+		case S1_R3: case R_R3: case R2_R3: case S2_R3: case R3_R3: nnf = 3; break;
 		default: break;
 	}
 	if (nnf){ if (!nf) nf = nnf; else if (nf != nnf){ ok = false; t = -1; }}
@@ -388,7 +388,6 @@ bool Graph::init(bool all, int t, int c, int m, int nf, const std::string &f1, c
 				else if (v->name() == "z") z = v;
 				else{ assert(false); }
 			}
-			printf("alt %p %p %p\n", x, y, z);
 			auto vs = ex->usedVariables();
 			if (x && !vs.count(x)) x = NULL;
 			if (y && !vs.count(y)) y = NULL;
@@ -396,7 +395,6 @@ bool Graph::init(bool all, int t, int c, int m, int nf, const std::string &f1, c
 			if (no_yz >= 0 && !y && !z) type((GraphType)no_yz);
 			else if (no_y >= 0 && !y) type((GraphType)no_y);
 			else if (no_z >= 0 && !z) type((GraphType)no_z);
-			printf("alt' %p %p %p\n", x, y, z);
 		}
 		invalidate(false);
 	}

@@ -128,11 +128,11 @@ void cmd_ls(const Graph &g, int i, bool selected)
 	{
 		case GM_Graph:   printf("Graph"); break;
 		case GM_Image:   printf("Image"); break;
-		case GM_Riemann:   printf("Riemann"); break;
-		case GM_VF:   printf("Vector Field"); break;
-		case GM_Re:   printf("Real Part"); break;
-		case GM_Im:   printf("Imainary Part"); break;
-		case GM_Abs:   printf("Absolute Value"); break;
+		case GM_Riemann: printf("Riemann"); break;
+		case GM_VF:      printf("Vector Field"); break;
+		case GM_Re:      printf("Real Part"); break;
+		case GM_Im:      printf("Imaginary Part"); break;
+		case GM_Abs:     printf("Absolute Value"); break;
 		case GM_Phase:   printf("Phase"); break;
 		case GM_Implicit:     printf("Implicit"); break;
 		case GM_Color:        printf("Color"); break;
