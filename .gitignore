@@ -1,6 +1,7 @@
 *.o
 /cplot
 *.dblite
+/TODO
 
 *.swp
 *.cc_

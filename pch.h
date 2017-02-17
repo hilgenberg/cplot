@@ -33,3 +33,5 @@
 
 #include "Utility/StringFormatting.h"
 
+using std::isnan;
+using std::isinf;

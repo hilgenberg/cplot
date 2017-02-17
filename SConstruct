@@ -26,7 +26,7 @@ env['LINKCOMSTR'] = "LL $TARGET"
 
 # g++ flags
 env.Append(CXXFLAGS='-std=c++11'.split())
-env.Append(CXXFLAGS='-Wall -Wextra -Wno-parentheses -Wno-reorder -fstrict-enums -Wno-variadic-macros -Wno-unused-parameter'.split())
+env.Append(CXXFLAGS='-Wall -Wextra -Wno-parentheses -Wno-misleading-indentation -Wno-reorder -fstrict-enums -Wno-variadic-macros -Wno-unused-parameter'.split())
 
 # precompiled header
 env.Append(CXXFLAGS='-Winvalid-pch -include pch.h'.split())
