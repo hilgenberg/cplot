@@ -40,7 +40,7 @@ static bool param(const std::vector<std::string> &args)
 
 //---------------------------------------------------------------------------------------------
 
-CommandInfo ci_param("param", NULL, CID::PARAM, param, "param [name] [R|C|Z|S|A] [value]",
+CommandInfo ci_param("param", "p", CID::PARAM, param, "param [name] [R|C|Z|S|A] [value]",
 "Lists, prints, adds, or changes parameters.");
 
 //---------------------------------------------------------------------------------------------

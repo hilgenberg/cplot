@@ -14,7 +14,7 @@ extern CommandInfo ci_help, ci_ls, ci_rm, ci_anim, ci_stop, ci_graph, ci_param, 
                    ci_read, ci_write, ci_set, ci_assign;
 
 #define NOOP std::function<bool(const std::vector<std::string>&)>()
-CommandInfo ci_quit("quit", NULL, CID::ERROR, NOOP, "quit", "Exits the program.");
+CommandInfo ci_quit("quit", "q", CID::ERROR, NOOP, "quit", "Exits the program.");
 
 CommandInfo *cli_commands[] = {
 	&ci_quit, &ci_help, &ci_anim, &ci_stop, &ci_ls, &ci_rm,

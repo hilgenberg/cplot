@@ -301,6 +301,7 @@ void *cli(void *)
 		if (s == S.get()) add_history(s);
 
 		if (!strcmp(s, "quit")) break;
+		if (!strcmp(s, "q")) break;
 
 		const char *args0;
 		CommandInfo *ci = find_command(s, &args0, -1);
