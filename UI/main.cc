@@ -20,6 +20,30 @@ char **argv;
 const char *arg0; // program name without path
 unsigned long terminalID = 0;
 
+static long findTerminalID()
+{
+	const char *t = getenv("WINDOWID");
+	if (t)
+	{
+		auto tt = atoll(t);
+		if (tt > 0) return (long)tt;
+	}
+	
+	// Use the active window and hope that that is our terminal.
+	// Matching by _NET_WM_PID did not work (because that is
+	// the terminal's pid, not ours).
+	Display *display = XOpenDisplay(0);
+	if (!display) return 0;
+
+	int dummy;
+	Window w = 0;
+	XGetInputFocus(display, &w, &dummy);
+	if (w == None || w == PointerRoot) w = 0;
+
+	XCloseDisplay(display);
+	return w;
+};
+
 int main(int argc, char *argv[])
 {
 	::argc = argc;
@@ -27,8 +51,7 @@ int main(int argc, char *argv[])
 	arg0 = argv[0];
 	for (const char *s = arg0; *s; ++s) if (*s == '/') arg0 = s+1;
 	
-	const char *t = getenv("WINDOWID");
-	if (t){ auto tt = atoll(t); if (tt > 0) terminalID = (unsigned long)tt; }
+	terminalID = findTerminalID();
 
 	struct sigaction sa;
 	memset(&sa, 0, sizeof(struct sigaction));
