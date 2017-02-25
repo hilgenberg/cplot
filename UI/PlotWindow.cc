@@ -346,15 +346,21 @@ void PlotWindow::move(double dx, double dy, double dz, bool kbd, int buttons)
 
 	//fprintf(stderr, "move %g %g %g %d %d\n", dx, dy, dz, (int)kbd, buttons);
 	const int SHIFT=1, CTRL=2, ALT=4;
-	int shift  = (modifiers & ShiftMask) ? SHIFT : 0;
-	int ctrl   = (modifiers & ControlMask) ? CTRL : 0;
-	int alt    = (modifiers & (Mod1Mask|Mod2Mask|Mod3Mask|Mod4Mask|Mod5Mask)) ? ALT : 0;
-	int mods   = shift + ctrl + alt;
-	bool b0    = !kbd && !buttons; // scrollwheel or trackpad
-	bool b1    = buttons & Button1Mask;
-	bool b2    = buttons & Button2Mask;
-	bool b3    = buttons & Button3Mask;
-
+	int  shift   = (modifiers & ShiftMask) ? SHIFT : 0;
+	int  ctrl    = (modifiers & ControlMask) ? CTRL : 0;
+	int  alt     = (modifiers & (Mod1Mask|Mod5Mask)) ? ALT : 0; // alt|altGr
+	int  mods    = shift + ctrl + alt;
+	bool b0      = !kbd && !buttons; // scrollwheel or trackpad
+	bool b1      = buttons & Button1Mask;
+	bool b2      = buttons & Button2Mask;
+	bool b3      = buttons & Button3Mask;
+	
+	#if 0
+	#define M(i) (modifiers & Mod ## i ## Mask)
+	fprintf(stderr, "mods: %d %d %d %d %d\n", M(1), M(2), M(3), M(4), M(5));
+	#undef M
+	#endif
+	
 	(void)b2; (void)b3;
 
 	if (axis == Axis::Rect)
