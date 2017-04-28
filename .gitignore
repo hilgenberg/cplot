@@ -6,6 +6,7 @@
 *.swp
 *.cc_
 *.h_
+*~
 
 /Gallery/
 /User Gallery/
@@ -14,3 +15,49 @@
 *.gch
 
 /gmon.out
+Windows/boost/*
+Windows/Build/*
+
+### Visual Studio stuff ###
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+.vs/
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.VisualState.xml
+TestResult.xml
+*.ilk
+*.meta
+*.obj
+*.pch
+*.pdb
+*.pgc
+*.pgd
+*.rsp
+*.sbr
+*.tlb
+*.tli
+*.tlh
+*.tmp
+*.tmp_proj
+*.log
+*.vspscc
+*.vssscc
+*.pidb
+*.svclog
+*.scc
+ipch/
+*.aps
+*.ncb
+*.opendb
+*.opensdf
+*.sdf
+*.cachefile
+*.VC.db
+*.psess
+*.vsp
+*.vspx
+*.sap

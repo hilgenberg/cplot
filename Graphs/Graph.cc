@@ -21,32 +21,32 @@
 
 void GraphOptions::save(Serializer &s) const
 {
-	s._bool(hidden);
+	s.bool_(hidden);
 	fill_color.save(s);
 	grid_color.save(s);
 	line_color.save(s);
-	s._bool(clip_graph_to_axis);
-	s._bool(clip_parametric_to_axis);
+	s.bool_(clip_graph_to_axis);
+	s.bool_(clip_parametric_to_axis);
 	texture.save(s);
 	reflection_texture.save(s);
 	mask.save(s);
-	s._double(texture_opacity);
-	s._double(reflection_opacity);
-	s._double(shinyness);
-	s._double(line_width);
-	s._double(gridline_width);
-	s._double(vf_scale);
-	s._enum(grid_style, Grid_Off, Grid_Full);
-	s._double(grid_density);
-	s._enum(shading_mode, Shading_Points, Shading_Smooth);
-	s._enum(vf_mode, VF_Unscaled, VF_Connected);
+	s.double_(texture_opacity);
+	s.double_(reflection_opacity);
+	s.double_(shinyness);
+	s.double_(line_width);
+	s.double_(gridline_width);
+	s.double_(vf_scale);
+	s.enum_(grid_style, Grid_Off, Grid_Full);
+	s.double_(grid_density);
+	s.enum_(shading_mode, Shading_Points, Shading_Smooth);
+	s.enum_(vf_mode, VF_Unscaled, VF_Connected);
 	transparency.save(s);
-	s._double(quality);
-	if (s.version() >= FILE_VERSION_1_2) s._bool(disco);
+	s.double_(quality);
+	if (s.version() >= FILE_VERSION_1_2) s.bool_(disco);
 	
 	if (s.version() >= FILE_VERSION_1_6)
 	{
-		s._enum(texture_projection, TP_Repeat, TP_UV);
+		s.enum_(texture_projection, TP_Repeat, TP_UV);
 	}
 	else if (s.version() >= FILE_VERSION_1_4)
 	{
@@ -54,51 +54,51 @@ void GraphOptions::save(Serializer &s) const
 		{
 			NEEDS_VERSION(FILE_VERSION_1_6, "texture coordinates");
 		}
-		s._bool(texture_projection == TP_Riemann);
+		s.bool_(texture_projection == TP_Riemann);
 	}
 	
 	if (s.version() >= FILE_VERSION_1_9)
 	{
-		s._enum(hist_mode, HM_Riemann, HM_Normal);
-		s._double(hist_scale);
+		s.enum_(hist_mode, HM_Riemann, HM_Normal);
+		s.double_(hist_scale);
 	}
 }
 void GraphOptions::load(Deserializer &s)
 {
-	s._bool(hidden);
+	s.bool_(hidden);
 	fill_color.load(s);
 	grid_color.load(s);
 	line_color.load(s);
-	s._bool(clip_graph_to_axis);
-	s._bool(clip_parametric_to_axis);
+	s.bool_(clip_graph_to_axis);
+	s.bool_(clip_parametric_to_axis);
 	texture.load(s);
 	reflection_texture.load(s);
 	mask.load(s);
-	s._double(texture_opacity);
-	s._double(reflection_opacity);
-	s._double(shinyness);
-	s._double(line_width);
-	s._double(gridline_width);
-	s._double(vf_scale);
-	s._enum(grid_style, Grid_Off, Grid_Full);
-	s._double(grid_density);
-	s._enum(shading_mode, Shading_Points, Shading_Smooth);
-	s._enum(vf_mode, VF_Unscaled, VF_Connected);
+	s.double_(texture_opacity);
+	s.double_(reflection_opacity);
+	s.double_(shinyness);
+	s.double_(line_width);
+	s.double_(gridline_width);
+	s.double_(vf_scale);
+	s.enum_(grid_style, Grid_Off, Grid_Full);
+	s.double_(grid_density);
+	s.enum_(shading_mode, Shading_Points, Shading_Smooth);
+	s.enum_(vf_mode, VF_Unscaled, VF_Connected);
 	
 	transparency.load(s);
 	if (s.version() < FILE_VERSION_1_7 && fill_color.opaque()) transparency.off = true;
 	
-	s._double(quality);
-	if (s.version() >= FILE_VERSION_1_2) s._bool(disco); else disco = false;
+	s.double_(quality);
+	if (s.version() >= FILE_VERSION_1_2) s.bool_(disco); else disco = false;
 	
 	if (s.version() >= FILE_VERSION_1_6)
 	{
-		s._enum(texture_projection, TP_Repeat, TP_UV);
+		s.enum_(texture_projection, TP_Repeat, TP_UV);
 	}
 	else if (s.version() >= FILE_VERSION_1_4)
 	{
 		bool riemann_color;
-		s._bool(riemann_color);
+		s.bool_(riemann_color);
 		texture_projection = (riemann_color ? TP_Riemann : TP_Repeat);
 	}
 	else
@@ -108,8 +108,8 @@ void GraphOptions::load(Deserializer &s)
 	
 	if (s.version() >= FILE_VERSION_1_9)
 	{
-		s._enum(hist_mode, HM_Riemann, HM_Normal);
-		s._double(hist_scale);
+		s.enum_(hist_mode, HM_Riemann, HM_Normal);
+		s.double_(hist_scale);
 	}
 	else
 	{
@@ -128,7 +128,10 @@ Graph::Graph(Plot &p)
 }
 
 Graph::Graph(const Graph &g)
-: PropertyList(), plot(g.plot)
+: plot(g.plot)
+#ifndef _WINDOWS
+, PropertyList()
+#endif
 , options(g.options)
 , m_f1(g.m_f1), m_f2(g.m_f2), m_f3(g.m_f3)
 , m_type(g.m_type)
@@ -166,25 +169,25 @@ void Graph::save(Serializer &s) const
 	if (m_mode == GM_RiemannColor) CHECK_VERSION(FILE_VERSION_1_6, "riemann color mode graphs");
 	if (m_mode == GM_Histogram) CHECK_VERSION(FILE_VERSION_1_8, "histogram graphs");
 
-	s._string(m_f1);
-	s._string(m_f2);
-	s._string(m_f3);
-	s._enum(m_type, R_R, R3_R3);
-	s._enum(m_mode, GM_Graph, GM_Histogram);
-	s._enum(m_coords, GC_Cartesian, GC_Cylindrical);
+	s.string_(m_f1);
+	s.string_(m_f2);
+	s.string_(m_f3);
+	s.enum_(m_type, R_R, R3_R3);
+	s.enum_(m_mode, GM_Graph, GM_Histogram);
+	s.enum_(m_coords, GC_Cartesian, GC_Cylindrical);
 	options.save(s);
 }
 void Graph::load(Deserializer &s)
 {
-	s._string(m_f1);
-	s._string(m_f2);
-	s._string(m_f3);
-	s._enum(m_type, R_R, R3_R3);
-	s._enum(m_mode, GM_Graph,
+	s.string_(m_f1);
+	s.string_(m_f2);
+	s.string_(m_f3);
+	s.enum_(m_type, R_R, R3_R3);
+	s.enum_(m_mode, GM_Graph,
 			s.version() < FILE_VERSION_1_4 ? GM_Implicit :
 			s.version() < FILE_VERSION_1_6 ? GM_Color :
 			s.version() < FILE_VERSION_1_8 ? GM_RiemannColor : GM_Histogram);
-	s._enum(m_coords, GC_Cartesian, GC_Cylindrical);
+	s.enum_(m_coords, GC_Cartesian, GC_Cylindrical);
 	options.load(s);
 	invalidate();
 }

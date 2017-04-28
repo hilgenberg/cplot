@@ -15,33 +15,33 @@ void GL_Mask::save(Serializer &s) const
 	}
 	
 	if (_style > Mask_Fan) CHECK_VERSION(FILE_VERSION_1_4, "hexagon mask");
-	s._enum(_style, Mask_Custom, Mask_Hexagon);
+	s.enum_(_style, Mask_Custom, Mask_Hexagon);
 	
 	if (custom())
 	{
-		s._uint32(_w);
-		s._uint32(_h);
-		s._data(_data);
+		s.uint32_(_w);
+		s.uint32_(_h);
+		s.data_(data_);
 	}
 
-	s._double(_density);
+	s.double_(_density);
 }
 void GL_Mask::load(Deserializer &s)
 {
-	s._enum(_style, s.version() < FILE_VERSION_1_7 ? Mask_Off : Mask_Custom,
+	s.enum_(_style, s.version() < FILE_VERSION_1_7 ? Mask_Off : Mask_Custom,
 	                s.version() < FILE_VERSION_1_4 ? Mask_Fan : Mask_Hexagon);
 
 	if (custom())
 	{
-		s._uint32(_w);
-		s._uint32(_h);
-		s._data(_data);
+		s.uint32_(_w);
+		s.uint32_(_h);
+		s.data_(data_);
 		_update = false;
 
-		if (_data.size() != (size_t)_w * _h)
+		if (data_.size() != (size_t)_w * _h)
 		{
 			_w = _h = 0;
-			_data.clear();
+			data_.clear();
 			throw std::runtime_error("Reading alpha mask data failed. This file seems to be corrupted.");
 		}
 	}
@@ -51,12 +51,12 @@ void GL_Mask::load(Deserializer &s)
 		_update = true;
 	}
 
-	s._double(_density);
+	s.double_(_density);
 }
 
 #define ALPHA(A) \
 do{ \
-	unsigned char *dp = _data.data(); \
+	unsigned char *dp = data_.data(); \
 	double iw = 2.0/((int)_w-1);\
 	for(int y_ = 0; y_ < (int)_h; ++y_)\
 	{\
@@ -71,7 +71,7 @@ do{ \
 
 #define ALPHA_DISCRETE(A) \
 do{ \
-	unsigned char *dp = _data.data();\
+	unsigned char *dp = data_.data();\
 	for (int y = 0; y < (int)_h; ++y)\
 	{\
 		for (int x = 0; x < (int)_w; ++x)\
@@ -106,7 +106,7 @@ void GL_Mask::update_size()
 
 const std::vector<unsigned char> &GL_Mask::data() const
 {
-	if (!_update) return _data;
+	if (!_update) return data_;
 	assert(_style != Mask_Custom);
 	_update = false;
 
@@ -116,7 +116,7 @@ const std::vector<unsigned char> &GL_Mask::data() const
 	assert(_w == w0 && _h == h0);
 	#endif
 	
-	_data.resize((size_t)_w * _h);
+	data_.resize((size_t)_w * _h);
 	double d = 2.0*_density-1.0;
 	switch (_style)
 	{
@@ -222,14 +222,14 @@ const std::vector<unsigned char> &GL_Mask::data() const
 			break;
 	}
 
-	return _data;
+	return data_;
 }
 
 void GL_Mask::mix(std::vector<unsigned char> &dst) const
 {
 	check_data();
-	const unsigned char *d = _data.data();
-	const size_t n = _data.size();
+	const unsigned char *d = data_.data();
+	const size_t n = data_.size();
 	dst.resize(n);
 	unsigned char *d1 = dst.data();
 

@@ -42,14 +42,15 @@ void Namespace::save(Serializer &s) const
 	{
 		Element *x = p.second;
 		if (!x || x->builtin()) continue;
-		s._object(x);
+		s.object_(x);
 	}
 	for (Element *x : nameless)
 	{
-		if (x) s._object(x);
+		if (x) s.object_(x);
 	}
-	s._object(NULL);
+	s.object_(NULL);
 }
+
 void Namespace::load(Deserializer &s)
 {
 	clear(); // RootNamespace must override this
@@ -58,7 +59,7 @@ void Namespace::load(Deserializer &s)
 	while (true)
 	{
 		Serializable *x;
-		s._object(x);
+		s.object_(x);
 		if (!x) break;
 		add((Element*)x);
 	}

@@ -91,41 +91,41 @@ static bool zlibDeflate(const std::vector<unsigned char> &in, std::vector<unsign
 
 Serializer::Serializer(ByteWriter &f) : ver(CURRENT_VERSION), f(f)
 {
-	_marker("CPLT");
-	_uint32(ver);
+	marker_("CPLT");
+	uint32_(ver);
 }
 
-void Serializer::_bool(bool x){ char c = x; f.write(&c, 1); }
-void Serializer::_uint16(uint16_t x){ f.write(&x, 2); }
-void Serializer::_int32 (int32_t  x){ f.write(&x, 4); }
-void Serializer::_uint32(uint32_t x){ f.write(&x, 4); }
-void Serializer::_int64 (int64_t  x){ f.write(&x, 8); }
-void Serializer::_uint64(uint64_t x){ f.write(&x, 8); }
+void Serializer::bool_(bool x){ char c = x; f.write(&c, 1); }
+void Serializer::uint16_(uint16_t x){ f.write(&x, 2); }
+void Serializer::int32_ (int32_t  x){ f.write(&x, 4); }
+void Serializer::uint32_(uint32_t x){ f.write(&x, 4); }
+void Serializer::int64_ (int64_t  x){ f.write(&x, 8); }
+void Serializer::uint64_(uint64_t x){ f.write(&x, 8); }
 
-void Serializer::_enum(int x, int min, int max)
+void Serializer::enum_(int x, int min, int max)
 {
 	if (x < min || x > max)
 		throw std::logic_error("enum out of range");
-	_int32(x);
+	int32_(x);
 }
 
-void Serializer::_float (float  x){ f.write(&x, 4); }
-void Serializer::_double(double x){ f.write(&x, 8); }
-void Serializer::_cnum(const cnum &x)
+void Serializer::float_ (float  x){ f.write(&x, 4); }
+void Serializer::double_(double x){ f.write(&x, 8); }
+void Serializer::cnum_  (const cnum &x)
 {
-	_double(x.real());
-	_double(x.imag());
+	double_(x.real());
+	double_(x.imag());
 }
 
-void Serializer::_data(const std::vector<unsigned char> &data, bool compress)
+void Serializer::data_(const std::vector<unsigned char> &data, bool compress)
 {
 	if (compress && data.size() > 32)
 	{
 		std::vector<unsigned char> out;
 		if (!zlibDeflate(data, out)) throw std::runtime_error("zlib compression failed");
 		//if (!gzipDeflate(data, out)) throw std::runtime_error("zlib compression failed");
-		_uint16(1);
-		_uint64(out.size());
+		uint16_(1);
+		uint64_(out.size());
 		f.write(out.data(), out.size());
 #ifdef DEBUG
 		std::cerr << "ZLib compression ratio: " << out.size() << " / " << data.size() << " = " << (100.0*out.size()/data.size()) << "%" << std::endl;
@@ -133,45 +133,45 @@ void Serializer::_data(const std::vector<unsigned char> &data, bool compress)
 	}
 	else
 	{
-		_uint16(0);
-		_uint64(data.size());
+		uint16_(0);
+		uint64_(data.size());
 		f.write(data.data(), data.size());
 	}
 }
 
-void Serializer::_raw(std::vector<unsigned char> &data)
+void Serializer::raw_(std::vector<unsigned char> &data)
 {
 	if (!data.empty()) f.write(data.data(), data.size());
 }
 
-void Serializer::_string(const std::string &x)
+void Serializer::string_(const std::string &x)
 {
 	size_t len = x.length();
-	_uint64(len);
+	uint64_(len);
 	if (len) f.write(x.data(), len);
 }
 
-void Serializer::_marker(const char *s)
+void Serializer::marker_(const char *s)
 {
 	f.write(s, strlen(s));
 }
 
-void Serializer::_object(const Serializable *x)
+void Serializer::object_(const Serializable *x)
 {
 	if (!x)
 	{
-		_uint16((uint16_t)TypeCode::NIL);
+		uint16_((uint16_t)TypeCode::NIL);
 	}
 	else if (od.count(x))
 	{
-		_uint16((uint16_t)TypeCode::DUP);
-		_uint64(od[x]);
+		uint16_((uint16_t)TypeCode::DUP);
+		uint64_(od[x]);
 	}
 	else
 	{
 		TypeCode t = x->type_code();
 		assert(t < TypeCode::INVALID);
-		_uint16((uint16_t)t);
+		uint16_((uint16_t)t);
 		x->save(*this);
 		od[x] = od.size();
 	}
@@ -183,8 +183,8 @@ void Serializer::_object(const Serializable *x)
 
 Deserializer::Deserializer(ByteReader &f) : f(f)
 {
-	_marker("CPLT");
-	_uint32(ver);
+	marker_("CPLT");
+	uint32_(ver);
 	if (ver < FILE_VERSION_1_0)
 	{
 		throw std::runtime_error("Invalid version info read. This file is not a cplot file or corrupted.");
@@ -197,41 +197,41 @@ Deserializer::Deserializer(ByteReader &f) : f(f)
 	}
 }
 
-void Deserializer::_bool(bool &x){ char c; f.read(&c, 1); x = c; }
-void Deserializer::_uint16(uint16_t &x){ f.read(&x, 2); }
-void Deserializer::_int32 (int32_t  &x){ f.read(&x, 4); }
-void Deserializer::_uint32(uint32_t &x){ f.read(&x, 4); }
-void Deserializer::_int64 (int64_t  &x){ f.read(&x, 8); }
-void Deserializer::_uint64(uint64_t &x){ f.read(&x, 8); }
+void Deserializer::bool_(bool &x){ char c; f.read(&c, 1); x = c; }
+void Deserializer::uint16_(uint16_t &x){ f.read(&x, 2); }
+void Deserializer::int32_ (int32_t  &x){ f.read(&x, 4); }
+void Deserializer::uint32_(uint32_t &x){ f.read(&x, 4); }
+void Deserializer::int64_ (int64_t  &x){ f.read(&x, 8); }
+void Deserializer::uint64_(uint64_t &x){ f.read(&x, 8); }
 
-void Deserializer::_float(float   &x){ f.read(&x, 4); }
-void Deserializer::_double(double &x){ f.read(&x, 8); }
-void Deserializer::_cnum(cnum &x)
+void Deserializer::float_(float   &x){ f.read(&x, 4); }
+void Deserializer::double_(double &x){ f.read(&x, 8); }
+void Deserializer::cnum_(cnum &x)
 {
 	double t;
-	_double(t); x.real(t);
-	_double(t); x.imag(t);
+	double_(t); x.real(t);
+	double_(t); x.imag(t);
 }
 
-void Deserializer::_data(std::vector<unsigned char> &data)
+void Deserializer::data_(std::vector<unsigned char> &data)
 {
 	uint16_t compression;
-	_uint16(compression);
+	uint16_(compression);
 	
 	uint64_t n;
-	_uint64(n);
+	uint64_(n);
 
 	switch (compression)
 	{
 		case 0:
-			data.resize(n);
-			if (n) f.read(data.data(), n);
+			data.resize((size_t)n);
+			if (n) f.read(data.data(), (size_t)n);
 			break;
 			
 		case 1:
 		{
-			std::vector<unsigned char> in(n);
-			if (n) f.read(in.data(), n);
+			std::vector<unsigned char> in((size_t)n);
+			if (n) f.read(in.data(), (size_t)n);
 			if (!zlibInflate(in, data)) throw std::runtime_error("ZLib decompression failed. This file seems to be corrupted.");
 #ifdef DEBUG
 			std::cerr << "ZLib compression ratio: " << n << " / " << data.size() << " = " << (100.0*n/data.size()) << "%" << std::endl;
@@ -243,13 +243,13 @@ void Deserializer::_data(std::vector<unsigned char> &data)
 	}
 }
 
-void Deserializer::_raw(std::vector<unsigned char> &data, size_t n)
+void Deserializer::raw_(std::vector<unsigned char> &data, size_t n)
 {
 	data.resize(n);
 	if (n) f.read(data.data(), n);
 }
 
-void Deserializer::_marker(const char *s_)
+void Deserializer::marker_(const char *s_)
 {
 	const char *s = s_;
 	size_t N = strlen(s);
@@ -260,23 +260,23 @@ void Deserializer::_marker(const char *s_)
 		f.read(buf, n);
 		if (memcmp(s, buf, n) != 0)
 		{
-			std::ostringstream s;
-			s << "Marker \"" << s_ << "\" not found. This file seems to be corrupted.";
-			throw std::runtime_error(s.str());
+			std::ostringstream ss;
+			ss << "Marker \"" << s_ << "\" not found. This file seems to be corrupted.";
+			throw std::runtime_error(ss.str());
 		}
 		N -= n;
 		s += n;
 	}
 }
 
-void Deserializer::_string(std::string &x)
+void Deserializer::string_(std::string &x)
 {
-	uint64_t len; _uint64(len);
+	uint64_t len; uint64_(len);
 	if (len)
 	{
-		std::unique_ptr<char[]> buf(new char [len]);
-		f.read(buf.get(), len);
-		x.assign(buf.get(), len);
+		std::unique_ptr<char[]> buf(new char [(size_t)len]);
+		f.read(buf.get(), (size_t)len);
+		x.assign(buf.get(), (size_t)len);
 	}
 	else
 	{
@@ -284,10 +284,10 @@ void Deserializer::_string(std::string &x)
 	}
 }
 
-void Deserializer::_object(Serializable *&x)
+void Deserializer::object_(Serializable *&x)
 {
 	uint16_t type;
-	_uint16(type);
+	uint16_(type);
 	
 	if (type >= (uint16_t)TypeCode::INVALID)
 	{
@@ -299,12 +299,12 @@ void Deserializer::_object(Serializable *&x)
 		case (uint16_t)TypeCode::NIL: x = NULL; return;
 		case (uint16_t)TypeCode::DUP:
 		{
-			uint64_t ID; _uint64(ID);
+			uint64_t ID; uint64_(ID);
 			if (ID >= od.size())
 			{
 				throw std::runtime_error("Invalid object ID encountered. This file seems to be corrupted.");
 			}
-			x = od[ID];
+			x = od[(size_t)ID];
 			return;
 		}
 

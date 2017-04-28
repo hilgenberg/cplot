@@ -3,14 +3,14 @@
 
 void GL_Font::save(Serializer &s) const
 {
-	s._string(name);
-	s._float(size);
+	s.string_(name);
+	s.float_(size);
 	color.save(s);
 }
 void GL_Font::load(Deserializer &s)
 {
-	s._string(name);
-	s._float(size);
+	s.string_(name);
+	s.float_(size);
 	color.load(s);
 }
 
@@ -41,7 +41,7 @@ GL_Font& GL_Font::operator= (const std::string &s)
 	if (i < n)
 	{
 		int k; is_int(s.c_str()+i, k);
-		size = k;
+		size = (float)k;
 		while (i > 0 && isspace(s[i-1])) --i;
 		if (i > 0) name = s.substr(0, i);
 	}

@@ -15,13 +15,13 @@
 void UserFunction::save(Serializer &s) const
 {
 	Function::save(s);
-	s._string(m_formula);
+	s.string_(m_formula);
 }
 void UserFunction::load(Deserializer &s)
 {
 	Function::load(s);
 	std::string f;
-	s._string(f);
+	s.string_(f);
 	formula(f);
 }
 

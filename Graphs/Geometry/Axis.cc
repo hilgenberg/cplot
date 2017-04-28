@@ -4,20 +4,20 @@
 
 void AxisOptions::save(Serializer &s) const
 {
-	s._bool(hidden);
+	s.bool_(hidden);
 	axis_color.save(s);
 	background_color.save(s);
 	label_font.save(s);
-	s._enum(axis_grid, AG_Off, AG_Polar);
+	s.enum_(axis_grid, AG_Off, AG_Polar);
 }
 
 void AxisOptions::load(Deserializer &s)
 {
-	s._bool(hidden);
+	s.bool_(hidden);
 	axis_color.load(s);
 	background_color.load(s);
 	label_font.load(s);
-	s._enum(axis_grid, AG_Off, AG_Polar);
+	s.enum_(axis_grid, AG_Off, AG_Polar);
 }
 
 Axis::Axis() : m_type(Rect)
@@ -31,40 +31,40 @@ Axis::Axis() : m_type(Rect)
 }
 void Axis::save(Serializer &s) const
 {
-	s._double(m_center[0]);
-	s._double(m_center[1]);
-	s._double(m_center[2]);
-	s._double(m_range[0]);
-	s._double(m_range[1]);
-	s._double(m_range[2]);
+	s.double_(m_center[0]);
+	s.double_(m_center[1]);
+	s.double_(m_center[2]);
+	s.double_(m_range[0]);
+	s.double_(m_range[1]);
+	s.double_(m_range[2]);
 	bool dummy = false;
-	s._bool(dummy);
-	s._bool(dummy);
-	s._bool(dummy);
-	s._double(m_in_center[0]);
-	s._double(m_in_center[1]);
-	s._double(m_in_range[0]);
-	s._double(m_in_range[1]);
-	s._enum(m_type, Invalid, Sphere);
+	s.bool_(dummy);
+	s.bool_(dummy);
+	s.bool_(dummy);
+	s.double_(m_in_center[0]);
+	s.double_(m_in_center[1]);
+	s.double_(m_in_range[0]);
+	s.double_(m_in_range[1]);
+	s.enum_(m_type, Invalid, Sphere);
 	options.save(s);
 }
 void Axis::load(Deserializer &s)
 {
-	s._double(m_center[0]);
-	s._double(m_center[1]);
-	s._double(m_center[2]);
-	s._double(m_range[0]);
-	s._double(m_range[1]);
-	s._double(m_range[2]);
+	s.double_(m_center[0]);
+	s.double_(m_center[1]);
+	s.double_(m_center[2]);
+	s.double_(m_range[0]);
+	s.double_(m_range[1]);
+	s.double_(m_range[2]);
 	bool dummy = false;
-	s._bool(dummy);
-	s._bool(dummy);
-	s._bool(dummy);
-	s._double(m_in_center[0]);
-	s._double(m_in_center[1]);
-	s._double(m_in_range[0]);
-	s._double(m_in_range[1]);
-	s._enum(m_type, Invalid, Sphere);
+	s.bool_(dummy);
+	s.bool_(dummy);
+	s.bool_(dummy);
+	s.double_(m_in_center[0]);
+	s.double_(m_in_center[1]);
+	s.double_(m_in_range[0]);
+	s.double_(m_in_range[1]);
+	s.enum_(m_type, Invalid, Sphere);
 	options.load(s);
 	update();
 }

@@ -14,14 +14,14 @@
 
 void PlotOptions::save(Serializer &s) const
 {
-	s._enum(aa_mode, AA_Off, AA_8x);
-	s._double(fog);
+	s.enum_(aa_mode, AA_Off, AA_8x);
+	s.double_(fog);
 	clip.save(s);
 }
 void PlotOptions::load(Deserializer &s)
 {
-	s._enum(aa_mode, AA_Off, AA_8x);
-	s._double(fog);
+	s.enum_(aa_mode, AA_Off, AA_8x);
+	s.double_(fog);
 	clip.load(s);
 }
 
@@ -30,8 +30,10 @@ void PlotOptions::load(Deserializer &s)
 //----------------------------------------------------------------------------------------------------------------------
 
 Plot::Plot(const Plot &p)
-: PropertyList()
-, ns(*new RootNamespace)
+: ns(*new RootNamespace)
+#ifndef _WINDOWS
+, PropertyList(),
+#endif
 , options(p.options)
 , axis(p.axis)
 , camera(p.camera)
@@ -74,7 +76,7 @@ void Plot::save(Serializer &s) const
 	axis.save(s);
 	camera.save(s);
 	options.save(s);
-	s._uint64(graphs.size());
+	s.uint64_(graphs.size());
 	for (const Graph *g : graphs) g->save(s);
 }
 void Plot::load(Deserializer &s)
@@ -86,11 +88,11 @@ void Plot::load(Deserializer &s)
 	camera.load(s);
 	options.load(s);
 	uint64_t n;
-	s._uint64(n);
+	s.uint64_(n);
 	for (uint64_t i = 0; i < n; ++i)
 	{
 		graphs.push_back(new Graph(*this));
-		graphs[i]->load(s);
+		graphs[(size_t)i]->load(s);
 	}
 	current = 0;
 	update_axis();

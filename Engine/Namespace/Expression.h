@@ -7,7 +7,7 @@
 #include <map>
 
 class Evaluator;
-class EvalContext;
+struct EvalContext;
 class Variable;
 class Parameter;
 class WorkingTree;

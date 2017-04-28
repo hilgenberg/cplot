@@ -16,7 +16,7 @@ class Element : public Serializable
 {
 	friend class Namespace;
 	friend class RootNamespace;
-	friend class Plot;
+	friend struct Plot;
 	
 protected:
 	Element(const std::string &name) : ns(NULL), nm(name){ }

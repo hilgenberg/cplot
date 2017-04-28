@@ -1,4 +1,6 @@
 #pragma once
+#ifndef _WINDOWS
+
 #include <map>
 #include <vector>
 #include <string>
@@ -42,7 +44,12 @@ struct Property
 		}
 	};
 
+#ifdef _WINDOWS
+	void set_enum(EnumCvt ec, ...);
+#else
 	void set_enum(const EnumCvt &cvt, ...);
+#endif
+
 };
 
 #define VALUES(...) values=[]{ const char *v[]={__VA_ARGS__}; return std::vector<std::string>(v,v+sizeof(v)/sizeof(v[0]));}
@@ -82,3 +89,4 @@ protected:
 	std::string format_range(double a, double b, bool minmax) const; // minmax: range is [a,b], else [a-b, a+b] (a = center, b = halfrange)
 };
 
+#endif

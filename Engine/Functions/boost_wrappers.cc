@@ -1,14 +1,18 @@
 #include "../cnum.h"
 
+#ifndef _WINDOWS
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wshadow"
+#endif
 
 #include <boost/math/special_functions/bessel.hpp>
 #include <boost/math/special_functions/expint.hpp>
 #include <boost/math/special_functions/airy.hpp>
 
+#ifndef _WINDOWS
 #pragma GCC diagnostic pop
+#endif
 
 using namespace boost::math::policies;
 

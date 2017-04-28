@@ -6,17 +6,17 @@ Rotation::Rotation() : a(0.0, 0.0, 0.0, 1.0)
 }
 void Rotation::save(Serializer &s) const
 {
-	s._double(a.x);
-	s._double(a.y);
-	s._double(a.z);
-	s._double(a.w);
+	s.double_(a.x);
+	s.double_(a.y);
+	s.double_(a.z);
+	s.double_(a.w);
 }
 void Rotation::load(Deserializer &s)
 {
-	s._double(a.x);
-	s._double(a.y);
-	s._double(a.z);
-	s._double(a.w);
+	s.double_(a.x);
+	s.double_(a.y);
+	s.double_(a.z);
+	s.double_(a.w);
 	update();
 }
 

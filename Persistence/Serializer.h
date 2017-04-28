@@ -56,24 +56,24 @@ public:
 	
 	unsigned version() const{ return ver; }
 	
-	void _bool(bool x);
-	void _uint16(uint16_t x);
-	void _int32(int32_t x);
-	void _uint32(uint32_t x);
-	void _int64(int64_t x);
-	void _uint64(uint64_t x);
-	void _enum(int x, int min, int max);
+	void bool_(bool x);
+	void uint16_(uint16_t x);
+	void int32_(int32_t x);
+	void uint32_(uint32_t x);
+	void int64_(int64_t x);
+	void uint64_(uint64_t x);
+	void enum_(int x, int min, int max);
 	
-	void _float(float x);
-	void _double(double x);
-	void _cnum(const cnum &x);
+	void float_(float x);
+	void double_(double x);
+	void cnum_(const cnum &x);
 	
-	void _string(const std::string &x);
-	void _object(const Serializable *x); ///< writes only one copy of every object
-	void _member(const Serializable &x);
-	void _data(const std::vector<unsigned char> &data, bool compress=true);
-	void _marker(const char *s);
-	void _raw(std::vector<unsigned char> &data);
+	void string_(const std::string &x);
+	void object_(const Serializable *x); ///< writes only one copy of every object
+	void member_(const Serializable &x);
+	void data_(const std::vector<unsigned char> &data, bool compress=true);
+	void marker_(const char *s);
+	void raw_(std::vector<unsigned char> &data);
 	
 private:
 	const unsigned ver; ///< (major << 16) + minor
@@ -94,30 +94,30 @@ public:
 	bool done() const{ return f.pos() == f.size(); }
 	size_t remaining() const{ return (f.size() >= f.pos() ? f.size() - f.pos() : 0); }
 	
-	void _bool(bool &x);
-	void _uint16(uint16_t &x);
-	void _int32(int32_t &x);
-	void _uint32(uint32_t &x);
-	void _int64(int64_t &x);
-	void _uint64(uint64_t &x);
-	//void _enum(int &x, int min, int max);
-	template<typename T> void _enum(T &x, T min, T max)
+	void bool_(bool &x);
+	void uint16_(uint16_t &x);
+	void int32_(int32_t &x);
+	void uint32_(uint32_t &x);
+	void int64_(int64_t &x);
+	void uint64_(uint64_t &x);
+	//void enum_(int &x, int min, int max);
+	template<typename T> void enum_(T &x, T min, T max)
 	{
 		int32_t t;
-		_int32(t);
+		int32_(t);
 		if (t < min || t > max) throw std::runtime_error("enum out of range");
 		x = (T)t;
 	}
-	void _float(float &x);
-	void _double(double &x);
-	void _cnum(cnum &x);
+	void float_(float &x);
+	void double_(double &x);
+	void cnum_(cnum &x);
 
-	void _string(std::string &x);
-	void _object(Serializable *&x);
-	void _member(Serializable  &x);
-	void _data(std::vector<unsigned char> &data);
-	void _marker(const char *s);
-	void _raw(std::vector<unsigned char> &data, size_t n);
+	void string_(std::string &x);
+	void object_(Serializable *&x);
+	void member_(Serializable  &x);
+	void data_(std::vector<unsigned char> &data);
+	void marker_(const char *s);
+	void raw_(std::vector<unsigned char> &data, size_t n);
 
 private:
 	ByteReader &f;

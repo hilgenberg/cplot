@@ -1,0 +1,471 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{D83136BA-C18C-4407-A26F-8631F2244291}</ProjectGuid>
+    <RootNamespace>CPlot</RootNamespace>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <Keyword>MFCProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v140</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)Windows\Build\$(Configuration)_$(Platform)\</OutDir>
+    <IntDir>Windows\Build\$(Configuration)_$(Platform)\</IntDir>
+    <IncludePath>$(SolutionDir)\Windows\glew;$(SolutionDir)\Windows\boost;$(SolutionDir)\Windows\zlib;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)Windows\Build\$(Configuration)_$(Platform)\</OutDir>
+    <IntDir>Windows\Build\$(Configuration)_$(Platform)\</IntDir>
+    <IncludePath>$(SolutionDir)\Windows\glew;$(SolutionDir)\Windows\boost;$(SolutionDir)\Windows\zlib;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)Windows\Build\$(Configuration)_$(Platform)\</OutDir>
+    <IntDir>Windows\Build\$(Configuration)_$(Platform)\</IntDir>
+    <IncludePath>$(SolutionDir)\Windows\glew;$(SolutionDir)\Windows\boost;$(SolutionDir)\Windows\zlib;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)Windows\Build\$(Configuration)_$(Platform)\</OutDir>
+    <IntDir>Windows\Build\$(Configuration)_$(Platform)\</IntDir>
+    <IncludePath>$(SolutionDir)\Windows\glew;$(SolutionDir)\Windows\boost;$(SolutionDir)\Windows\zlib;$(IncludePath)</IncludePath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <PrecompiledHeaderFile>$(SolutionDir)Windows\stdafx.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>$(SolutionDir)Windows\stdafx.h</ForcedIncludeFiles>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;$(SolutionDir)Windows\glew\lib\$(Platform)\glew32s.lib;$(SolutionDir)Windows\glew\lib\$(Platform)\glew32.lib;$(SolutionDir)Windows\zlib\$(Platform)\zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>true</ValidateAllParameters>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <PostBuildEvent>
+      <Command>copy "$(SolutionDir)Windows\glew\bin\$(Platform)\glew32.dll" "$(OutputPath)"
+copy "$(SolutionDir)Windows\zlib\$(Platform)\zlib1.dll" "$(OutputPath)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_WINDOWS;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <PrecompiledHeaderFile>$(SolutionDir)Windows\stdafx.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>$(SolutionDir)Windows\stdafx.h</ForcedIncludeFiles>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;$(SolutionDir)Windows\glew\lib\$(Platform)\glew32s.lib;$(SolutionDir)Windows\glew\lib\$(Platform)\glew32.lib;$(SolutionDir)Windows\zlib\$(Platform)\zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>true</ValidateAllParameters>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <PostBuildEvent>
+      <Command>copy "$(SolutionDir)Windows\glew\bin\$(Platform)\glew32.dll" "$(OutputPath)"
+copy "$(SolutionDir)Windows\zlib\$(Platform)\zlib1.dll" "$(OutputPath)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <PrecompiledHeaderFile>$(SolutionDir)Windows\stdafx.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>$(SolutionDir)Windows\stdafx.h</ForcedIncludeFiles>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;$(SolutionDir)Windows\glew\lib\$(Platform)\glew32s.lib;$(SolutionDir)Windows\glew\lib\$(Platform)\glew32.lib;$(SolutionDir)Windows\zlib\$(Platform)\zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>true</ValidateAllParameters>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <PostBuildEvent>
+      <Command>copy "$(SolutionDir)Windows\glew\bin\$(Platform)\glew32.dll" "$(OutputPath)"
+copy "$(SolutionDir)Windows\zlib\$(Platform)\zlib1.dll" "$(OutputPath)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <PrecompiledHeaderFile>$(SolutionDir)Windows\stdafx.h</PrecompiledHeaderFile>
+      <ForcedIncludeFiles>$(SolutionDir)Windows\stdafx.h</ForcedIncludeFiles>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;$(SolutionDir)Windows\glew\lib\$(Platform)\glew32s.lib;$(SolutionDir)Windows\glew\lib\$(Platform)\glew32.lib;$(SolutionDir)Windows\zlib\$(Platform)\zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <Midl>
+      <MkTypLibCompatible>false</MkTypLibCompatible>
+      <ValidateAllParameters>true</ValidateAllParameters>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </Midl>
+    <ResourceCompile>
+      <Culture>0x0409</Culture>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <PostBuildEvent>
+      <Command>copy "$(SolutionDir)Windows\glew\bin\$(Platform)\glew32.dll" "$(OutputPath)"
+copy "$(SolutionDir)Windows\zlib\$(Platform)\zlib1.dll" "$(OutputPath)"</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="Windows\Conversions.h" />
+    <ClInclude Include="Engine\cnum.h" />
+    <ClInclude Include="Engine\Functions\boost_wrappers.h" />
+    <ClInclude Include="Engine\Functions\Faddeeva.h" />
+    <ClInclude Include="Engine\Functions\Functions.h" />
+    <ClInclude Include="Engine\Namespace\AliasVariable.h" />
+    <ClInclude Include="Engine\Namespace\all.h" />
+    <ClInclude Include="Engine\Namespace\BaseFunction.h" />
+    <ClInclude Include="Engine\Namespace\Constant.h" />
+    <ClInclude Include="Engine\Namespace\Element.h" />
+    <ClInclude Include="Engine\Namespace\Expression.h" />
+    <ClInclude Include="Engine\Namespace\Function.h" />
+    <ClInclude Include="Engine\Namespace\Namespace.h" />
+    <ClInclude Include="Engine\Namespace\ObjectDB.h" />
+    <ClInclude Include="Engine\Namespace\Operator.h" />
+    <ClInclude Include="Engine\Namespace\Parameter.h" />
+    <ClInclude Include="Engine\Namespace\RootNamespace.h" />
+    <ClInclude Include="Engine\Namespace\UserFunction.h" />
+    <ClInclude Include="Engine\Namespace\Variable.h" />
+    <ClInclude Include="Engine\Parser\BoundContext.h" />
+    <ClInclude Include="Engine\Parser\EvalContext.h" />
+    <ClInclude Include="Engine\Parser\Evaluator.h" />
+    <ClInclude Include="Engine\Parser\ExecToken.h" />
+    <ClInclude Include="Engine\Parser\FPTR.h" />
+    <ClInclude Include="Engine\Parser\OptimizingTree.h" />
+    <ClInclude Include="Engine\Parser\ParsingResult.h" />
+    <ClInclude Include="Engine\Parser\ParsingTree.h" />
+    <ClInclude Include="Engine\Parser\PreToken.h" />
+    <ClInclude Include="Engine\Parser\readconst.h" />
+    <ClInclude Include="Engine\Parser\readnum.h" />
+    <ClInclude Include="Engine\Parser\RetainTree.h" />
+    <ClInclude Include="Engine\Parser\Simplifier\Pattern.h" />
+    <ClInclude Include="Engine\Parser\Token.h" />
+    <ClInclude Include="Engine\Parser\utf8\utf8.h" />
+    <ClInclude Include="Engine\Parser\utf8\utf8\checked.h" />
+    <ClInclude Include="Engine\Parser\utf8\utf8\core.h" />
+    <ClInclude Include="Engine\Parser\utf8\utf8\unchecked.h" />
+    <ClInclude Include="Engine\Parser\Waypoint.h" />
+    <ClInclude Include="Engine\Parser\WorkingTree.h" />
+    <ClInclude Include="Graphs\Geometry\Axis.h" />
+    <ClInclude Include="Graphs\Geometry\AxisIndex.h" />
+    <ClInclude Include="Graphs\Geometry\Camera.h" />
+    <ClInclude Include="Graphs\Geometry\Matrix.h" />
+    <ClInclude Include="Graphs\Geometry\Quaternion.h" />
+    <ClInclude Include="Graphs\Geometry\RecursiveGrid.h" />
+    <ClInclude Include="Graphs\Geometry\Rotation.h" />
+    <ClInclude Include="Graphs\Geometry\Triangle.h" />
+    <ClInclude Include="Graphs\Geometry\Vector.h" />
+    <ClInclude Include="Graphs\Graph.h" />
+    <ClInclude Include="Graphs\Graphics\AxisLabels.h" />
+    <ClInclude Include="Graphs\Graphics\Edge.h" />
+    <ClInclude Include="Graphs\Graphics\Face.h" />
+    <ClInclude Include="Graphs\Graphics\GL_AreaGraph.h" />
+    <ClInclude Include="Graphs\Graphics\GL_Axis.h" />
+    <ClInclude Include="Graphs\Graphics\GL_ColorGraph.h" />
+    <ClInclude Include="Graphs\Graphics\GL_Graph.h" />
+    <ClInclude Include="Graphs\Graphics\GL_Histogram.h" />
+    <ClInclude Include="Graphs\Graphics\GL_HistogramPointGraph.h" />
+    <ClInclude Include="Graphs\Graphics\GL_ImplicitAreaGraph.h" />
+    <ClInclude Include="Graphs\Graphics\GL_ImplicitLineGraph.h" />
+    <ClInclude Include="Graphs\Graphics\GL_LineGraph.h" />
+    <ClInclude Include="Graphs\Graphics\GL_PointGraph.h" />
+    <ClInclude Include="Graphs\Graphics\GL_RiemannColorGraph.h" />
+    <ClInclude Include="Graphs\Graphics\GL_RiemannHistogram.h" />
+    <ClInclude Include="Graphs\Graphics\GL_RiemannHistogramPointGraph.h" />
+    <ClInclude Include="Graphs\Graphics\Info.h" />
+    <ClInclude Include="Graphs\Graphics\ThreadStorage.h" />
+    <ClInclude Include="Graphs\Graphics\Vertex2D.h" />
+    <ClInclude Include="Graphs\Graphics\VisibilityFlags.h" />
+    <ClInclude Include="Graphs\OpenGL\GL_AAMode.h" />
+    <ClInclude Include="Graphs\OpenGL\GL_BlendMode.h" />
+    <ClInclude Include="Graphs\OpenGL\GL_ClippingPlane.h" />
+    <ClInclude Include="Graphs\OpenGL\GL_Color.h" />
+    <ClInclude Include="Graphs\OpenGL\GL_Context.h" />
+    <ClInclude Include="Graphs\OpenGL\GL_Dots.h" />
+    <ClInclude Include="Graphs\OpenGL\GL_FBO.h" />
+    <ClInclude Include="Graphs\OpenGL\GL_Font.h" />
+    <ClInclude Include="Graphs\OpenGL\GL_Image.h" />
+    <ClInclude Include="Graphs\OpenGL\GL_Light.h" />
+    <ClInclude Include="Graphs\OpenGL\GL_Lines.h" />
+    <ClInclude Include="Graphs\OpenGL\GL_Mask.h" />
+    <ClInclude Include="Graphs\OpenGL\GL_Mesh.h" />
+    <ClInclude Include="Graphs\OpenGL\GL_RM.h" />
+    <ClInclude Include="Graphs\OpenGL\GL_String.h" />
+    <ClInclude Include="Graphs\OpenGL\GL_StringCache.h" />
+    <ClInclude Include="Graphs\OpenGL\GL_Util.h" />
+    <ClInclude Include="Graphs\Plot.h" />
+    <ClInclude Include="Graphs\Threading\ThreadInfo.h" />
+    <ClInclude Include="Graphs\Threading\ThreadMap.h" />
+    <ClInclude Include="pch.h" />
+    <ClInclude Include="Persistence\ByteReader.h" />
+    <ClInclude Include="Persistence\ErrorHandling.h" />
+    <ClInclude Include="Persistence\FileVersions.h" />
+    <ClInclude Include="Persistence\serializer.h" />
+    <ClInclude Include="Utility\MemoryPool.h" />
+    <ClInclude Include="Utility\Mutex.h" />
+    <ClInclude Include="Utility\StringFormatting.h" />
+    <ClInclude Include="Utility\System.h" />
+    <ClInclude Include="version.h" />
+    <ClInclude Include="Windows\CPlotApp.h" />
+    <ClInclude Include="Windows\Document.h" />
+    <ClInclude Include="Windows\MainView.h" />
+    <ClInclude Include="Windows\Controls\DeltaSlider.h" />
+    <ClInclude Include="Windows\Controls\HeaderControl.h" />
+    <ClInclude Include="Windows\Controls\ImageWell.h" />
+    <ClInclude Include="Windows\MainWindow.h" />
+    <ClInclude Include="Windows\PlotView.h" />
+    <ClInclude Include="Windows\res\Resource.h" />
+    <ClInclude Include="Windows\SideView.h" />
+    <ClInclude Include="Windows\Controls\SplitterWnd.h" />
+    <ClInclude Include="Windows\stdafx.h" />
+    <ClInclude Include="Windows\targetver.h" />
+    <ClInclude Include="Windows\Controls\ViewUtil.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Windows\Conversions.cpp" />
+    <ClCompile Include="Engine\cnum.cc" />
+    <ClCompile Include="Engine\Functions\basic.cc" />
+    <ClCompile Include="Engine\Functions\bithacks.cc" />
+    <ClCompile Include="Engine\Functions\boost_wrappers.cc" />
+    <ClCompile Include="Engine\Functions\comparison.cc" />
+    <ClCompile Include="Engine\Functions\exp.cc" />
+    <ClCompile Include="Engine\Functions\Faddeeva.cc" />
+    <ClCompile Include="Engine\Functions\fractals.cc" />
+    <ClCompile Include="Engine\Functions\gamma.cc" />
+    <ClCompile Include="Engine\Functions\powerseries.cc" />
+    <ClCompile Include="Engine\Functions\random.cc" />
+    <ClCompile Include="Engine\Functions\statistics.cc" />
+    <ClCompile Include="Engine\Functions\wrappers.cc" />
+    <ClCompile Include="Engine\Namespace\AliasVariable.cc" />
+    <ClCompile Include="Engine\Namespace\BaseFunction.cc" />
+    <ClCompile Include="Engine\Namespace\Element.cc" />
+    <ClCompile Include="Engine\Namespace\Expression.cc" />
+    <ClCompile Include="Engine\Namespace\Function.cc" />
+    <ClCompile Include="Engine\Namespace\Namespace.cc" />
+    <ClCompile Include="Engine\Namespace\ObjectDB.cc" />
+    <ClCompile Include="Engine\Namespace\Parameter.cc" />
+    <ClCompile Include="Engine\Namespace\RootNamespace.cc" />
+    <ClCompile Include="Engine\Namespace\UserFunction.cc" />
+    <ClCompile Include="Engine\Parser\BoundContext.cc" />
+    <ClCompile Include="Engine\Parser\Evaluator.cc" />
+    <ClCompile Include="Engine\Parser\ExecToken.cc" />
+    <ClCompile Include="Engine\Parser\OptimizingTree.cc" />
+    <ClCompile Include="Engine\Parser\ParsingResult.cc" />
+    <ClCompile Include="Engine\Parser\ParsingTree.cc" />
+    <ClCompile Include="Engine\Parser\PreToken.cc" />
+    <ClCompile Include="Engine\Parser\readconst.cc" />
+    <ClCompile Include="Engine\Parser\readnum.cc" />
+    <ClCompile Include="Engine\Parser\Simplifier\Functions.cc" />
+    <ClCompile Include="Engine\Parser\Simplifier\Normalize.cc" />
+    <ClCompile Include="Engine\Parser\Simplifier\Pattern.cc" />
+    <ClCompile Include="Engine\Parser\Simplifier\Powers.cc" />
+    <ClCompile Include="Engine\Parser\Simplifier\Products.cc" />
+    <ClCompile Include="Engine\Parser\Simplifier\Simplify.cc" />
+    <ClCompile Include="Engine\Parser\Simplifier\Sums.cc" />
+    <ClCompile Include="Engine\Parser\Simplifier\Unary.cc" />
+    <ClCompile Include="Engine\Parser\Token.cc" />
+    <ClCompile Include="Engine\Parser\WorkingTree.cc" />
+    <ClCompile Include="Engine\Parser\WorkingTreeDerivative.cc" />
+    <ClCompile Include="Engine\Parser\WorkingTreePrinting.cc" />
+    <ClCompile Include="Graphs\Geometry\Axis.cc" />
+    <ClCompile Include="Graphs\Geometry\Camera.cc" />
+    <ClCompile Include="Graphs\Geometry\RecursiveGrid.cc" />
+    <ClCompile Include="Graphs\Geometry\Rotation.cc" />
+    <ClCompile Include="Graphs\Graph.cc" />
+    <ClCompile Include="Graphs\Graphics\AxisLabels.cc" />
+    <ClCompile Include="Graphs\Graphics\GL_AreaGraph.cc" />
+    <ClCompile Include="Graphs\Graphics\GL_AreaGraph_no_subdivision.cc" />
+    <ClCompile Include="Graphs\Graphics\GL_Axis.cc" />
+    <ClCompile Include="Graphs\Graphics\GL_ColorGraph.cc" />
+    <ClCompile Include="Graphs\Graphics\GL_Graph.cc" />
+    <ClCompile Include="Graphs\Graphics\GL_Histogram.cc" />
+    <ClCompile Include="Graphs\Graphics\GL_HistogramPointGraph.cc" />
+    <ClCompile Include="Graphs\Graphics\GL_ImplicitAreaGraph.cc" />
+    <ClCompile Include="Graphs\Graphics\GL_ImplicitAreaGraphTables.cc" />
+    <ClCompile Include="Graphs\Graphics\GL_ImplicitLineGraph.cc" />
+    <ClCompile Include="Graphs\Graphics\GL_LineGraph.cc" />
+    <ClCompile Include="Graphs\Graphics\GL_PointGraph.cc" />
+    <ClCompile Include="Graphs\Graphics\GL_RiemannColorGraph.cc" />
+    <ClCompile Include="Graphs\Graphics\GL_RiemannHistogram.cc" />
+    <ClCompile Include="Graphs\Graphics\GL_RiemannHistogramPointGraph.cc" />
+    <ClCompile Include="Graphs\Graphics\Info.cc" />
+    <ClCompile Include="Graphs\OpenGL\GL_BlendMode.cc" />
+    <ClCompile Include="Graphs\OpenGL\GL_ClippingPlane.cc" />
+    <ClCompile Include="Graphs\OpenGL\GL_Color.cc" />
+    <ClCompile Include="Graphs\OpenGL\GL_Dots.cc" />
+    <ClCompile Include="Graphs\OpenGL\GL_FBO.cc" />
+    <ClCompile Include="Graphs\OpenGL\GL_Font.cc" />
+    <ClCompile Include="Graphs\OpenGL\GL_Image.cc" />
+    <ClCompile Include="Graphs\OpenGL\GL_Light.cc" />
+    <ClCompile Include="Graphs\OpenGL\GL_Lines.cc" />
+    <ClCompile Include="Graphs\OpenGL\GL_Mask.cc" />
+    <ClCompile Include="Graphs\OpenGL\GL_Mesh.cc" />
+    <ClCompile Include="Graphs\OpenGL\GL_RM.cc" />
+    <ClCompile Include="Graphs\OpenGL\GL_String.cpp" />
+    <ClCompile Include="Graphs\OpenGL\GL_StringCache.cc" />
+    <ClCompile Include="Graphs\OpenGL\GL_Util.cc" />
+    <ClCompile Include="Graphs\Plot.cc" />
+    <ClCompile Include="Graphs\Threading\ThreadMap.cc" />
+    <ClCompile Include="Persistence\ByteReader.cc" />
+    <ClCompile Include="Persistence\serializer.cc" />
+    <ClCompile Include="Utility\MemoryPool.cc" />
+    <ClCompile Include="Utility\StringFormatting.cc" />
+    <ClCompile Include="Utility\System.cpp" />
+    <ClCompile Include="Windows\Controls\ViewUtil.cpp" />
+    <ClCompile Include="Windows\CPlotApp.cpp" />
+    <ClCompile Include="Windows\Document.cpp" />
+    <ClCompile Include="Windows\MainView.cpp" />
+    <ClCompile Include="Windows\Controls\DeltaSlider.cpp" />
+    <ClCompile Include="Windows\Controls\HeaderControl.cpp" />
+    <ClCompile Include="Windows\Controls\ImageWell.cpp" />
+    <ClCompile Include="Windows\MainWindow.cpp" />
+    <ClCompile Include="Windows\PlotView.cpp" />
+    <ClCompile Include="Windows\SideView.cpp" />
+    <ClCompile Include="Windows\Controls\SplitterWnd.cpp" />
+    <ClCompile Include="Windows\stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Windows\res\CPlot.reg" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Windows\res\CPlot.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Windows\res\CPlot.ico" />
+    <Image Include="Windows\res\CPlotDoc.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Engine\Parser\Simplifier\Rules.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

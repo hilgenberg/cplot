@@ -1,12 +1,12 @@
 #pragma once
 
 #include <vector>
-#include <pthread.h>
 #include <cassert>
 #include <string>
 #include <functional>
 #include <atomic>
 #include "ThreadInfo.h"
+#include "../../Utility/Mutex.h"
 
 class WorkLayer;
 class Task;
@@ -133,13 +133,13 @@ private:
 	 */
 	bool acquire(bool block)
 	{
-		return (0 == (block ? pthread_mutex_lock : pthread_mutex_trylock)(&lock));
+		return (block ? (lock.lock(), true) : lock.try_lock());
 	}
 	
 	/**
 	 * Release the lock. Must only be called after a successful call to acquire.
 	 */
-	void release(){ pthread_mutex_unlock(&lock); }
+	void release(){ lock.unlock(); }
 	
 	/**
 	 * Call u->finish() while locked and decrement the 'unfinished' counter.
@@ -148,11 +148,11 @@ private:
 	
 	WorkLayer *above, *below;     ///< Doubly linked list.
 	Task      *task;              ///< Task that this belongs to.
-	pthread_mutex_t lock;         ///< Lock for all state updates.
+	Mutex      lock;              ///< Lock for all state updates.
 
 	bool cyclic; ///< First and last units are considered neighbours if cyclic is true.
 	
-	volatile int32_t  next_todo;  ///< in work_order
+	volatile int32_t     next_todo;  ///< in work_order
 	std::atomic<int32_t> unfinished; ///< Upper bound for the number of units with !done()
 	std::vector<WorkUnit*> units;
 	int space;                    ///< Every unit blocks the next and previous space units
@@ -229,19 +229,10 @@ public:
 		 void (*finish)(void *data) = ThreadInfo::thread_finish)
 	: active(NULL), layer0(NULL), setup(setup), finish(finish), info(info)
 	{
-		pthread_mutex_init(&lock, NULL);
-		#ifdef DEBUG
-		pthread_mutex_init(&logger_lock, NULL);
-		#endif
 	}
 	
 	~Task()
 	{
-		pthread_mutex_destroy(&lock);
-		#ifdef DEBUG
-		pthread_mutex_destroy(&logger_lock);
-		#endif
-		
 		WorkLayer *w = layer0;
 		while (w)
 		{
@@ -266,27 +257,27 @@ private:
 	bool acquire(WorkLayer *layer) /// Tries to lock the task while layer is still the active layer. Does not block.
 	{
 		if (active != layer) return false;
-		if (pthread_mutex_trylock(&lock) != 0) return false;
+		if (!lock.try_lock()) return false;
 		if (active != layer)
 		{
-			pthread_mutex_unlock(&lock);
+			lock.unlock();
 			return false;
 		}
 		return true;
 	}
 	void release() /// Release the lock.
 	{
-		pthread_mutex_unlock(&lock);
+		lock.unlock();
 	}
 
 	static void *run_thread(void *task); ///< Called by every thread.
 
-	pthread_mutex_t lock; ///< Lock for modifying the task's state
+	Mutex lock; ///< Lock for modifying the task's state
 	#ifdef DEBUG
-	pthread_mutex_t logger_lock; ///< Lock for writing to stdout or stderr or logfiles
+	Mutex logger_lock; ///< Lock for writing to stdout or stderr or logfiles
 public:
-	void  start_logging(){ pthread_mutex_lock  (&logger_lock); }
-	void finish_logging(){ pthread_mutex_unlock(&logger_lock); }
+	void  start_logging(){ logger_lock.lock(); }
+	void finish_logging(){ logger_lock.unlock(); }
 	#endif
 };
 

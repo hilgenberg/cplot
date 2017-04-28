@@ -4,7 +4,7 @@
 #include <stack>
 #include <cassert>
 
-class ParsingResult;
+struct ParsingResult;
 class Namespace;
 class Element;
 struct PreToken;

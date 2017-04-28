@@ -181,7 +181,11 @@ cnum evaluate(const std::string &s); // in default RootNamespace
 
 inline void sincos(double angle, double &sin_value, double &cos_value)
 {
+#ifdef _WINDOWS
+	cos_value = cos(angle);
+	sin_value = sin(angle);
+#else
 	asm("fsincos" : "=t" (cos_value), "=u" (sin_value) : "0" (angle));
-	//cos_value = cos(angle); sin_value = sin(angle)
+#endif
 }
 

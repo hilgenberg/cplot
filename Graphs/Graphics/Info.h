@@ -34,9 +34,9 @@ struct DI_Axis
 		double y = (p.y - center[1]) * rxi;
 		double z = (p.z - center[2]) * rxi;
 		
-		q.x = fabs(x) < COORD_MAX ? (float)x : x < 0 ? -COORD_MAX : COORD_MAX;
-		q.y = fabs(y) < COORD_MAX ? (float)y : y < 0 ? -COORD_MAX : COORD_MAX;
-		q.z = fabs(z) < COORD_MAX ? (float)z : z < 0 ? -COORD_MAX : COORD_MAX;
+		q.x = (float)(fabs(x) < COORD_MAX ? x : x < 0 ? -COORD_MAX : COORD_MAX);
+		q.y = (float)(fabs(y) < COORD_MAX ? y : y < 0 ? -COORD_MAX : COORD_MAX);
+		q.z = (float)(fabs(z) < COORD_MAX ? z : z < 0 ? -COORD_MAX : COORD_MAX);
 	}
 	inline void map_vector(const P3d &p, P3f &q) const
 	{
@@ -45,9 +45,9 @@ struct DI_Axis
 		double y = p.y * rxi;
 		double z = p.z * rxi;
 		
-		q.x = fabs(x) < COORD_MAX ? (float)x : x < 0 ? -COORD_MAX : COORD_MAX;
-		q.y = fabs(y) < COORD_MAX ? (float)y : y < 0 ? -COORD_MAX : COORD_MAX;
-		q.z = fabs(z) < COORD_MAX ? (float)z : z < 0 ? -COORD_MAX : COORD_MAX;
+		q.x = (float)(fabs(x) < COORD_MAX ? x : x < 0 ? -COORD_MAX : COORD_MAX);
+		q.y = (float)(fabs(y) < COORD_MAX ? y : y < 0 ? -COORD_MAX : COORD_MAX);
+		q.z = (float)(fabs(z) < COORD_MAX ? z : z < 0 ? -COORD_MAX : COORD_MAX);
 	}
 	inline float map_size(double s) const
 	{

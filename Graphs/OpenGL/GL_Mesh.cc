@@ -253,6 +253,7 @@ struct Iter // for sorting faces and normals simultaneously
 	typedef ptrdiff_t           difference_type;
 	typedef std::pair<Face,P3f> value_type; // for temp copies in the STL code
 	typedef value_type          Val;
+	typedef std::random_access_iterator_tag iterator_category;
 
 	struct Ref
 	{
@@ -268,9 +269,11 @@ struct Iter // for sorting faces and normals simultaneously
 		P3f  &normal;
 	};
 	
+	Iter(Face *f, P3f *n) : i1(f), i2(n){}
 	inline Ref operator*() const{ return Ref(*i1, *i2); }
 	inline difference_type operator-(const Iter &I) const{ return i1-I.i1; }
 	inline Iter &operator++() { ++i1; ++i2; return *this; }
+	inline Iter operator++(int) { Iter ret(*this); ++i1; ++i2; return ret; }
 	inline Iter &operator--() { --i1; --i2; return *this; }
 	inline Iter &operator+=(difference_type d) { i1 += d; i2 += d; return *this; }
 	inline Iter &operator-=(difference_type d) { i1 -= d; i2 -= d; return *this; }
@@ -326,7 +329,10 @@ void GL_Mesh::depth_sort(const P3f &view)
 		else
 		{
 			P3f *ns = normals(); // normals must be sorted with the faces.
-			std::sort(Iter{fs,ns}, Iter{fs + n_faces, ns + n_faces}, FaceCmp{points(),view});
+			Iter begin(fs,ns), end(fs + n_faces, ns + n_faces);
+			FaceCmp cmp{ points(),view };
+			std::sort(begin, end, cmp);
+			//std::sort(Iter{fs,ns}, Iter{fs + n_faces, ns + n_faces}, FaceCmp{points(),view});
 		}
 	}
 	

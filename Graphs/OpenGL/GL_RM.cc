@@ -1,4 +1,3 @@
-#include <GL/glew.h>
 #include "GL_RM.h"
 #include "GL_Image.h"
 #include "GL_Mask.h"
@@ -369,7 +368,7 @@ void GL_RM::setup(bool repeat, bool interpolate, bool blend) const
 	glDisable(GL_TEXTURE_GEN_S);
 	glDisable(GL_TEXTURE_GEN_T);
 	x = blend ? GL_MODULATE : GL_REPLACE;
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, x);
+	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, (GLfloat)x);
 
 	glMatrixMode(GL_TEXTURE);
 	glLoadIdentity();

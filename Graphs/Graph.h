@@ -17,7 +17,7 @@ class Evaluator;
 class Variable;
 class Parameter;
 class GL_Graph;
-class Plot;
+struct Plot;
 
 enum GraphType
 {
@@ -166,7 +166,10 @@ struct GraphOptions : public Serializable
 	HistogramMode   hist_mode;
 };
 
-class Graph : public Serializable, public IDCarrier, public PropertyList
+class Graph : public Serializable, public IDCarrier
+#ifndef _WINDOWS
+	, public PropertyList
+#endif
 {
 public:
 	Graph(Plot &plot);
@@ -182,6 +185,11 @@ public:
 	const std::string &f1() const{ return m_f1; }
 	const std::string &f2() const{ return m_f2; }
 	const std::string &f3() const{ return m_f3; }
+	const std::string &fn(int i) const
+	{
+		assert(i >= 1 && i <= 3);
+		return i == 1 ? m_f1 : i == 2 ? m_f2 : m_f3;
+	}
 	void f1(const std::string &f){ set(   f, m_f2, m_f3); }
 	void f2(const std::string &f){ set(m_f1,    f, m_f3); }
 	void f3(const std::string &f){ set(m_f1, m_f2,    f); }
@@ -307,9 +315,11 @@ public:
 	virtual void dump(std::ostream &o) const{ o << "Graph " << description_line(); }
 #endif
 
+#ifndef _WINDOWS
 protected:
 	virtual void init_properties();
 	virtual const Namespace &pns() const;
+#endif
 
 private:
 	std::string m_f1, m_f2, m_f3;

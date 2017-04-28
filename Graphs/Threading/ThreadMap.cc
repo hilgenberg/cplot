@@ -2,18 +2,11 @@
 
 #include <cassert>
 #include <iostream>
-#include <unistd.h>
 #include <atomic>
 
+#include <thread>
 #include <mutex>
 #include <condition_variable>
-
-#define USE_PTHREADS
-
-#ifndef USE_PTHREADS
-#import <Foundation/Foundation.h>
-#include <libkern/OSAtomic.h>
-#endif
 
 #ifdef DEBUG
 //#define TASK_DEBUG
@@ -78,6 +71,8 @@ void WorkUnit::start(int i)
 			//usleep(500 + arc4random_uniform(200)); // waiting for the lower level could take some time
 			#ifdef USE_PTHREADS
 			pthread_yield();
+			#else
+			std::this_thread::yield();
 			#endif
 		}
 	}
@@ -115,7 +110,9 @@ void WorkUnit::start(int i)
 			#ifdef USE_PTHREADS
 			pthread_yield();
 			#else
-			usleep(100 + arc4random_uniform(100)); // waiting for neighbours should almost never happen
+			std::this_thread::yield();
+			std::this_thread::sleep_for(std::chrono::nanoseconds(100));
+			//usleep(100 + arc4random_uniform(100)); // waiting for neighbours should almost never happen
 			#endif
 		}
 	}
@@ -133,10 +130,7 @@ WorkLayer::WorkLayer(const std::string &name, Task *t, WorkLayer *down, int spac
 	if (space < 0) space = 0;
 	
 	if (below) below->above = this;
-	
-	bool ok = (0 == pthread_mutex_init(&lock, NULL));
-	if (!ok) throw std::runtime_error("could not create mutex");
-	
+		
 	if (!task->layer0)
 	{
 		task->layer0 = this;
@@ -147,7 +141,6 @@ WorkLayer::WorkLayer(const std::string &name, Task *t, WorkLayer *down, int spac
 WorkLayer::~WorkLayer()
 {
 	for (WorkUnit *u : units) delete u;
-	pthread_mutex_destroy(&lock);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -222,7 +215,11 @@ void *Task::run_thread(void *task_)
 			u->start(i);
 			u->work(data);
 			u->finish();
+			#ifdef USE_PTHREADS
 			pthread_yield();
+			#else
+			std::this_thread::yield();
+			#endif
 		}
 	}
 	catch(...)
@@ -242,15 +239,26 @@ void Task::run(int n_threads)
 		return;
 	}
 
-#ifndef USE_PTHREADS // GCD
+#ifndef USE_PTHREADS
 	
-	NSOperationQueue *oq = [[[NSOperationQueue alloc] init] autorelease];
+	std::vector<std::thread> threads;
 	for (int i = 0; i < n_threads; ++i)
 	{
-		[oq addOperationWithBlock:^{ runThread(this); }];
+		threads.emplace_back(Task::run_thread, this);
 	}
-	[oq waitUntilAllOperationsAreFinished];
-	
+
+	if (threads.empty())
+	{
+		assert(false);
+		run_thread(this);
+		return;
+	}
+
+	for (auto &t : threads)
+	{
+		t.join();
+	}
+
 #else
 
 	std::vector<pthread_t> threads;

@@ -8,12 +8,12 @@ void GL_ClippingPlane::save(Serializer &s) const
 		if (!m_enabled) return;
 		NEEDS_VERSION(FILE_VERSION_1_3, "custom clipping plane");
 	}
-	s._bool(m_enabled);
-	s._float(m_normal.x);
-	s._float(m_normal.y);
-	s._float(m_normal.z);
-	s._float(m_distance);
-	s._bool(m_locked);
+	s.bool_(m_enabled);
+	s.float_(m_normal.x);
+	s.float_(m_normal.y);
+	s.float_(m_normal.z);
+	s.float_(m_distance);
+	s.bool_(m_locked);
 }
 void GL_ClippingPlane::load(Deserializer &s)
 {
@@ -25,12 +25,12 @@ void GL_ClippingPlane::load(Deserializer &s)
 	}
 	else
 	{
-		s._bool(m_enabled);
-		s._float(m_normal.x);
-		s._float(m_normal.y);
-		s._float(m_normal.z);
-		s._float(m_distance);
-		s._bool(m_locked);
+		s.bool_(m_enabled);
+		s.float_(m_normal.x);
+		s.float_(m_normal.y);
+		s.float_(m_normal.z);
+		s.float_(m_distance);
+		s.bool_(m_locked);
 	}
 }
 

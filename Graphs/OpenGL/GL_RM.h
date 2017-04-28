@@ -44,7 +44,7 @@ private:
 
 typedef GLuint GL_Handle;
 
-class GL_Image;
+struct GL_Image;
 class GL_Mask;
 class Camera;
 

@@ -5,17 +5,17 @@
 
 void GL_Color::save(Serializer &s) const
 {
-	s._float(r);
-	s._float(g);
-	s._float(b);
-	s._float(a);
+	s.float_(r);
+	s.float_(g);
+	s.float_(b);
+	s.float_(a);
 }
 void GL_Color::load(Deserializer &s)
 {
-	s._float(r);
-	s._float(g);
-	s._float(b);
-	s._float(a);
+	s.float_(r);
+	s.float_(g);
+	s.float_(b);
+	s.float_(a);
 }
 
 void GL_Color::set() const
@@ -134,7 +134,7 @@ static bool read_float(const char *s, GL_Color &c)
 	while (isspace(*s)) ++s;
 	if (*s != '(') return false;
 	++s; while (isspace(*s)) ++s;
-	int n = strlen(s);
+	int n = (int)strlen(s);
 	if (n < 2 || s[n-1] != ')') return false;
 	--n;
 	int pl = 0, commas[3], nc = 0;
@@ -214,7 +214,7 @@ std::string GL_Color::to_string() const
 	static const char d[16+1] = "0123456789ABCDEF";
 	auto hex = [](float x)
 	{
-		int c = x*255.0f;
+		int c = (int)(x*255.0f);
 		if (c < 0) c = 0; else if (c > 255) c = 255;
 		return (unsigned char)c;
 	};

@@ -17,10 +17,10 @@ void Expression::save(Serializer &ser) const
 {
 	assert(false); // should probably never be saved
 	Element::save(ser);
-	ser._uint64(m_strings.size());
+	ser.uint64_(m_strings.size());
 	for (const std::string &s : m_strings)
 	{
-		ser._string(s);
+		ser.string_(s);
 	}
 }
 void Expression::load(Deserializer &ser)
@@ -28,11 +28,11 @@ void Expression::load(Deserializer &ser)
 	assert(false);
 	Element::load(ser);
 	uint64_t n;
-	ser._uint64(n);
+	ser.uint64_(n);
 	for (size_t i = 0; i < n; ++i)
 	{
 		std::string s;
-		ser._string(s);
+		ser.string_(s);
 		m_strings.push_back(s);
 	}
 }

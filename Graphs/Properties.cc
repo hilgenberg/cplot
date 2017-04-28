@@ -30,7 +30,11 @@ void PropertyList::print_properties() const
 	}
 }
 
+#ifdef _WINDOWS
+void Property::set_enum(EnumCvt ec, ...)
+#else
 void Property::set_enum(const EnumCvt &ec, ...)
+#endif
 {
 	va_list ap; va_start(ap, ec);
 
@@ -130,7 +134,7 @@ void PropertyList::parse_range(const std::string &s, double &c0, double &r0) con
 				case '(': ++pl; break;
 				case ')': --pl; break;
 				case ',':
-				case ';': if (!pl){ ++nc; c = i; } break;
+				case ';': if (!pl){ ++nc; c = (int)i; } break;
 			}
 		}
 		if (nc == 1)
@@ -151,7 +155,7 @@ void PropertyList::parse_range(const std::string &s, double &c0, double &r0) con
 		{
 			case '(': ++pl; break;
 			case ')': --pl; break;
-			case '+': if (!pl && i+1 < n && s[i+1] == '-') pm = i; break;
+			case '+': if (!pl && i+1 < n && s[i+1] == '-') pm = (int)i; break;
 		}
 	}
 	if (pm == 0)

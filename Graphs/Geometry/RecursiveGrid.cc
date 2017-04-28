@@ -8,8 +8,8 @@
 
 RecursiveGrid_2D::RecursiveGrid_2D(size_t nx, size_t ny, unsigned char d)
 : nx(nx), ny(ny)
-, nnx((nx+(1<<d)-1)>>d)
-, nny((ny+(1<<d)-1)>>d)
+, nnx((nx+(1LL<<d)-1)>>d)
+, nny((ny+(1LL<<d)-1)>>d)
 , depth(d)
 , base(new Cells* [nnx*nny])
 {
@@ -21,9 +21,9 @@ RecursiveGrid_2D::RecursiveGrid_2D(size_t nx, size_t ny, unsigned char d)
 
 RecursiveGrid_3D::RecursiveGrid_3D(size_t nx, size_t ny, size_t nz, unsigned char d)
 : nx(nx), ny(ny), nz(nz)
-, nnx((nx+(1<<d)-1)>>d)
-, nny((ny+(1<<d)-1)>>d)
-, nnz((nz+(1<<d)-1)>>d)
+, nnx((nx+(1LL<<d)-1)>>d)
+, nny((ny+(1LL<<d)-1)>>d)
+, nnz((nz+(1LL<<d)-1)>>d)
 , depth(d)
 , base(new Cells* [nnx*nny*nnz])
 {
@@ -78,7 +78,7 @@ void RecursiveGrid_2D::set(size_t x, size_t y)
 		b = (*b)->sub + (int)(((x>>d) & 1) | (((y>>d) & 1) << 1));
 	}
 	int j = ((int)x & 1) | (((int)y & 1) << 1);
-	*(size_t*)b |= 1 << j;
+	*(size_t*)b |= 1LL << j;
 }
 
 
@@ -92,7 +92,7 @@ void RecursiveGrid_3D::set(size_t x, size_t y, size_t z)
 		b = (*b)->sub + (int)(((x>>d) & 1) | (((y>>d) & 1) << 1) | (((z>>d) & 1) << 2));
 	}
 	int j = ((int)x & 1) | (((int)y & 1) << 1) | (((int)z & 1) << 2);
-	*(size_t*)b |= 1 << j;
+	*(size_t*)b |= 1LL << j;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -106,9 +106,9 @@ bool RecursiveGrid_2D::get_range(size_t xm, size_t ym, int range) const
 	size_t x0 = xm>(size_t)range ? xm-range : 0, x1 = std::min(xm+range+1, nx);
 	size_t y0 = ym>(size_t)range ? ym-range : 0, y1 = std::min(ym+range+1, ny);
 	
-	for (size_t x = x0, xx = ((x >> depth) << depth) + (1<<depth); x < x1; x = xx, xx += 1<<depth)
+	for (size_t x = x0, xx = ((x >> depth) << depth) + (1LL<<depth); x < x1; x = xx, xx += 1LL<<depth)
 	{
-		for (size_t y = y0, yy = ((y >> depth) << depth) + (1<<depth); y < y1; y = yy, yy += 1<<depth)
+		for (size_t y = y0, yy = ((y >> depth) << depth) + (1LL<<depth); y < y1; y = yy, yy += 1LL<<depth)
 		{
 			if (get_subblock(x,y, std::min(xx,x1),std::min(yy,y1))) return true;
 		}
@@ -124,11 +124,11 @@ bool RecursiveGrid_3D::get_range(size_t xm, size_t ym, size_t zm, int range) con
 	size_t y0 = ym>(size_t)range ? ym-range : 0, y1 = std::min(ym+range+1, ny);
 	size_t z0 = zm>(size_t)range ? zm-range : 0, z1 = std::min(zm+range+1, nz);
 	
-	for (size_t x = x0, xx = ((x >> depth) << depth) + (1<<depth); x < x1; x = xx, xx += 1<<depth)
+	for (size_t x = x0, xx = ((x >> depth) << depth) + (1LL<<depth); x < x1; x = xx, xx += 1LL<<depth)
 	{
-		for (size_t y = y0, yy = ((y >> depth) << depth) + (1<<depth); y < y1; y = yy, yy += 1<<depth)
+		for (size_t y = y0, yy = ((y >> depth) << depth) + (1LL<<depth); y < y1; y = yy, yy += 1LL<<depth)
 		{
-			for (size_t z = z0, zz = ((z >> depth) << depth) + (1<<depth); z < z1; z = zz, zz += 1<<depth)
+			for (size_t z = z0, zz = ((z >> depth) << depth) + (1LL<<depth); z < z1; z = zz, zz += 1LL<<depth)
 			{
 				if (get_subblock(x,y,z, std::min(xx,x1),std::min(yy,y1),std::min(zz,z1))) return true;
 			}
@@ -183,18 +183,18 @@ static inline bool contains(size_t x, size_t y, size_t x0, size_t y0, size_t x1,
 bool RecursiveGrid_2D::get_subblock(size_t x0, size_t y0, size_t x1, size_t y1) const
 {
 	assert(x0 < x1 && y0 < y1);
-	assert(x1-x0 <= 1U<<depth);
-	assert(y1-y0 <= 1U<<depth);
+	assert(x1-x0 <= 1ULL<<depth);
+	assert(y1-y0 <= 1ULL<<depth);
 	
 	const Cells *b = base[(y0>>depth)*nnx + (x0>>depth)];
 	
-	if (x1-x0 == 1U<<depth && y1-y0 == 1U<<depth) return b;
+	if (x1-x0 == 1ULL<<depth && y1-y0 == 1ULL<<depth) return b;
 	
 	if (!b) return false;
 	
 	size_t mask = (1 << depth)-1;
-	x0 &= mask; x1 &= mask; if (!x1) x1 = 1 << mask;
-	y0 &= mask; y1 &= mask; if (!y1) y1 = 1 << mask;
+	x0 &= mask; x1 &= mask; if (!x1) x1 = 1ULL << mask;
+	y0 &= mask; y1 &= mask; if (!y1) y1 = 1ULL << mask;
 	
 	struct Info
 	{
@@ -241,20 +241,20 @@ contains(info.x+dx, info.y+dy, x0,y0,x1,y1)) return true
 bool RecursiveGrid_3D::get_subblock(size_t x0, size_t y0, size_t z0, size_t x1, size_t y1, size_t z1) const
 {
 	assert(x0 < x1 && y0 < y1 && z0 < z1);
-	assert(x1-x0 <= 1U<<depth);
-	assert(y1-y0 <= 1U<<depth);
-	assert(z1-z0 <= 1U<<depth);
+	assert(x1-x0 <= 1ULL<<depth);
+	assert(y1-y0 <= 1ULL<<depth);
+	assert(z1-z0 <= 1ULL<<depth);
 	
 	const Cells *b = base[(z0>>depth)*nnx*nny + (y0>>depth)*nnx + (x0>>depth)];
 	
-	if (x1-x0 == 1U<<depth && y1-y0 == 1U<<depth && z1-z0 == 1U<<depth) return b;
+	if (x1-x0 == 1ULL<<depth && y1-y0 == 1ULL<<depth && z1-z0 == 1ULL<<depth) return b;
 
 	if (!b) return false;
 
 	size_t mask = (1 << depth)-1;
-	x0 &= mask; x1 &= mask; if (!x1) x1 = 1 << mask;
-	y0 &= mask; y1 &= mask; if (!y1) y1 = 1 << mask;
-	z0 &= mask; z1 &= mask; if (!z1) z1 = 1 << mask;
+	x0 &= mask; x1 &= mask; if (!x1) x1 = 1LL << mask;
+	y0 &= mask; y1 &= mask; if (!y1) y1 = 1LL << mask;
+	z0 &= mask; z1 &= mask; if (!z1) z1 = 1LL << mask;
 	
 	struct Info
 	{

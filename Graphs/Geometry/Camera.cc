@@ -81,21 +81,21 @@ void Camera::accOrtho(double left, double right, double bottom, double top, doub
 // Camera
 //----------------------------------------------------------------------------------------------------------------------
 
-constexpr double Camera::znear = 0.01;
-constexpr double Camera::zfar  = 64.0;
+const double Camera::znear = 0.01;
+const double Camera::zfar  = 64.0;
 
 void Camera::save(Serializer &s) const
 {
-	s._double(z);
-	s._double(fov);
-	s._bool(upright);
+	s.double_(z);
+	s.double_(fov);
+	s.bool_(upright);
 	rot.save(s);
 }
 void Camera::load(Deserializer &s)
 {
-	s._double(z);
-	s._double(fov);
-	s._bool(upright);
+	s.double_(z);
+	s.double_(fov);
+	s.bool_(upright);
 	rot.load(s);
 }
 

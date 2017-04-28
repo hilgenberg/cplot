@@ -249,7 +249,7 @@ Evaluator::Evaluator(OptimizingTree *root, const std::vector<const Variable *> &
 	
 	map<PCOT, long> result_index; // for constants, vars, params, this will be the place for their value
 
-	long idx = nv; // skip vars for now
+	long idx = (long)nv; // skip vars for now
 	for (auto x : variables)  result_index[x] = -1;
 	
 	// Parameters need no particular order because they will be set only once in every drawing cycle,
@@ -376,7 +376,7 @@ Evaluator::Evaluator(OptimizingTree *root, const std::vector<const Variable *> &
 		// But then we must also set start[var'+1] <= i for all var' > var because their
 		// start value also contains var possibly having changed.
 		// So we can just do this for the minimum var index that funcs[i] depends on
-		long firstdep = nv + np; // the minimum var index
+		long firstdep = (long)(nv + np); // the minimum var index
 		if (!node->deterministic)
 		{
 			firstdep = -1; // update from start[0]

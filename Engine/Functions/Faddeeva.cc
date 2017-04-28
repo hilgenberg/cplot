@@ -121,6 +121,7 @@
 
 #include <cfloat>
 #include <cmath>
+#include <limits>
 
 using namespace std;
 
@@ -131,8 +132,8 @@ static inline bool my_isnan(double x) { return x != x; }
 #define isnan my_isnan
 static inline bool my_isinf(double x) { return 1/x == 0.; }
 #define isinf my_isinf
-#define Inf (1./0.) // infinity
-#define NaN (0./0.) // NaN
+#define Inf std::numeric_limits<double>::infinity() // infinity
+#define NaN std::numeric_limits<double>::quiet_NaN() // NaN
 
 /////////////////////////////////////////////////////////////////////////
 // Auxiliary routines to compute other special functions based on w(z)

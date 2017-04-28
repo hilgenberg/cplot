@@ -47,10 +47,10 @@ public:
 	: _style(m._style), _density(m._density), _update(m._update), _w(m._w), _h(m._h)
 	, GL_Resource()
 	{
-		if (custom()) _data = m._data; else _update = true;
+		if (custom()) data_ = m.data_; else _update = true;
 	}
 	explicit GL_Mask(GL_Mask &&m) : _style(m._style), _density(m._density), _update(m._update), _w(m._w), _h(m._h),
-	_data(std::move(m._data))
+	data_(std::move(m.data_))
 	{
 		m._style = Mask_Off;
 		m._w = m._h = 0;
@@ -63,7 +63,7 @@ public:
 		_density = m._density;
 		_update = m._update;
 		_w = m._w; _h = m._h;
-		_data = m._data;
+		data_ = m.data_;
 		modify();
 		return *this;
 	}
@@ -71,7 +71,7 @@ public:
 	bool operator== (const GL_Mask &x) const
 	{
 		if (_style != x._style || fabs(_density - x._density) > 1e-12) return false;
-		if (custom()) return _w == x._w && _h == x._h && _data == x._data;
+		if (custom()) return _w == x._w && _h == x._h && data_ == x.data_;
 		return true;
 	}
 
@@ -114,11 +114,11 @@ public:
 	unsigned char *redim(unsigned w, unsigned h)
 	{
 		_w = w; _h = h;
-		_data.resize(_w * _h);
+		data_.resize(_w * _h);
 		_style = Mask_Custom;
 		_update = false;
 		modify(); // even if w==w_ and h==h_ !
-		return _data.data();
+		return data_.data();
 	}
 
 private:
@@ -128,13 +128,13 @@ private:
 	double    _density;
 	MaskStyle _style;
 
-	mutable std::vector<unsigned char> _data; // alpha map
+	mutable std::vector<unsigned char> data_; // alpha map
 	mutable unsigned _w, _h;
 	mutable bool _update;
 	void update_size();
 	inline void check_data() const
 	{
-		assert(_data.size() == (size_t)_w * _h);
+		assert(data_.size() == (size_t)_w * _h);
 	}
 
 };

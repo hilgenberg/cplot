@@ -4,7 +4,7 @@
 #include <string>
 #include <cassert>
 
-class ParsingResult;
+struct ParsingResult;
 class Namespace;
 class RootNamespace;
 class Function;
@@ -13,7 +13,7 @@ class Operator;
 class Variable;
 class Parameter;
 class AliasVariable;
-class WayPoint;
+struct WayPoint;
 class ParsingTree;
 	
 class Token

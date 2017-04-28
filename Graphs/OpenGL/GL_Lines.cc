@@ -68,7 +68,7 @@ void GL_Lines::draw_dots() const
 	}
 	else
 	{
-		glDrawArrays(GL_POINTS, 0, (GLsizei)std::accumulate(s.begin(), s.end(), 0));
+		glDrawArrays(GL_POINTS, 0, (GLsizei)std::accumulate(s.begin(), s.end(), 0ULL));
 	}
 
 	glDisableClientState(GL_VERTEX_ARRAY);

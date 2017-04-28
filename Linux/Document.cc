@@ -14,9 +14,9 @@ void Document::saveAs(const std::string &p) const
 		if (w.version() >= FILE_VERSION_1_8)
 		{
 			uint32_t box_state = 0; // from mac version
-			w._uint32(box_state);
+			w.uint32_(box_state);
 		}
-		w._marker("EOF.");
+		w.marker_("EOF.");
 	}
 	catch(...)
 	{
@@ -40,8 +40,8 @@ void Document::load(const std::string &p)
 		rns.load(s);
 		plot.load(s);
 		uint32_t box_state;
-		if (s.version() >= FILE_VERSION_1_8) s._uint32(box_state);
-		s._marker("EOF.");
+		if (s.version() >= FILE_VERSION_1_8) s.uint32_(box_state);
+		s.marker_("EOF.");
 		assert(s.done());
 	}
 	catch(...)

@@ -115,12 +115,16 @@ public:
 	
 	typedef std::map<std::pair<std::string, int>, Element*> NamedMap; // (name, arity) -> element
 
-	class const_iterator
+	class const_iterator : public std::iterator<std::forward_iterator_tag, Element*>
 	{
 	public:
 		bool operator!= (const const_iterator& other) const
 		{
 			return i1 != other.i1 || i2 != other.i2;
+		}
+		bool operator== (const const_iterator& other) const
+		{
+			return i1 == other.i1 && i2 == other.i2;
 		}
 		Element* operator* () const
 		{

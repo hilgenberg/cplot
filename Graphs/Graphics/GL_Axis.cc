@@ -1,4 +1,3 @@
-#include <GL/glew.h>
 #include "GL_Axis.h"
 #include "../OpenGL/GL_String.h"
 #include "../OpenGL/GL_Font.h"

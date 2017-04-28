@@ -154,8 +154,8 @@ void GL_ImplicitLineGraph::update(int n_threads, double quality)
 	layer = new WorkLayer("alloc", &task, layer, 0, -1);
 	layer->add_unit([&npoints,&ndots,this](void * /*ti*/)
 	{
-		lines.resize(std::accumulate(npoints.begin(), npoints.end(), 0));
-		dots.resize(std::accumulate(ndots.begin(), ndots.end(), 0));
+		lines.resize(std::accumulate(npoints.begin(), npoints.end(), (size_t)0));
+		dots.resize(std::accumulate(ndots.begin(), ndots.end(), (size_t)0));
 	});
 
 	layer = new WorkLayer("transfer", &task, layer, 0, -1);
@@ -163,9 +163,9 @@ void GL_ImplicitLineGraph::update(int n_threads, double quality)
 	{
 		layer->add_unit([&,i,this](void * /*ti*/)
 		{
-			P3f *dst = lines.points() + std::accumulate(npoints.begin(), npoints.begin()+i, 0);
+			P3f *dst = lines.points() + std::accumulate(npoints.begin(), npoints.begin()+i, (size_t)0);
 			for (P3f &p : line_storage[i]) *dst++ = p;
-			dst = dots.points() + std::accumulate(ndots.begin(), ndots.begin()+i, 0);
+			dst = dots.points() + std::accumulate(ndots.begin(), ndots.begin()+i, (size_t)0);
 			for (P3f &p : dot_storage[i]) *dst++ = p;
 		});
 	}

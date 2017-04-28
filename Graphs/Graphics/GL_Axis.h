@@ -5,7 +5,7 @@
 #include <string>
 #include "../OpenGL/GL_String.h"
 #include "../OpenGL/GL_StringCache.h"
-class Plot;
+struct Plot;
 
 class GL_Axis
 {

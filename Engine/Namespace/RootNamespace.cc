@@ -13,11 +13,11 @@
 #include <iostream>
 #include <cassert>
 
-#define ADDF(name, ctor...) add_builtin(e = new BaseFunction(name, ctor))
-#define ADDC(name, ctor...) add_builtin(e = new Constant(name, cnum(ctor)))
-#define ADDUO(name, postf, ctor...) add_builtin(e = new UnaryOperator(name, !postf, ctor))
-#define ADDREL(name, prec, ctor...) add_builtin(e = new BinaryOperator(name, prec, true, false, false, false, ctor))
-#define ADDBO(name, prec, assoc, commut, right, ctor...) add_builtin(e = new BinaryOperator(name, prec, false, assoc, commut, right, ctor))
+#define ADDF(name, ...) add_builtin(e = new BaseFunction(name, __VA_ARGS__))
+#define ADDC(name, ...) add_builtin(e = new Constant(name, cnum(__VA_ARGS__)))
+#define ADDUO(name, postf, ...) add_builtin(e = new UnaryOperator(name, !postf, __VA_ARGS__))
+#define ADDREL(name, prec, ...) add_builtin(e = new BinaryOperator(name, prec, true, false, false, false, __VA_ARGS__))
+#define ADDBO(name, prec, assoc, commut, right, ...) add_builtin(e = new BinaryOperator(name, prec, false, assoc, commut, right, __VA_ARGS__))
 #define DNAME(n) e->displayName(PS_Console, n)
 #define MNAME(n) e->displayName(PS_Mathematica, n)
 #define LNAME(n) e->displayName(PS_LaTeX, n)
@@ -25,7 +25,7 @@
 #define HDNAME(n) e->displayName(PS_Head, n)
 #define STORE(x) (Element*&)x = e
 #define store(x) Element *x = e
-#define DIFF(cpx, s...) ((Function*)e)->gradient(std::vector<std::string>({s}), cpx)
+#define DIFF(cpx, ...) ((Function*)e)->gradient(std::vector<std::string>({__VA_ARGS__}), cpx)
 #define POWER(p) ((Function*)e)->set_power(p)
 #define EXP(b)   ((Function*)e)->set_exp(b)
 #define INVO ((Function*)e)->involution(true)

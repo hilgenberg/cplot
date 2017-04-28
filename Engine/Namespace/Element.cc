@@ -14,11 +14,11 @@ Element::~Element()
 
 void Element::save(Serializer &s) const
 {
-	s._string(nm);
+	s.string_(nm);
 }
 void Element::load(Deserializer &s)
 {
-	s._string(nm);
+	s.string_(nm);
 }
 
 std::string Element::displayName(PrintingStyle ds) const

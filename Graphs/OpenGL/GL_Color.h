@@ -23,6 +23,17 @@ struct GL_Color : public Serializable
 		float v[4];
 	};
 	
+	#ifdef _WINDOWS
+	operator COLORREF() const { return RGB(int(r*255.0f), int(g*255.0f), int(b*255.0f)); }
+	GL_Color &operator= (COLORREF c)
+	{
+		r = GetRValue(c) / 255.0f;
+		g = GetGValue(c) / 255.0f;
+		b = GetBValue(c) / 255.0f;
+		// alpha is not changed!
+	}
+	#endif
+
 	void clamp()
 	{
 		if (r < 0.0f) r = 0.0f; if (r > 1.0f) r = 1.0f;

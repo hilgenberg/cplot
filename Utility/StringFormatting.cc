@@ -89,5 +89,3 @@ bool has_prefix(const std::string &s, const char *p, bool ignore_case)
 	auto cmp = ignore_case ? strncasecmp : strncmp;
 	return cmp(s.c_str(), p, l) == 0;
 }
-
-

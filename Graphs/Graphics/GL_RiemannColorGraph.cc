@@ -51,7 +51,7 @@ static void update(ThreadInfo &ti, int data_index, GL_Mesh &m, double th, const 
 		for (int j = 0; j <= i; ++j, ++t, ++v, ++n) // left to right
 		{
 			//P3d P = A + ((double)i / k)*(B-A) + ((double)j / k)*(C-B);
-			*v = a*(k-i) + b*(i-j) + c*j;
+			*v = a*float(k-i) + b*float(i-j) + c*float(j);
 			v->to_unit();
 			
 			*n = *v;

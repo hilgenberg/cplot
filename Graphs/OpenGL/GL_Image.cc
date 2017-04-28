@@ -154,12 +154,12 @@ GL_Image &GL_Image::pattern(GL_ImagePattern p)
 
 void GL_Image::save(Serializer &s) const
 {
-	s._bool(_pattern == IP_CUSTOM);
+	s.bool_(_pattern == IP_CUSTOM);
 	if (_pattern == IP_CUSTOM)
 	{
 		check_data();
-		s._uint32(_w);
-		s._uint32(_h);
+		s.uint32_(_w);
+		s.uint32_(_h);
 
 		if (s.version() >= FILE_VERSION_1_7)
 		{
@@ -174,35 +174,35 @@ void GL_Image::save(Serializer &s) const
 				d = _data.data() + i;
 				for (size_t j = 0; j < n; ++j, d += 4) *cd++ = *d - d[1];
 			}
-			s._data(channel);
+			s.data_(channel);
 		}
 		else
 		{
-			s._data(_data);
+			s.data_(_data);
 		}
 	}
 	else
 	{
 		if (_pattern > IP_COLORS_2) CHECK_VERSION(FILE_VERSION_1_4, "phase and units textures");
-		s._enum(_pattern, IP_COLORS, IP_UNITS);
+		s.enum_(_pattern, IP_COLORS, IP_UNITS);
 	}
 }
 void GL_Image::load(Deserializer &s)
 {
 	bool custom;
-	s._bool(custom);
+	s.bool_(custom);
 	if (custom)
 	{
 		_pattern = IP_CUSTOM;
-		s._uint32(_w);
-		s._uint32(_h);
+		s.uint32_(_w);
+		s.uint32_(_h);
 		
 		if (s.version() >= FILE_VERSION_1_7)
 		{
 			size_t n = (size_t)_w * _h;
 			_data.resize(n * 4);
 			std::vector<unsigned char> channel;
-			s._data(channel);
+			s.data_(channel);
 			if (channel.size() != 4*n)
 			{
 				_w = _h = 0;
@@ -220,7 +220,7 @@ void GL_Image::load(Deserializer &s)
 		}
 		else
 		{
-			s._data(_data);
+			s.data_(_data);
 			
 			if (_data.size() != (size_t)_w * _h * 4)
 			{
@@ -235,7 +235,7 @@ void GL_Image::load(Deserializer &s)
 	}
 	else
 	{
-		s._enum(_pattern, IP_COLORS, s.version() < FILE_VERSION_1_4 ? IP_COLORS_2 : IP_UNITS);
+		s.enum_(_pattern, IP_COLORS, s.version() < FILE_VERSION_1_4 ? IP_COLORS_2 : IP_UNITS);
 		pattern_dim(_pattern, _w, _h);
 		_data.clear();
 		_opacity = pattern_opacity(_pattern);

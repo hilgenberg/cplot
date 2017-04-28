@@ -1,7 +1,7 @@
 #pragma once
 #include "../Geometry/Vector.h"
 class Graph;
-class Plot;
+struct Plot;
 class GL_RM;
 
 enum Opacity

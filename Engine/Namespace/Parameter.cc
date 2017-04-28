@@ -4,26 +4,26 @@
 void Parameter::save(Serializer &s) const
 {
 	Element::save(s);
-	s._enum(m_type, Real, Integer);
-	s._cnum(v);
-	s._double(m_min);
-	s._double(m_max);
-	s._double(m_imin);
-	s._double(m_imax);
-	s._double(m_rmax);
-	s._bool(radians);
+	s.enum_(m_type, Real, Integer);
+	s.cnum_(v);
+	s.double_(m_min);
+	s.double_(m_max);
+	s.double_(m_imin);
+	s.double_(m_imax);
+	s.double_(m_rmax);
+	s.bool_(radians);
 }
 void Parameter::load(Deserializer &s)
 {
 	Element::load(s);
-	s._enum(m_type, Real, Integer);
-	s._cnum(v);
-	s._double(m_min);
-	s._double(m_max);
-	s._double(m_imin);
-	s._double(m_imax);
-	s._double(m_rmax);
-	s._bool(radians);
+	s.enum_(m_type, Real, Integer);
+	s.cnum_(v);
+	s.double_(m_min);
+	s.double_(m_max);
+	s.double_(m_imin);
+	s.double_(m_imax);
+	s.double_(m_rmax);
+	s.bool_(radians);
 }
 Parameter &Parameter::operator=(const Parameter &p0)
 {
@@ -67,7 +67,7 @@ void Parameter::type(ParameterType t)
 	redefine();
 }
 
-inline double sqr(double x){ return x*x; }
+static inline double sqr(double x){ return x*x; }
 
 void Parameter::value(const cnum &val)
 {

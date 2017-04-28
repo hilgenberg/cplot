@@ -5,6 +5,46 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 
+#ifdef _WINDOWS
+
+FileReader::FileReader(FileReaderFile *f) : f(f), i(0)
+{
+	assert(f);
+	n = (size_t)f->GetLength();
+	assert(f->GetPosition() == 0);
+}
+
+void FileReader::read(void *buffer, size_t len)
+{
+	if (i + len > n)
+	{
+		throw std::runtime_error("Trying to read beyond end of file. This file seems to be truncated or corrupted.");
+	}
+
+	while (len)
+	{
+		UINT k = (len > UINT_MAX ? UINT_MAX : (UINT)len);
+		if (f->Read(buffer, k) != k)
+		{
+			throw std::runtime_error("Error reading from file.");
+		}
+		len -= k;
+		i += k;
+	}
+}
+
+void FileWriter::write(const void *buffer, size_t len)
+{
+	while (len)
+	{
+		UINT k = (len > UINT_MAX ? UINT_MAX : (UINT)len);
+		f->Write(buffer, k);
+		len -= k;
+	}
+}
+
+#else
+
 FileReader::FileReader(FILE *f) : f(f), i(0)
 {
 	assert(f);
@@ -29,8 +69,6 @@ void FileReader::read(void *buffer, size_t len)
 	i += len;
 }
 
-//----------------------------------------------------------------------------------------------------------------------
-
 void FileWriter::write(const void *buffer, size_t len)
 {
 	if (fwrite(buffer, len, 1, f) != 1)
@@ -38,6 +76,8 @@ void FileWriter::write(const void *buffer, size_t len)
 		throw std::runtime_error("Error writing to file.");
 	}
 }
+
+#endif
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -50,8 +90,6 @@ void ArrayReader::read(void *buffer, size_t len)
 	memcpy(buffer, bytes+i, len);
 	i += len;
 }
-
-//----------------------------------------------------------------------------------------------------------------------
 
 void ArrayWriter::write(const void *buffer, size_t len)
 {

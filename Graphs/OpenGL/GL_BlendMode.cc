@@ -100,16 +100,16 @@ void GL_BlendMode::save(Serializer &s) const
 		{
 			if (m0[i] != *this) continue;
 			found = true;
-			s._enum(i, 0, n-1);
+			s.enum_(i, 0, n-1);
 			break;
 		}
 		if (!found) NEEDS_VERSION(FILE_VERSION_1_5, "custom transparency");
 	}
 	else
 	{
-		s._bool(off);
-		s._int32(fA);
-		s._int32(fB);
+		s.bool_(off);
+		s.int32_(fA);
+		s.int32_(fB);
 		C.save(s);
 	}
 }
@@ -119,14 +119,14 @@ void GL_BlendMode::load(Deserializer &s)
 	{
 		const std::vector<GL_BlendMode> &m0 = Modes_14();
 		int i, n = (int)m0.size();
-		s._enum(i, 0, n-1);
+		s.enum_(i, 0, n-1);
 		*this = m0[i];
 	}
 	else
 	{
-		s._bool(off);
-		s._int32(fA);
-		s._int32(fB);
+		s.bool_(off);
+		s.int32_(fA);
+		s.int32_(fB);
 		C.load(s);
 	}
 }
@@ -384,7 +384,7 @@ struct SmallPoly
 				int vp = 1;
 				for (int j = 0; j < (int)p; ++j) vp *= v;
 				assert(abs(vp * i.second) < 100);
-				tmp[a] += vp * i.second;
+				tmp[a] += int8_t(vp * i.second);
 			}
 		}
 		std::swap(m, tmp);

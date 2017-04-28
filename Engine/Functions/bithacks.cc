@@ -1,4 +1,5 @@
 #include "Functions.h"
+#pragma warning(disable:4554) // precedence warnings
 
 union Bits
 {

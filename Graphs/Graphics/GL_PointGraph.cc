@@ -635,7 +635,8 @@ struct Iter // for sorting vectors and their basepoints simultaneously
 	typedef ptrdiff_t          difference_type;
 	typedef std::pair<P3f,P3f> value_type; // for temp copies in the STL code
 	typedef value_type         Val;
-	
+	typedef std::random_access_iterator_tag iterator_category;
+
 	struct Ref
 	{
 		inline Ref(const Ref &r) : p(r.p), v(r.v){}
@@ -652,6 +653,7 @@ struct Iter // for sorting vectors and their basepoints simultaneously
 	inline Ref operator*() const{ return Ref(*i1, *i2); }
 	inline difference_type operator-(const Iter &I) const{ return i1-I.i1; }
 	inline Iter &operator++() { ++i1; ++i2; return *this; }
+	inline Iter operator++(int) { Iter ret(*this); ++i1; ++i2; return ret; }
 	inline Iter &operator--() { --i1; --i2; return *this; }
 	inline Iter &operator+=(difference_type d) { i1 += d; i2 += d; return *this; }
 	inline Iter &operator-=(difference_type d) { i1 -= d; i2 -= d; return *this; }

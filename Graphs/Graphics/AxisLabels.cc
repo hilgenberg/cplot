@@ -15,7 +15,7 @@ AxisLabels::AxisLabels(double pixel, double range) // label spacing is optimized
 	// the major ticks are always one of those (one that fits the pixel size)
 	double spc0  = 30.0 * pixel;
 	major = pow(10.0, ceil(log10(spc0)));
-	if (major == 0.0 || !finite(major)) return;
+	if (major == 0.0 || !isfinite(major)) return;
 	assert(major >= spc0);
 	assert(major <= 300.0 * pixel);
 	
@@ -36,7 +36,7 @@ AxisLabels::AxisLabels(double pixel, double range) // label spacing is optimized
 		minor = major;
 		subdiv = 1;
 	}
-	if (minor == 0.0 || !finite(minor)) return;
+	if (minor == 0.0 || !isfinite(minor)) return;
 	assert(minor >= spc1);
 	assert(minor <= 300.0 * pixel);
 

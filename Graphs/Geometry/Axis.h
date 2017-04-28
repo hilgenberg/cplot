@@ -101,9 +101,9 @@ public:
 		double y = (p.y - m_effective_center[1]) * rxi;
 		double z = (p.z - m_effective_center[2]) * rxi;
 
-		q.x = fabs(x) < COORD_MAX ? (float)x : x < 0 ? -COORD_MAX : COORD_MAX;
-		q.y = fabs(y) < COORD_MAX ? (float)y : y < 0 ? -COORD_MAX : COORD_MAX;
-		q.z = fabs(z) < COORD_MAX ? (float)z : z < 0 ? -COORD_MAX : COORD_MAX;
+		q.x = (float)(fabs(x) < COORD_MAX ? x : x < 0 ? -COORD_MAX : COORD_MAX);
+		q.y = (float)(fabs(y) < COORD_MAX ? y : y < 0 ? -COORD_MAX : COORD_MAX);
+		q.z = (float)(fabs(z) < COORD_MAX ? z : z < 0 ? -COORD_MAX : COORD_MAX);
 	}
 	#undef COORD_MAX
 	

@@ -44,22 +44,22 @@ std::ostream & operator<< (std::ostream &out, const Token &token)
 // c'tor, d'tor, comparison
 //----------------------------------------------------------------------------------------------------------------------
 
-Token::Token(TokenType _type, void *_data, size_t _pos, size_t _len)
+Token::Token(TokenType _type, void *data_, size_t _pos, size_t _len)
 : next(NULL), prev(NULL)
 , pos(_pos), len(_len)
 , type(_type)
 {
 	switch(type)
 	{
-		case TT_Variable:  data.variable  =  (Variable     *)_data; break;
-		case TT_Function:  data.operator_ =  (Operator     *)_data; break;
-		case TT_Operator:  data.function  =  (Function     *)_data; break;
-		case TT_Constant:  data.constant  =  (Constant     *)_data; break;
-		case TT_Parameter: data.parameter =  (Parameter    *)_data; break;
-		case TT_Args: if ((data.args      =  (ParsingTree  *)_data)) data.args->retain(); break;
-		case TT_Alias:     data.alias     =  (AliasVariable*)_data; break;
+		case TT_Variable:  data.variable  =  (Variable     *)data_; break;
+		case TT_Function:  data.operator_ =  (Operator     *)data_; break;
+		case TT_Operator:  data.function  =  (Function     *)data_; break;
+		case TT_Constant:  data.constant  =  (Constant     *)data_; break;
+		case TT_Parameter: data.parameter =  (Parameter    *)data_; break;
+		case TT_Args: if ((data.args      =  (ParsingTree  *)data_)) data.args->retain(); break;
+		case TT_Alias:     data.alias     =  (AliasVariable*)data_; break;
 		case TT_Pow:
-		case TT_Number:    if (_data) num = *(const cnum *)_data; // fallthrough
+		case TT_Number:    if (data_) num = *(const cnum *)data_; // fallthrough
 		default:           data.function  = NULL;                   break;
 	}
 }

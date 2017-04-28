@@ -207,6 +207,10 @@ size_t readexp(const std::string &S, size_t i0, size_t i1, int &re, int &im)
 	}
 }
 
+#ifndef INT_MIN
+#define INT_MIN (-2147483647 - 1)
+#endif
+
 std::string format_exponent(int re, int im)
 {
 	std::vector<char> os;
@@ -218,8 +222,8 @@ std::string format_exponent(int re, int im)
 	}
 	
 	bool rmin = false, imin = false;
-	if (re == -2147483648){ rmin = true; ++re; }
-	if (im == -2147483648){ imin = true; ++im; }
+	if (re == INT_MIN){ rmin = true; ++re; }
+	if (im == INT_MIN){ imin = true; ++im; }
 	
 	if (re < 0)
 	{
@@ -278,7 +282,7 @@ std::string format_subscript(int re)
 	}
 	
 	bool rmin = false;
-	if (re == -2147483648){ rmin = true; ++re; }
+	if (re == INT_MIN){ rmin = true; ++re; }
 	
 	if (re < 0)
 	{

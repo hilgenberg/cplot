@@ -119,7 +119,7 @@ bool PreToken::parse(PreTokens &root, const std::string &s, ParsingResult &info,
 				if (plevel.top().bars & 1) ERROR("Odd number of bars", s.begin(), s.end());
 			}
 		}
-		catch(utf8::exception &e)
+		catch(utf8::exception &)
 		{
 			ERROR("Invalid unicode", i, s.end());
 		}
@@ -417,7 +417,7 @@ bool PreToken::parse(PreTokens &root, const std::string &s, ParsingResult &info,
 		
 		assert(n == A.size());
 		
-		for (int i = (int)n - 1; i > 0; --i)
+		for (int i = (int)n - 2; i > 0; --i)
 		{
 			PreToken &a = A[i], &b = A[i+1];
 			if (a.type != TT_Space || b.type != TT_List || b.children.size() == 1) continue;
