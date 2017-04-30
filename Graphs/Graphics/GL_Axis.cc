@@ -175,8 +175,8 @@ void GL_Axis::draw2D() const
 		{
 			glDisable(GL_LINE_SMOOTH);
 			glBegin(GL_LINES);
-			for (GridIterator g(al, x0, x1); !g.done(); ++g){ (g.minor() ? cminor : cmajor).set(); line(g.x(), y0, g.x(), y1); }
-			for (GridIterator g(al, y0, y1); !g.done(); ++g){ (g.minor() ? cminor : cmajor).set(); line(x0, g.x(), x1, g.x()); }
+			for (GridIterator g(al, x0, x1); !g.done(); ++g){ (g.is_minor() ? cminor : cmajor).set(); line(g.x(), y0, g.x(), y1); }
+			for (GridIterator g(al, y0, y1); !g.done(); ++g){ (g.is_minor() ? cminor : cmajor).set(); line(x0, g.x(), x1, g.x()); }
 			glEnd();
 		}
 		else if (axis.options.axis_grid == AxisOptions::AG_Polar)
@@ -190,7 +190,7 @@ void GL_Axis::draw2D() const
 			
 			for (GridIterator g(al, r_min, r_max); !g.done(); ++g)
 			{
-				(g.minor() ? cminor : cmajor).set();
+				(g.is_minor() ? cminor : cmajor).set();
 				circle(0.0, 0.0, g.x(), pixel, axis);
 			}
 		}
@@ -311,28 +311,28 @@ void GL_Axis::draw3D() const
 	{
 		for (GridIterator gx(al, x0, x1); !gx.done(); ++gx)
 		{
-			if (gx.minor()) continue;
+			if (gx.is_minor()) continue;
 			for (GridIterator gy(al, y0, y1); !gy.done(); ++gy)
 			{
-				if (gy.minor()) continue;
+				if (gy.is_minor()) continue;
 				drawLine(gx.x(), gy.x(), z0, gx.x(), gy.x(), z1, axis);
 			}
 		}
 		for (GridIterator gx(al, x0, x1); !gx.done(); ++gx)
 		{
-			if (gx.minor()) continue;
+			if (gx.is_minor()) continue;
 			for (GridIterator gz(al, z0, z1); !gz.done(); ++gz)
 			{
-				if (gz.minor()) continue;
+				if (gz.is_minor()) continue;
 				drawLine(gx.x(), y0, gz.x(), gx.x(), y1, gz.x(), axis);
 			}
 		}
 		for (GridIterator gy(al, y0, y1); !gy.done(); ++gy)
 		{
-			if (gy.minor()) continue;
+			if (gy.is_minor()) continue;
 			for (GridIterator gz(al, z0, z1); !gz.done(); ++gz)
 			{
-				if (gz.minor()) continue;
+				if (gz.is_minor()) continue;
 				drawLine(x0, gy.x(), gz.x(), x1, gy.x(), gz.x(), axis);
 			}
 		}

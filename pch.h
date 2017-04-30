@@ -36,3 +36,5 @@
 
 using std::isnan;
 using std::isinf;
+using std::isfinite;
+

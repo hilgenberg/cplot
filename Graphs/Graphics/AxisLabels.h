@@ -28,7 +28,7 @@ public:
 	void operator++(   ){ ++i; assert(i <= n); }
 	void operator++(int){ ++i; assert(i <= n); }
 	double   x() const{ return x0 + a.minor * i; }
-	bool minor() const{ return (i+sub) % a.subdiv != 0; }
+	bool is_minor() const{ return (i+sub) % a.subdiv != 0; }
 
 private:
 	const AxisLabels &a;

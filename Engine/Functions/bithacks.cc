@@ -1,5 +1,7 @@
 #include "Functions.h"
+#ifdef _WINDOWS
 #pragma warning(disable:4554) // precedence warnings
+#endif
 
 union Bits
 {

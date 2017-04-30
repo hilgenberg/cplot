@@ -11,31 +11,14 @@ public:
 
 	Mutex(const Mutex &)            = delete;
 	Mutex &operator=(const Mutex &) = delete;
+
+	void lock() { pthread_mutex_lock(&mutex); }
+	void unlock() { pthread_mutex_unlock(&mutex); }
+	bool try_lock() { return 0 == pthread_mutex_trylock(&mutex); }
 	
 private:
 	friend class Lock;
 	pthread_mutex_t mutex;
-};
-
-
-class Lock
-{
-public:
-	Lock(Mutex &m) : mutex(m)
-	{
-		pthread_mutex_lock(&mutex.mutex);
-	}
-	
-	~Lock()
-	{
-		pthread_mutex_unlock(&mutex.mutex);
-	}
-	
-	Lock(const Lock &)            = delete;
-	Lock &operator=(const Lock &) = delete;
-	
-private:
-	Mutex &mutex;
 };
 
 #else
@@ -59,6 +42,7 @@ private:
 	std::mutex mutex;
 };
 
+#endif
 
 class Lock
 {
@@ -73,11 +57,10 @@ public:
 		mutex.unlock();
 	}
 
-	Lock(const Lock &) = delete;
+	Lock(const Lock &)            = delete;
 	Lock &operator=(const Lock &) = delete;
 
 private:
 	Mutex &mutex;
 };
 
-#endif
