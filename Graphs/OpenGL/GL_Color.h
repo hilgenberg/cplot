@@ -31,7 +31,10 @@ struct GL_Color : public Serializable
 		g = GetGValue(c) / 255.0f;
 		b = GetBValue(c) / 255.0f;
 		// alpha is not changed!
+		return *this;
 	}
+	int  GetAlpha() const { return int(a*255.0f); }
+	void SetAlpha(int a_) { a = a_ / 255.0f; }
 	#endif
 
 	void clamp()

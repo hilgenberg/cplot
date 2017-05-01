@@ -12,6 +12,7 @@ IMPLEMENT_DYNCREATE(Document, CDocument)
 Document::Document()
 : plot(rns)
 {
+	box_state.all = -1;
 }
 
 Document::~Document()
@@ -36,11 +37,7 @@ void Document::Serialize(CArchive &ar)
 		Serializer  w(fw);
 		rns.save(w);
 		plot.save(w);
-		if (w.version() >= FILE_VERSION_1_8)
-		{
-			uint32_t box_state = 0; // from mac version
-			w.uint32_(box_state);
-		}
+		if (w.version() >= FILE_VERSION_1_8) w.uint32_(box_state.all);
 		w.marker_("EOF.");
 	}
 	else
@@ -51,8 +48,8 @@ void Document::Serialize(CArchive &ar)
 		rns.clear();
 		rns.load(s);
 		plot.load(s);
-		uint32_t box_state;
-		if (s.version() >= FILE_VERSION_1_8) s.uint32_(box_state);
+		box_state.all = -1;
+		if (s.version() >= FILE_VERSION_1_8) s.uint32_(box_state.all);
 		s.marker_("EOF.");
 		assert(s.done());
 	}

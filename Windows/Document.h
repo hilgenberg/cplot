@@ -14,5 +14,18 @@ public:
 	RootNamespace       rns;
 	Plot                plot;
 
+	union
+	{
+		struct
+		{
+			bool params : 1;
+			bool defs : 1;
+			bool graphs : 1;
+			bool settings : 1;
+			bool axis : 1;
+		};
+		uint32_t all;
+	} box_state;
+
 	DECLARE_DYNCREATE(Document)
 };

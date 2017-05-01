@@ -13,3 +13,13 @@ CStringW Convert(const std::string &s)
 	}
 	return t;
 }
+
+std::string Convert(const CStringW &s)
+{
+	const int n = (int)s.GetLength(); if (!n) return std::string();
+	const wchar_t *ss = s.GetString();
+	const int m = WideCharToMultiByte(CP_UTF8, 0, ss, n, NULL, 0, NULL, NULL);
+	std::string t(m, 0);
+	WideCharToMultiByte(CP_UTF8, 0, ss, n, t._Myptr(), m, NULL, NULL);
+	return t;
+}

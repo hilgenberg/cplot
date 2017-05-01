@@ -25,6 +25,9 @@ BEGIN_MESSAGE_MAP(MainView, CFormView)
 	ON_WM_SIZE()
 	ON_WM_ERASEBKGND()
 	ON_WM_CTLCOLOR()
+	ON_CBN_SELCHANGE(ID_domain, OnDomainChange)
+	ON_CBN_SELCHANGE(ID_coord, OnCoordChange)
+	ON_CBN_SELCHANGE(ID_mode, OnModeChange)
 END_MESSAGE_MAP()
 
 MainView::MainView() : CFormView(IDD_MAINVIEW)
@@ -40,7 +43,8 @@ HBRUSH MainView::OnCtlColor(CDC *dc, CWnd *wnd, UINT ctrl)
 		int y = (int)(0.21*r + 0.72*g + 0.07*b);
 		bool light = (y > 160);
 		dc->SetTextColor(light ? RGB(0, 0, 0) : RGB(255, 255, 255));
-		dc->SetBkMode(MFC_TRANSPARENT);
+		//dc->SetBkMode(MFC_TRANSPARENT);
+		dc->SetBkColor(bg);
 		return (HBRUSH)GetStockObject(NULL_BRUSH);
 	}
 	return CFormView::OnCtlColor(dc, wnd, ctrl);
@@ -89,6 +93,10 @@ int MainView::OnCreate(LPCREATESTRUCT cs)
 	#undef FS
 	#undef FN
 	
+	f[0].f = [this] { OnChangeF1(); };
+	f[1].f = [this] { OnChangeF2(); };
+	f[2].f = [this] { OnChangeF3(); };
+
 	plotView.Create(whatever, this, ID_plotView);
 
 	return 0;
@@ -97,12 +105,14 @@ int MainView::OnCreate(LPCREATESTRUCT cs)
 void MainView::Update()
 {
 	CRect bounds; GetClientRect(bounds);
-	Document *doc = GetDocument();
-	if (!doc || bounds.Width() < 2) return;
+	if (bounds.Width() < 2 || !m_pDocument) return;
+	Document &doc = GetDocument();
 
-	const Plot &plot = doc->plot;
+	const Plot &plot = doc.plot;
 	const Graph *graph = plot.current_graph();
 	const bool sel = graph != NULL;
+	
+	doc.plot.axis.type(plot.axis_type());
 
 	const int W = bounds.Width();
 	const int SPC = 5; // amount of spacing
@@ -141,6 +151,7 @@ void MainView::Update()
 		}
 
 		int i = 0, i0 = -1;
+		coord.ResetContent();
 		for (GraphCoords c : graph->valid_coords())
 		{
 			CString label;
@@ -153,11 +164,13 @@ void MainView::Update()
 				default: assert(false); continue;
 			}
 			if (c == graph->coords()) i0 = i;
-			coord.InsertString(i++, label);
+			coord.InsertString(i, label);
+			coord.SetItemData(i++, (DWORD_PTR)c);
 		}
 		coord.SetCurSel(i0);
 
 		i = 0; i0 = -1;
+		mode.ResetContent();
 		for (GraphMode m : graph->valid_modes())
 		{
 			CString label;
@@ -178,7 +191,8 @@ void MainView::Update()
 				default: assert(false); continue;
 			}
 			if (m == graph->mode()) i0 = i;
-			mode.InsertString(i++, label);
+			mode.InsertString(i, label);
+			mode.SetItemData(i++, (DWORD_PTR)m);
 		}
 		mode.SetCurSel(i0);
 
@@ -216,15 +230,25 @@ void MainView::OnInitialUpdate()
 	CFormView::OnInitialUpdate();
 }
 
-BOOL MainView::OnEraseBkgnd(CDC *dc)
+CRect MainView::headerRect() const
 {
 	CRect bounds; GetClientRect(&bounds);
 	CRect rect; plotView.GetWindowRect(&rect); ScreenToClient(&rect);
 	bounds.bottom = rect.top;
+	return bounds;
+}
 
+void MainView::RedrawHeader()
+{
+	InvalidateRect(headerRect());
+}
+
+BOOL MainView::OnEraseBkgnd(CDC *dc)
+{
+	CRect r = headerRect();
 	COLORREF bgc = plotView.GetBgColor();
 	CBrush bg(bgc);
-	dc->FillRect(&bounds, &bg);
+	dc->FillRect(&r, &bg);
 	return TRUE;
 }
 
@@ -233,5 +257,66 @@ void MainView::OnSize(UINT type, int w, int h)
 	CFormView::OnSize(type, w, h);
 	EnableScrollBarCtrl(SB_BOTH, FALSE);
 	Update();
+	plotView.Invalidate();
+}
+
+void MainView::OnChangeF1() { CString s; f[0].GetWindowText(s); OnChangeF(1, s); }
+void MainView::OnChangeF2() { CString s; f[1].GetWindowText(s); OnChangeF(2, s); }
+void MainView::OnChangeF3() { CString s; f[2].GetWindowText(s); OnChangeF(3, s); }
+void MainView::OnChangeF(int i, const CString &s_)
+{
+	Document &doc = GetDocument();
+	Graph *g = doc.plot.current_graph(); if (!g) return;
+
+	std::string s = Convert(s_);
+	if (s == g->fn(i)) return;
+	g->set(s, i);
+	plotView.Invalidate();
+}
+
+void MainView::OnDomainChange()
+{
+	Document &doc = GetDocument();
+	Graph *g = doc.plot.current_graph(); if (!g) return;
+
+	int i = domain.GetCurSel();
+	GraphType t = (GraphType)domain.GetItemData(i);
+	if (t == g->type()) return;
+
+	g->type(t);
+	doc.plot.update_axis();
+	Update();
+	RedrawHeader();
+	plotView.Invalidate();
+}
+
+void MainView::OnCoordChange()
+{
+	Document &doc = GetDocument();
+	Graph *g = doc.plot.current_graph(); if (!g) return;
+
+	int i = coord.GetCurSel();
+	GraphCoords c = (GraphCoords)coord.GetItemData(i);
+	if (c == g->coords()) return;
+
+	g->coords(c);
+	Update();
+	RedrawHeader();
+	plotView.Invalidate();
+}
+
+void MainView::OnModeChange()
+{
+	Document &doc = GetDocument();
+	Graph *g = doc.plot.current_graph(); if (!g) return;
+
+	int i = mode.GetCurSel();
+	GraphMode m = (GraphMode)mode.GetItemData(i);
+	if (m == g->mode()) return;
+
+	g->mode(m);
+	doc.plot.update_axis();
+	Update();
+	RedrawHeader();
 	plotView.Invalidate();
 }

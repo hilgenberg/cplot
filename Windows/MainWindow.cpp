@@ -54,5 +54,6 @@ BOOL MainWindow::OnCreateClient(LPCREATESTRUCT cs, CCreateContext *ctx)
 	sideView = (SideView*)splitter.GetPane(0, 0);
 	sideView->SetDoc((Document*)ctx->m_pCurrentDoc);
 	mainView->GetPlotView().SetDoc((Document*)ctx->m_pCurrentDoc);
+
 	return TRUE;
 }

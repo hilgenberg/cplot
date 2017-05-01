@@ -19,16 +19,35 @@ BEGIN_MESSAGE_MAP(PlotView, CWnd)
 	ON_WM_PAINT()
 	ON_WM_LBUTTONDOWN()
 	ON_WM_CONTEXTMENU()
+
+	ON_WM_LBUTTONDOWN()
+	ON_WM_MBUTTONDOWN()
+	ON_WM_RBUTTONDOWN()
+	ON_WM_LBUTTONUP()
+	ON_WM_MBUTTONUP()
 	ON_WM_RBUTTONUP()
+	ON_WM_MOUSEMOVE()
+	ON_WM_MOUSEWHEEL()
+
 	ON_WM_KEYDOWN()
+	ON_WM_SYSKEYDOWN()
+	ON_WM_KEYUP()
+	ON_WM_SYSKEYUP()
 END_MESSAGE_MAP()
 
 PlotView::PlotView()
 : dc(NULL), doc(NULL)
 , tnf(-1.0)
+, need_redraw(false)
 , last_frame(-1.0)
+, last_key(-1.0)
 , rm(NULL)
+, nums_on(0)
+, mb(0)
 {
+	arrows.all = 0;
+	memset(inertia, 0, 3 * sizeof(double));
+	memset(nums, 0, 10 * sizeof(bool));
 }
 
 PlotView::~PlotView()
@@ -207,19 +226,384 @@ COLORREF PlotView::GetBgColor()
 	return doc->plot.axis.options.background_color;
 }
 
-void PlotView::OnLButtonDown(UINT flags, CPoint p)
+//----------------------------------------------------------------------------------------------------------
+//  Mouse
+//----------------------------------------------------------------------------------------------------------
+
+void PlotView::OnButtonDown(int i, CPoint p)
 {
+	// activate
 	::SendMessage(*GetParent(), WM_NEXTDLGCTL, (WPARAM)(HWND)*this, TRUE);
-	CWnd::OnLButtonDown(flags, p);
+
+	m0 = p;
+	if (!mb)
+	{
+		SetCapture();
+		// StartAnimation();
+	}
+	mb |= 1 << i;
+}
+void PlotView::OnLButtonDown(UINT flags, CPoint p) { OnButtonDown(0, p); }
+void PlotView::OnMButtonDown(UINT flags, CPoint p) { OnButtonDown(1, p); }
+void PlotView::OnRButtonDown(UINT flags, CPoint p) { OnButtonDown(2, p); }
+
+void PlotView::OnButtonUp(int i, CPoint p)
+{
+	mb &= ~(1 << i);
+	if (!mb)
+	{
+		ReleaseCapture();
+		// EndAnimation();
+	}
+}
+void PlotView::OnLButtonUp(UINT flags, CPoint p) { OnButtonUp(0, p); }
+void PlotView::OnMButtonUp(UINT flags, CPoint p) { OnButtonUp(1, p); }
+void PlotView::OnRButtonUp(UINT flags, CPoint p) { OnButtonUp(2, p); }
+
+/*static void ClearQueue(NSEvent *e, NSUInteger mask, std::function<void(NSEvent*)> handler)
+{
+	while (e)
+	{
+		handler(e);
+		e = [NSApp nextEventMatchingMask : mask untilDate : nil inMode : NSDefaultRunLoopMode dequeue : YES];
+	}
+}*/
+
+enum
+{
+	CONTROL = 1,
+	ALT     = 2,
+	SHIFT   = 4,
+	WIN     = 8
+};
+
+void PlotView::OnMouseMove(UINT flags, CPoint p)
+{
+	if (!mb) return;
+	//clearQueue(event, NSOtherMouseDraggedMask, [&dx, &dy, &dz](NSEvent *e) { dx += e.deltaX; dy += e.deltaY; dz += e.deltaZ; });
+	int mods = (flags & MK_CONTROL) * CONTROL | (flags & MK_SHIFT) * SHIFT;
+	CPoint d = p - m0; m0 = p;
+	if (mb & 1) // left
+	{
+		move(d.x, d.y, mods);
+	}
+	if (mb & 2) // middle
+	{
+		move(d.x, d.y, mods | ALT);
+	}
+	if (mb & 4) // right
+	{
+		move(d.x, d.y, mods | WIN);
+	}
+
+	SideView &sv = ((MainWindow*)GetParentFrame())->GetSideView();
+	sv.UpdateAxis();
+	Invalidate();
+}
+
+BOOL PlotView::OnMouseWheel(UINT flags, short dz, CPoint p)
+{
+	if (mb) return TRUE; // probably accidental
+	//clearQueue(event, NSScrollWheelMask, [&dx, &dy, &dz](NSEvent *e)
+	int mods = (flags & MK_CONTROL) * CONTROL | (flags & MK_SHIFT) * SHIFT;
+	zoom(-0.03*dz, mods);
+
+	SideView &sv = ((MainWindow*)GetParentFrame())->GetSideView();
+	sv.UpdateAxis();
+	Invalidate();
+	return TRUE;
+}
+
+//----------------------------------------------------------------------------------------------------------
+
+void PlotView::zoom(double dy, int flags)
+{
+	if (!doc || fabs(dy) < 1e-5) return;
+	Plot &plot = doc->plot;
+	Axis &axis = plot.axis;
+	bool shift = flags & SHIFT;
+	bool   alt = flags & ALT;
+	double   f = exp(-dy * 0.02);
+
+	switch (plot.axis.type())
+	{
+		case Axis::Rect:
+			if (alt)
+			{
+				plot.axis.in_zoom(1.0 / f);
+				plot.update(CH_IN_RANGE);
+			}
+			else
+			{
+				CPoint p; GetCursorPos(&p); ScreenToClient(&p);
+				double x0 = 2.0 * (p.x - bounds.left) / bounds.Width() - 1.0; // [-1,1]
+				double y0 = 2.0 * (p.y - bounds.top) / bounds.Height() - 1.0;
+				double x1 = (x0 * axis.range(0)) + axis.center(0);
+				double y1 = (y0 * axis.range(1)) + axis.center(1);
+				axis.zoom(f);
+				if (fabs(x0) < 0.9 && fabs(y0) < 0.9 * bounds.Height() / bounds.Width())
+				{
+					double x2 = (x0 * axis.range(0)) + axis.center(0);
+					double y2 = (y0 * axis.range(1)) + axis.center(1);
+					axis.move(x1 - x2, y1 - y2, 0.0);
+				}
+				plot.update(CH_AXIS_RANGE);
+			}
+			break;
+
+		default:
+			if (alt)
+			{
+				axis.in_zoom(1.0 / f);
+				plot.update(CH_IN_RANGE);
+			}
+			else if (shift)
+			{
+				axis.zoom(f);
+				plot.update(CH_AXIS_RANGE);
+			}
+			else
+			{
+				plot.camera.zoom(f);
+			}
+			break;
+	}
+}
+
+static inline double absmax(double a, double b) { return fabs(a) > fabs(b) ? a : b; }
+
+void PlotView::move(double dx, double dy, int flags)
+{
+	if (fabs(dx) < 1e-5 && fabs(dy) < 1e-5) return;
+	if (!doc) return;
+
+	Plot   &plot = doc->plot;
+	Axis   &axis = plot.axis;
+	Camera &camera = plot.camera;
+	bool   shift = flags & SHIFT;
+	bool     alt = flags & ALT;
+	bool     cmd = flags & WIN;
+	double pixel = plot.pixel_size();
+
+	switch (axis.type())
+	{
+		case Axis::Rect:
+			if (alt && shift)
+			{
+				axis.in_zoom(exp(absmax(dx, dy) * 0.01));
+				plot.update(CH_IN_RANGE);
+			}
+			else if (alt)
+			{
+				dx *= pixel;
+				dy *= pixel;
+				axis.in_move(dx, -dy);
+				plot.update(CH_IN_RANGE);
+			}
+			else if (shift)
+			{
+				zoom(0.5*absmax(dx, dy), 0);
+			}
+			else
+			{
+				dx *= pixel;
+				dy *= pixel;
+				axis.move(-dx, dy, 0.0);
+				plot.update(CH_AXIS_RANGE);
+			}
+			break;
+
+		default:
+			if (cmd)
+			{
+				float f;
+				camera.scalefactor(0, f);
+				pixel /= f;
+				camera.move(axis, -dx*pixel, dy*pixel, 0);
+				plot.update(CH_AXIS_RANGE);
+			}
+			else if (alt && shift)
+			{
+				axis.in_zoom(exp(absmax(dx, dy) * 0.01));
+				plot.update(CH_IN_RANGE);
+			}
+			else if (alt)
+			{
+				axis.in_move(dx*0.01, -dy*0.01);
+				plot.update(CH_IN_RANGE);
+			}
+			else if (shift)
+			{
+				if (fabs(dy) > fabs(dx))
+				{
+					camera.zoom(exp(-dy * 0.01));
+				}
+				else
+				{
+					axis.zoom(exp(-dx * 0.01));
+					plot.update(CH_AXIS_RANGE);
+				}
+			}
+			else
+			{
+				camera.rotate(0.01 * dy, 0, 0.01 * dx);
+			}
+			break;
+	}
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+//  keyboard
+//----------------------------------------------------------------------------------------------------------------------
+
+static inline void accel(double &inertia, double dt)
+{
+	inertia += 0.4*std::max(1.0, dt) + inertia*0.4;
+	inertia = std::min(inertia, 20.0);
+}
+
+void PlotView::handleArrows()
+{
+	//assert(animating());
+
+	int dx = 0, dy = 0, dz = 0;
+	if (arrows.left)  --dx;
+	if (arrows.right) ++dx;
+	if (arrows.up)    --dy;
+	if (arrows.down)  ++dy;
+	if (arrows.plus)  ++dz;
+	if (arrows.minus) --dz;
+
+	if (nums_on)
+	{
+		for (int i = 0; i < 10; ++i)
+		{
+			//if (nums[i])[self.document.parameterBox changeParameter : i by : cnum(dx, -dy)];
+		}
+	}
+	else
+	{
+		double t0 = now();
+		double dt = t0 - last_key;
+		double dt0 = 1.0 / 60.0;
+		last_key = t0;
+		double scale = (dt0 > 0 ? std::min(dt / dt0, 5.0) : 1.0);
+
+		if (dx) accel(inertia[0], scale);
+		if (dy) accel(inertia[1], scale);
+		if (dz) accel(inertia[2], scale);
+
+		//NSLog(@"arrow timer %g", scale);
+
+		int flags = 0;// [NSEvent modifierFlags];
+		if (arrows.plus || arrows.minus) flags |= SHIFT;
+
+		move(dx*inertia[0], dy*inertia[1] + dz*inertia[2], flags);
+	}
+}
+
+void PlotView::OnKeyUp(UINT c, UINT rep, UINT flags)
+{
+	switch (c)
+	{
+		case  VK_LEFT: arrows.left  = false; inertia[0] = 0.0; break;
+		case VK_RIGHT: arrows.right = false; inertia[0] = 0.0; break;
+		case    VK_UP: arrows.up    = false; inertia[1] = 0.0; break;
+		case  VK_DOWN: arrows.down  = false; inertia[1] = 0.0; break;
+		case      '+': arrows.plus  = false; inertia[2] = 0.0; break;
+		case      '-': arrows.minus = false; inertia[2] = 0.0; break;
+
+		case '0': case '1': case '2': case '3': case '4':
+		case '5': case '6': case '7': case '8': case '9':
+		{
+			int i = (c - '0' + 9) % 10;
+			if (nums[i]) { --nums_on; nums[i] = false; break; }
+			break;
+		}
+	}
+	if (!arrows.all)
+	{
+		//STOP_TIMER(arrowKeyTimer);
+		//[self endAnimation];
+
+		SideView &sv = ((MainWindow*)GetParentFrame())->GetSideView();
+		sv.UpdateAxis();
+	}
 }
 
 void PlotView::OnKeyDown(UINT c, UINT rep, UINT flags)
 {
+	if (flags & KF_REPEAT) return;
+	if (!doc) return;
+
+	bool done = true;
+	switch (c)
+	{
+		case  VK_LEFT: arrows.left  = true; break;
+		case VK_RIGHT: arrows.right = true; break;
+		case    VK_UP: arrows.up    = true; break;
+		case  VK_DOWN: arrows.down  = true; break;
+		case      '+': arrows.plus  = true; break;
+		case      '-': arrows.minus = true; break;
+		default: done = false;
+	}
+
+	if (done)
+	{
+		/*if (arrows.all && !arrowKeyTimer)
+		{
+			TIMER(arrowKeyTimer, handleArrows, 1.0 / 60.0);
+			[self startAnimation];
+		}*/
+		return;
+	}
+
+	Plot &plot = doc->plot;
+	Axis &axis = plot.axis;
+
 	SideView &sv = ((MainWindow*)GetParentFrame())->GetSideView();
 
 	switch (c)
 	{
-		case 'D': sv.OnDisco(); break;
 		case 'A': sv.OnDrawAxis(); break;
+		case 'D': sv.OnDisco(); break;
+
+		/*case 'g': [settingsBox toggle : settingsBox.gridMode];   return;
+		case 'c': [settingsBox toggle : settingsBox.clip];       return;
+		case 'C': [settingsBox toggle : settingsBox.clipCustom]; return;
+		case 'l': [settingsBox toggle : settingsBox.clipLock];   return;
+		case 'L': [settingsBox   push : settingsBox.clipReset];  return;
+
+		case 't': [settingsBox  cycle : settingsBox.textureMode direction : +1]; return;
+		case 'T': [settingsBox  cycle : settingsBox.textureMode direction : -1]; return;
+		case 'v': [settingsBox  cycle : settingsBox.vfMode      direction : +1]; return;
+		case 'V': [settingsBox  cycle : settingsBox.vfMode      direction : -1]; return;
+
+		case 'e': [axisBox equalRanges]; return;
+		case 'u': [axisBox     topView]; return;
+		case 'U': [axisBox  bottomView]; return;
+		case 'f': [axisBox   frontView]; return;
+		case 'F': [axisBox    backView]; return;
+		case 'r': [axisBox   rightView]; return;
+		case 'R': [axisBox    leftView]; return;
+		case 'z': [axisBox  centerAxis]; return;
+
+		case '0': case '1': case '2': case '3': case '4':
+		case '5': case '6': case '7': case '8': case '9':
+		{
+			int i = (c - '0' + 9) % 10;
+			if (i < self.document.parameterBox.numberOfParameters)
+			{
+				if (!nums[i]) ++nums_on;
+				nums[i] = true;
+				return;
+			}
+			// fallthrough
+		}*/
 	}
 }
+
+void PlotView::OnSysKeyDown(UINT c, UINT rep, UINT flags)
+{}
+void PlotView::OnSysKeyUp(UINT c, UINT rep, UINT flags)
+{}

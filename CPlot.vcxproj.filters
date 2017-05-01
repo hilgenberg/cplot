@@ -354,6 +354,9 @@
     <ClInclude Include="Windows\Conversions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Windows\Controls\FocusEdit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Windows\Controls\DeltaSlider.cpp">
@@ -657,6 +660,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Windows\Conversions.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\Controls\FocusEdit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -21,6 +21,7 @@ const DWORD checkStyle   = WS_CHILD | BS_CHECKBOX | WS_TABSTOP;
 #define LABEL(c, s)   CREATE(c, _T(s),  labelStyle)
 #define SECTION(c, s) CREATE(c, _T(s),  sectionStyle); c.SetCheck(TRUE); c.SetOwner(this)
 #define COLOR(c)      CREATE(c, _T(""), colorStyle); c.EnableOtherButton(_T("More Colors..."))
+#define SLIDER(c, m)  CREATE(c, sliderStyle); c.SetRange(0, m)
 #define DELTA(c)      CREATE(c, deltaStyle)
 #define POPUP(c)      CREATE(c, popupStyle); currentPopup = &c; currentIdx = 0
 #define OPTION(s)     currentPopup->InsertString(currentIdx++, _T(s))
