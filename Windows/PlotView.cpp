@@ -64,6 +64,20 @@ BOOL PlotView::PreCreateWindow(CREATESTRUCT& cs)
 
 BOOL PlotView::Create(const RECT &rect, CWnd *parent, UINT ID)
 {
+	static bool init = false;
+	if (!init)
+	{
+		WNDCLASS wndcls; memset(&wndcls, 0, sizeof(WNDCLASS));
+		wndcls.style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
+		wndcls.lpfnWndProc = ::DefWindowProc;
+		wndcls.hInstance = AfxGetInstanceHandle();
+		wndcls.hCursor = theApp.LoadStandardCursor(IDC_ARROW);
+		wndcls.lpszMenuName = NULL;
+		wndcls.lpszClassName = _T("PlotView");
+		if (!AfxRegisterClass(&wndcls)) throw std::runtime_error("AfxRegisterClass(PlotView) failed");
+		init = true;
+	}
+
 	return CWnd::Create(_T("PlotView"), NULL, WS_CHILD | WS_TABSTOP, rect, parent, ID);
 }
 
@@ -222,7 +236,7 @@ void PlotView::reshape()
 
 COLORREF PlotView::GetBgColor()
 {
-	if (!doc || !doc->plot.number_of_graphs()) return RGB(0, 0, 0);
+	if (!doc || !doc->plot.number_of_graphs()) return GREY(0);
 	return doc->plot.axis.options.background_color;
 }
 
@@ -566,10 +580,10 @@ void PlotView::OnKeyDown(UINT c, UINT rep, UINT flags)
 	switch (c)
 	{
 		case 'A': sv.OnDrawAxis(); break;
+		case 'C': sv.OnClip(); break;
 		case 'D': sv.OnDisco(); break;
 
 		/*case 'g': [settingsBox toggle : settingsBox.gridMode];   return;
-		case 'c': [settingsBox toggle : settingsBox.clip];       return;
 		case 'C': [settingsBox toggle : settingsBox.clipCustom]; return;
 		case 'l': [settingsBox toggle : settingsBox.clipLock];   return;
 		case 'L': [settingsBox   push : settingsBox.clipReset];  return;

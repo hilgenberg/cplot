@@ -42,7 +42,7 @@ HBRUSH MainView::OnCtlColor(CDC *dc, CWnd *wnd, UINT ctrl)
 		int r = GetRValue(bg), g = GetGValue(bg), b = GetBValue(bg);
 		int y = (int)(0.21*r + 0.72*g + 0.07*b);
 		bool light = (y > 160);
-		dc->SetTextColor(light ? RGB(0, 0, 0) : RGB(255, 255, 255));
+		dc->SetTextColor(GREY(light ? 0 : 255));
 		//dc->SetBkMode(MFC_TRANSPARENT);
 		dc->SetBkColor(bg);
 		return (HBRUSH)GetStockObject(NULL_BRUSH);
@@ -288,6 +288,7 @@ void MainView::OnDomainChange()
 	Update();
 	RedrawHeader();
 	plotView.Invalidate();
+	GetSideView().Update();
 }
 
 void MainView::OnCoordChange()
@@ -319,4 +320,5 @@ void MainView::OnModeChange()
 	Update();
 	RedrawHeader();
 	plotView.Invalidate();
+	GetSideView().Update();
 }

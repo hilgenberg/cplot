@@ -377,7 +377,9 @@ void GL_AreaGraph::draw(GL_RM &rm) const
 		}
 		
 		(wireframe ? graph.options.line_color : graph.options.grid_color).set();
-		glLineWidth((GLfloat)(wireframe ? graph.options.line_width : graph.options.gridline_width));
+		GLfloat lw = (GLfloat)(wireframe ? graph.options.line_width : graph.options.gridline_width);
+		if (lw <= 0.01f) lw = 0.01f;
+		glLineWidth(lw);
 		mesh.draw_grid(full_grid);
 	}
 	

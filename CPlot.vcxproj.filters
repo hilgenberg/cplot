@@ -21,9 +21,6 @@
     <ClInclude Include="Windows\Controls\HeaderControl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Windows\Controls\ImageWell.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Windows\Controls\SplitterWnd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -357,15 +354,15 @@
     <ClInclude Include="Windows\Controls\FocusEdit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Windows\Controls\TextureControl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Windows\Controls\DeltaSlider.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Windows\Controls\HeaderControl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Windows\Controls\ImageWell.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Windows\Controls\SplitterWnd.cpp">
@@ -663,6 +660,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Windows\Controls\FocusEdit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\Controls\TextureControl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

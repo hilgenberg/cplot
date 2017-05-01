@@ -49,8 +49,6 @@ void HeaderControl::OnPaint()
 	CPaintDC dc(this);
 	CRect bounds; GetClientRect(&bounds);
 
-	#define GREY(y) RGB(y,y,y)
-
 	// fill + lines
 	CBrush white; white.CreateSolidBrush(GREY(255));
 	dc.FillRect(&bounds, &white);
@@ -59,7 +57,7 @@ void HeaderControl::OnPaint()
 	dc.MoveTo(bounds.left, bounds.top); dc.LineTo(bounds.right, bounds.top);
 	dc.MoveTo(bounds.left, bounds.bottom-1); dc.LineTo(bounds.right, bounds.bottom-1);
 
-	// disclusure triangle
+	// disclosure triangle
 	const int h = bounds.Height();
 	const int r = (int)(h / 4);
 	const int cr = (int)(r * 0.866025); // cos(30°) = sqrt(3/4)

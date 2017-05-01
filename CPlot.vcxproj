@@ -236,6 +236,7 @@ copy "$(SolutionDir)Windows\zlib\$(Platform)\zlib1.dll" "$(OutputPath)"</Command
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Windows\Controls\TextureControl.h" />
     <ClInclude Include="Windows\Controls\FocusEdit.h" />
     <ClInclude Include="Windows\Conversions.h" />
     <ClInclude Include="Engine\cnum.h" />
@@ -341,7 +342,6 @@ copy "$(SolutionDir)Windows\zlib\$(Platform)\zlib1.dll" "$(OutputPath)"</Command
     <ClInclude Include="Windows\MainView.h" />
     <ClInclude Include="Windows\Controls\DeltaSlider.h" />
     <ClInclude Include="Windows\Controls\HeaderControl.h" />
-    <ClInclude Include="Windows\Controls\ImageWell.h" />
     <ClInclude Include="Windows\MainWindow.h" />
     <ClInclude Include="Windows\PlotView.h" />
     <ClInclude Include="Windows\res\Resource.h" />
@@ -352,6 +352,7 @@ copy "$(SolutionDir)Windows\zlib\$(Platform)\zlib1.dll" "$(OutputPath)"</Command
     <ClInclude Include="Windows\Controls\ViewUtil.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Windows\Controls\TextureControl.cpp" />
     <ClCompile Include="Windows\Controls\FocusEdit.cpp" />
     <ClCompile Include="Windows\Conversions.cpp" />
     <ClCompile Include="Engine\cnum.cc" />
@@ -448,7 +449,6 @@ copy "$(SolutionDir)Windows\zlib\$(Platform)\zlib1.dll" "$(OutputPath)"</Command
     <ClCompile Include="Windows\MainView.cpp" />
     <ClCompile Include="Windows\Controls\DeltaSlider.cpp" />
     <ClCompile Include="Windows\Controls\HeaderControl.cpp" />
-    <ClCompile Include="Windows\Controls\ImageWell.cpp" />
     <ClCompile Include="Windows\MainWindow.cpp" />
     <ClCompile Include="Windows\PlotView.cpp" />
     <ClCompile Include="Windows\SideView.cpp" />

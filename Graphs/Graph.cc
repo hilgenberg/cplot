@@ -486,9 +486,9 @@ void Graph::invalidate(bool for_init)
 			z = new Variable("z", true); ins.add(z); vars.push_back(z);
 			ADD("u", x);
 			ADD("v", y);
-			ADDP("r",     "__rsqrt__(x²+y²+z²)");
+			ADDP("r",     "__rsqrt__(sqr(x)+sqr(y)+sqr(z))");
 			ADDP("phi",   "arg(x,y)");
-			ADDP("theta", "arg(z,__rsqrt__(x²+y²))");
+			ADDP("theta", "arg(z,__rsqrt__(sqr(x)+sqr(y)))");
 			break;
 		}
 	}

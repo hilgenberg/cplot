@@ -10,6 +10,7 @@ const DWORD vSliderStyle = WS_CHILD | TBS_NOTICKS | TBS_BOTH | TBS_VERT | TBS_DO
 const DWORD editStyle    = WS_CHILD | WS_BORDER | ES_AUTOHSCROLL | WS_TABSTOP;
 const DWORD popupStyle   = WS_CHILD | WS_BORDER | CBS_DROPDOWNLIST | WS_TABSTOP;
 const DWORD checkStyle   = WS_CHILD | BS_CHECKBOX | WS_TABSTOP;
+const DWORD buttonStyle  = WS_CHILD | BS_PUSHBUTTON | WS_TABSTOP;
 
 #define START_CREATE \
 	CRect whatever(20, 20, 80, 40);\
@@ -22,7 +23,10 @@ const DWORD checkStyle   = WS_CHILD | BS_CHECKBOX | WS_TABSTOP;
 #define SECTION(c, s) CREATE(c, _T(s),  sectionStyle); c.SetCheck(TRUE); c.SetOwner(this)
 #define COLOR(c)      CREATE(c, _T(""), colorStyle); c.EnableOtherButton(_T("More Colors..."))
 #define SLIDER(c, m)  CREATE(c, sliderStyle); c.SetRange(0, m)
+#define VSLIDER(c, m) CREATE(c, vSliderStyle); c.SetRange(0, m)
 #define DELTA(c)      CREATE(c, deltaStyle)
+#define CHECK(c, s)   CREATE(c, _T(s), checkStyle)
+#define BUTTON(c, s)  CREATE(c, _T(s), buttonStyle)
 #define POPUP(c)      CREATE(c, popupStyle); currentPopup = &c; currentIdx = 0
 #define OPTION(s)     currentPopup->InsertString(currentIdx++, _T(s))
 #define DATA(s)       currentPopup->SetItemData(currentIdx-1, (DWORD_PTR)s)

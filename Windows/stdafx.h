@@ -43,6 +43,8 @@
 #undef FAR
 #undef NEAR
 
+inline COLORREF GREY(BYTE y) { return RGB(y, y, y); }
+
 #undef TRANSPARENT
 #undef OPAQUE
 #define MFC_TRANSPARENT         1

@@ -58,22 +58,6 @@ BOOL CPlotApp::InitInstance()
 	theApp.GetTooltipManager()->SetTooltipParams(AFX_TOOLTIP_TYPE_ALL,
 		RUNTIME_CLASS(CMFCToolTipCtrl), &ttParams);
 
-	WNDCLASS wndcls; memset(&wndcls, 0, sizeof(WNDCLASS));
-	wndcls.style = CS_DBLCLKS | CS_HREDRAW | CS_VREDRAW;
-	wndcls.lpfnWndProc = ::DefWindowProc;
-	wndcls.hInstance = AfxGetInstanceHandle();
-	wndcls.hCursor = LoadStandardCursor(IDC_ARROW);
-	//wndcls.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	wndcls.lpszMenuName = NULL;
-	wndcls.lpszClassName = _T("PlotView");
-
-	// Register the new class and trace if it fails
-	if (!AfxRegisterClass(&wndcls))
-	{
-		TRACE("Class Registration Failed\n");
-		return FALSE;
-	}
-
 	CSingleDocTemplate *dt = new CSingleDocTemplate(
 		IDR_MAINFRAME,
 		RUNTIME_CLASS(Document),
