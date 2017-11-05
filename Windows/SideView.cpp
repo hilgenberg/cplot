@@ -90,12 +90,6 @@ BOOL SideView::PreCreateWindow(CREATESTRUCT& cs)
 	return TRUE;
 }
 
-void SideView::UpdateAxis()
-{
-	// TODO: only reset the axis items
-	//Update();
-}
-
 void SideView::OnInitialUpdate()
 {
 	Update();

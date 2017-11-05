@@ -32,6 +32,17 @@ const DWORD buttonStyle  = WS_CHILD | BS_PUSHBUTTON | WS_TABSTOP;
 #define DATA(s)       currentPopup->SetItemData(currentIdx-1, (DWORD_PTR)s)
 #define EDIT(c)       CREATE(c, editStyle)
 
+#ifdef WIN10
+#define DS0 const UINT dpi = ::GetDpiForWindow(GetSafeHwnd())
+#else
+#define DS0 \
+	HDC tmp_hdc = ::GetDC(GetSafeHwnd());\
+	const UINT dpi = ::GetDeviceCaps(tmp_hdc, LOGPIXELSX);\
+	::ReleaseDC(NULL, tmp_hdc)
+#endif
+
+#define DS(x) MulDiv(x, dpi, 96)
+
 static inline void HIDE(CWnd &c) { c.ShowWindow(SW_HIDE); }
 
 static void MOVE(CWnd &c, int x0, int x1, int y0, int h, int h_row)

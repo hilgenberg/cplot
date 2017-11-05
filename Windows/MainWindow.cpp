@@ -6,6 +6,7 @@
 #include "Document.h"
 #include "PlotView.h"
 #include "res/resource.h"
+#include "Controls/ViewUtil.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -40,7 +41,8 @@ int MainWindow::OnCreate(LPCREATESTRUCT cs)
 
 BOOL MainWindow::OnCreateClient(LPCREATESTRUCT cs, CCreateContext *ctx)
 {
-	int w = cs->cx, w0 = 230, min_w = 160;
+	DS0;
+	int w = cs->cx, w0 = DS(230), min_w = DS(160);
 
 	if (!(
 		splitter.CreateStatic(this, 1, 2) &&

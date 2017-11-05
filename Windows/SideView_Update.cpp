@@ -186,6 +186,7 @@ void SideView::Update()
 	const Graph  *g = plot.current_graph();
 	const Axis   &ax = plot.axis;
 	const Camera &cam = plot.camera;
+	DS0;
 
 	const bool sel = g != NULL;
 	const bool vf = g && g->isVectorField();
@@ -196,14 +197,15 @@ void SideView::Update()
 	const bool points = g && g->options.shading_mode == Shading_Points;
 
 	const int W = bounds.Width();
-	const int SPC = 5; // amount of spacing
+	const int SPC = DS(5); // amount of spacing
 	const int y0 = -GetScrollPos(SB_VERT);
 	int       y = y0;// y for next control
 	const int x0 = SPC;  // row x start / amount of space on the left
 
-	const int h_section = 20, h_label = 14, h_combo = 21, h_check = 20,
-		h_edit = 20, h_color = 20, h_slider = 20, h_delta = h_slider,
-		w_slider = h_slider, h_button = h_check, h_row = 24;
+	const int h_section = DS(20), h_label = DS(14), h_combo = DS(21), h_check = DS(20),
+		h_edit = DS(20), h_color = DS(20), h_slider = DS(20), h_delta = h_slider,
+		w_slider = h_slider, h_button = h_check, h_row = DS(24);
+
 	const COLORREF OFF_COLOR = GREY(127);
 
 	//----------------------------------------------------------------------------------
@@ -251,7 +253,7 @@ void SideView::Update()
 	}
 	else
 	{
-		const int w1 = 80; // label width
+		const int w1 = DS(80); // label width
 		const int x1 = W - SPC;
 		const int xm = x0 + w1, xmm = xm + SPC;
 
@@ -618,14 +620,14 @@ void SideView::Update()
 	}
 	else
 	{
-		const int w1 = 20; // label width
+		const int w1 = DS(20); // label width
 		int d = (W - 2 * (w1 + 2 * SPC) - 2 * SPC) / 3;
 		const int x1 = x0 + w1 + SPC, x2 = x1 + d + SPC, x3 = x2 + d + SPC, x4 = x3 + d + SPC, xe = W - SPC;
 		const bool in3d = (plot.axis_type() != Axis::Rect);
 
 		MOVE(centerLabel, x1, x2 - SPC, y, h_label, h_row);
 		MOVE(rangeLabel, x3, x4 - SPC, y, h_label, h_row);
-		y += h_row - 5;
+		y += h_row - DS(5);
 
 		MOVE(xLabel, x0, x1 - SPC, y, h_label, h_row);
 		MOVE(xCenter, x1, x2 - SPC, y, h_edit, h_row);
@@ -758,4 +760,47 @@ void SideView::Update()
 
 	EnableScrollBarCtrl(SB_HORZ, FALSE);
 	SetScrollSizes(MM_TEXT, CSize(W, y - y0), CSize(W, bounds.Height()), CSize(h_row, h_row));
+}
+
+void SideView::UpdateAxis()
+{
+	CRect bounds; GetClientRect(bounds);
+	if (!doc || bounds.Width() < 2) return;
+	if (!axis.GetCheck()) return;
+
+	const Plot   &plot = doc->plot;
+	const Graph  *g = plot.current_graph();
+	const Axis   &ax = plot.axis;
+	const Camera &cam = plot.camera;
+
+	const bool in3d = (plot.axis_type() != Axis::Rect);
+
+	xCenter.SetDouble(ax.center(0));
+	xRange.SetDouble(ax.range(0)*2.0);
+
+	yCenter.SetDouble(ax.center(1));
+	yRange.SetDouble(ax.range(1)*2.0);
+
+	if (in3d)
+	{
+		zCenter.SetDouble(ax.center(2));
+		zRange.SetDouble(ax.range(2)*2.0);
+		phi.SetDouble(cam.phi());
+		psi.SetDouble(cam.psi());
+		theta.SetDouble(cam.theta());
+		dist.SetDouble(1.0 / cam.zoom());
+	}
+
+	const int nin = g ? g->inRangeDimension() : -1;
+
+	if (nin >= 1)
+	{
+		uCenter.SetDouble(ax.in_center(0));
+		uRange.SetDouble(ax.in_range(0)*2.0);
+	}
+	if (nin >= 2)
+	{
+		vCenter.SetDouble(ax.in_center(1));
+		vRange.SetDouble(ax.in_range(1)*2.0);
+	}
 }

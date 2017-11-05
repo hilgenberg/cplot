@@ -107,6 +107,7 @@ void MainView::Update()
 	CRect bounds; GetClientRect(bounds);
 	if (bounds.Width() < 2 || !m_pDocument) return;
 	Document &doc = GetDocument();
+	DS0;
 
 	const Plot &plot = doc.plot;
 	const Graph *graph = plot.current_graph();
@@ -115,15 +116,15 @@ void MainView::Update()
 	doc.plot.axis.type(plot.axis_type());
 
 	const int W = bounds.Width();
-	const int SPC = 5; // amount of spacing
-	const int w1 = 40; // label width
-	int w2 = (W - SPC - w1 - 2 * SPC) / 3; if (w2 > 160) w2 = 160; // domain width
+	const int SPC = DS(5); // amount of spacing
+	const int w1 = DS(40); // label width
+	int w2 = (W - SPC - w1 - 2 * SPC) / 3; if (w2 > DS(160)) w2 = DS(160); // domain width
 	const int x0 = SPC;  // row x start / amount of space on the left
 	const int x1 = W - SPC;
 	const int xm = x0 + w1, xmm = xm + SPC;
 	int y = SPC; // y for next control
 
-	const int h_label = 14, h_combo = 21, h_check = 20, h_edit = 20, h_row = 22;
+	const int h_label = DS(14), h_combo = DS(21), h_check = DS(20), h_edit = DS(20), h_row = DS(22);
 
 	//----------------------------------------------------------------------------------
 	if (!graph)
@@ -196,7 +197,7 @@ void MainView::Update()
 		}
 		mode.SetCurSel(i0);
 
-		y += h_row + 4;
+		y += h_row+DS(4);
 	}
 
 	int nf = graph ? graph->n_components() : 0; assert(nf >= 0 && nf <= 3);
