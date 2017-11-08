@@ -2,6 +2,8 @@
 #include "CPlotApp.h"
 #include "Document.h"
 #include "../Persistence/Serializer.h"
+#include "MainWindow.h"
+#include "SideView.h"
 #include <propkey.h>
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -12,7 +14,6 @@ IMPLEMENT_DYNCREATE(Document, CDocument)
 Document::Document()
 : plot(rns)
 {
-	box_state.all = -1;
 }
 
 Document::~Document()
@@ -31,13 +32,18 @@ BOOL Document::OnNewDocument()
 
 void Document::Serialize(CArchive &ar)
 {
+	MainWindow* w = (MainWindow*)AfxGetMainWnd();
+	SideView *sv = w ? &w->GetSideView() : NULL;
+
 	if (ar.IsStoring())
 	{
 		FileWriter fw(ar.GetFile());
 		Serializer  w(fw);
 		rns.save(w);
 		plot.save(w);
-		if (w.version() >= FILE_VERSION_1_8) w.uint32_(box_state.all);
+		BoxState b; b.all = -1;
+		if (sv) b = sv->GetBoxState();
+		if (w.version() >= FILE_VERSION_1_8) w.uint32_(b.all);
 		w.marker_("EOF.");
 	}
 	else
@@ -48,9 +54,10 @@ void Document::Serialize(CArchive &ar)
 		rns.clear();
 		rns.load(s);
 		plot.load(s);
-		box_state.all = -1;
-		if (s.version() >= FILE_VERSION_1_8) s.uint32_(box_state.all);
+		BoxState b; b.all = -1;
+		if (s.version() >= FILE_VERSION_1_8) s.uint32_(b.all);
 		s.marker_("EOF.");
 		assert(s.done());
+		if (sv) sv->SetBoxState(b);
 	}
 }

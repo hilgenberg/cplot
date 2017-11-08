@@ -357,6 +357,12 @@
     <ClInclude Include="Windows\Controls\TextureControl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Windows\Controls\NumericEdit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\SideView_IDs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Windows\Controls\DeltaSlider.cpp">
@@ -663,6 +669,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Windows\Controls\TextureControl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\Controls\NumericEdit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\SideView_Update.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

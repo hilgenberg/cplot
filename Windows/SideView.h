@@ -4,15 +4,34 @@
 #include "Controls/HeaderControl.h"
 #include "Controls/FocusEdit.h"
 #include "Controls/TextureControl.h"
+#include "Controls/NumericEdit.h"
+#include "../Graphs/Geometry/Vector.h"
 class Document;
 class Graph;
 struct Plot;
+
+union BoxState
+{
+	struct
+	{
+		bool params   : 1;
+		bool defs     : 1;
+		bool graphs   : 1;
+		bool settings : 1;
+		bool axis     : 1;
+	};
+	uint32_t all;
+};
 
 class SideView : public CFormView
 {
 public:
 	SideView();
 	~SideView();
+	
+	Document &document() const { assert(doc); return *doc; }
+	BoxState GetBoxState() const;
+	void SetBoxState(BoxState b);
 
 	void SetDoc(Document *d);
 	void Redraw();
@@ -56,7 +75,7 @@ private:
 	void            OnDisplayMode();
 	void            OnVFMode();
 	CStatic         histoModeLabel; CComboBox histoMode;
-	CStatic         histoScaleLabel; FocusEdit histoScale; CSliderCtrl histoScaleSlider;
+	CStatic         histoScaleLabel; NumericEdit histoScale; CSliderCtrl histoScaleSlider;
 	void            OnHistoMode();
 	void            OnHistoScale();
 
@@ -108,12 +127,34 @@ private:
 	//--------------------------------------------------------
 	HeaderControl   axis;
 	void            OnAxis();
-	CStatic         center, range;
-	CStatic xLabel; FocusEdit xCenter, xRange; DeltaSlider xDelta;
-	CStatic yLabel; FocusEdit yCenter, yRange; DeltaSlider yDelta;
-	DeltaSlider     rangeDelta;
-	//--------------------------------------------------------
+	CStatic         centerLabel, rangeLabel;
+	CStatic xLabel; NumericEdit xCenter, xRange; DeltaSlider xDelta;
+	CStatic yLabel; NumericEdit yCenter, yRange; DeltaSlider yDelta;
+	CStatic zLabel; NumericEdit zCenter, zRange; DeltaSlider zDelta;
+	DeltaSlider     xyzDelta;
+	CStatic uLabel; NumericEdit uCenter, uRange; DeltaSlider uDelta;
+	CStatic vLabel; NumericEdit vCenter, vRange; DeltaSlider vDelta;
+	DeltaSlider     uvDelta;
+	CStatic         phiLabel, psiLabel, thetaLabel;
+	NumericEdit     phi, psi, theta;
+	DeltaSlider     phiDelta, psiDelta, thetaDelta;
+	CStatic         distLabel; NumericEdit dist; DeltaSlider distDelta;
+	CButton         center, top, front;
+	void            OnCenterAxis();
+	void            OnEqualRanges();
+	void OnAxisRange(int i, NumericEdit &e);
+	void OnAxisCenter(int i, NumericEdit &e);
+	void OnAxisAngle(int i, NumericEdit &e);
+	void OnDistance();
+	void ChangeView(const P3d &v);
+	void OnTopView   () { ChangeView(P3d(  0.0,  90.0, 0.0)); }
+	void OnFrontView () { ChangeView(P3d(  0.0,   0.3, 0.0)); }
+	void OnLeftView  () { ChangeView(P3d( 90.0,   0.3, 0.0)); }
+	void OnRightView () { ChangeView(P3d(-90.0,   0.3, 0.0)); }
+	void OnBackView  () { ChangeView(P3d(180.0,   0.3, 0.0)); }
+	void OnBottomView() { ChangeView(P3d(  0.0, -90.0, 0.0)); }
 
+	//--------------------------------------------------------
 	DECLARE_DYNCREATE(SideView)
 	DECLARE_MESSAGE_MAP()
 };

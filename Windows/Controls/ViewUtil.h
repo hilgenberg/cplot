@@ -30,6 +30,7 @@ const DWORD buttonStyle  = WS_CHILD | BS_PUSHBUTTON | WS_TABSTOP;
 #define POPUP(c)      CREATE(c, popupStyle); currentPopup = &c; currentIdx = 0
 #define OPTION(s)     currentPopup->InsertString(currentIdx++, _T(s))
 #define DATA(s)       currentPopup->SetItemData(currentIdx-1, (DWORD_PTR)s)
+#define EDIT(c)       CREATE(c, editStyle)
 
 static inline void HIDE(CWnd &c) { c.ShowWindow(SW_HIDE); }
 

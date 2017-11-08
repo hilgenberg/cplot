@@ -20,8 +20,7 @@ public:
 
 private:
 	GL_Image *im;
-	CBitmap bmp;
-	CMenu   cm; // context menu
-	std::vector<uint32_t> buf; // premultiplied copy of im
+	CBitmap   bmp;
+	CMenu     cm; // context menu
 	DECLARE_MESSAGE_MAP()
 };

@@ -5,11 +5,10 @@
 class FocusEdit: public CEdit
 {
 public:
-	std::function<void(void)> f;
-
-	BOOL PreTranslateMessage(MSG *m) override;
+	std::function<void(void)> OnChange;
 
 private:
+	BOOL PreTranslateMessage(MSG *m) override;
 	BOOL OnKillFocus();
 	DECLARE_MESSAGE_MAP()
 };

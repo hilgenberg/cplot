@@ -9,8 +9,8 @@ BOOL FocusEdit::PreTranslateMessage(MSG *m)
 {
 	if (m->message == WM_KEYDOWN && m->wParam == VK_RETURN)
 	{
-		assert(f); // should always have a handler
-		if (f) f();
+		assert(OnChange); // should always have a handler
+		if (OnChange) OnChange();
 		return TRUE;
 	}
 	
@@ -19,7 +19,7 @@ BOOL FocusEdit::PreTranslateMessage(MSG *m)
 
 BOOL FocusEdit::OnKillFocus()
 {
-	assert(f);
-	if (f) f();
+	assert(OnChange); // should always have a handler
+	if (OnChange) OnChange();
 	return FALSE; // pass on to CEdit
 }

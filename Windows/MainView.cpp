@@ -93,9 +93,9 @@ int MainView::OnCreate(LPCREATESTRUCT cs)
 	#undef FS
 	#undef FN
 	
-	f[0].f = [this] { OnChangeF1(); };
-	f[1].f = [this] { OnChangeF2(); };
-	f[2].f = [this] { OnChangeF3(); };
+	f[0].OnChange = [this] { OnChangeF1(); };
+	f[1].OnChange = [this] { OnChangeF2(); };
+	f[2].OnChange = [this] { OnChangeF3(); };
 
 	plotView.Create(whatever, this, ID_plotView);
 
@@ -287,8 +287,8 @@ void MainView::OnDomainChange()
 	doc.plot.update_axis();
 	Update();
 	RedrawHeader();
-	plotView.Invalidate();
 	GetSideView().Update();
+	plotView.Invalidate();
 }
 
 void MainView::OnCoordChange()
@@ -319,6 +319,6 @@ void MainView::OnModeChange()
 	doc.plot.update_axis();
 	Update();
 	RedrawHeader();
-	plotView.Invalidate();
 	GetSideView().Update();
+	plotView.Invalidate();
 }

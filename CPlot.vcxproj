@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -28,14 +28,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
@@ -43,14 +43,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
     <UseOfMfc>Dynamic</UseOfMfc>
@@ -236,6 +236,7 @@ copy "$(SolutionDir)Windows\zlib\$(Platform)\zlib1.dll" "$(OutputPath)"</Command
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Windows\Controls\NumericEdit.h" />
     <ClInclude Include="Windows\Controls\TextureControl.h" />
     <ClInclude Include="Windows\Controls\FocusEdit.h" />
     <ClInclude Include="Windows\Conversions.h" />
@@ -347,11 +348,14 @@ copy "$(SolutionDir)Windows\zlib\$(Platform)\zlib1.dll" "$(OutputPath)"</Command
     <ClInclude Include="Windows\res\Resource.h" />
     <ClInclude Include="Windows\SideView.h" />
     <ClInclude Include="Windows\Controls\SplitterWnd.h" />
+    <ClInclude Include="Windows\SideView_IDs.h" />
     <ClInclude Include="Windows\stdafx.h" />
     <ClInclude Include="Windows\targetver.h" />
     <ClInclude Include="Windows\Controls\ViewUtil.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Windows\Controls\NumericEdit.cpp" />
+    <ClCompile Include="Windows\SideView_Update.cpp" />
     <ClCompile Include="Windows\Controls\TextureControl.cpp" />
     <ClCompile Include="Windows\Controls\FocusEdit.cpp" />
     <ClCompile Include="Windows\Conversions.cpp" />

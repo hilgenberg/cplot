@@ -550,6 +550,11 @@ void PlotView::OnKeyDown(UINT c, UINT rep, UINT flags)
 	if (flags & KF_REPEAT) return;
 	if (!doc) return;
 
+	const bool ctrl  = GetKeyState(VK_CONTROL) & 0x8000;
+	const bool shift = GetKeyState(VK_SHIFT) & 0x8000;
+	const bool alt   = c & (1 << 13);
+	const bool win   = GetKeyState(VK_RMENU) & 0x8000;
+
 	bool done = true;
 	switch (c)
 	{
@@ -577,30 +582,34 @@ void PlotView::OnKeyDown(UINT c, UINT rep, UINT flags)
 
 	SideView &sv = ((MainWindow*)GetParentFrame())->GetSideView();
 
+	if (c >= 'A' && c <= 'Z' && !shift) c += 'a' - 'A';
+
 	switch (c)
 	{
-		case 'A': sv.OnDrawAxis(); break;
-		case 'C': sv.OnClip(); break;
-		case 'D': sv.OnDisco(); break;
+		case 'a': sv.OnDrawAxis(); break;
+		case 'd': sv.OnDisco(); break;
+
+		case 'c': sv.OnClip(); break;
+		case 'C': sv.OnClipCustom(); break;
+		case 'l': sv.OnClipLock(); break;
+		case 'L': sv.OnClipReset(); break;
+
+		case 'u': sv.OnTopView(); break;
+		case 'U': sv.OnBottomView(); break;
+		case 'f': sv.OnFrontView(); break;
+		case 'F': sv.OnBackView(); break;
+		case 'r': sv.OnRightView(); break;
+		case 'R': sv.OnLeftView(); break;
+		case 'z': sv.OnCenterAxis(); break;
+		case 'e': sv.OnEqualRanges(); break;
 
 		/*case 'g': [settingsBox toggle : settingsBox.gridMode];   return;
-		case 'C': [settingsBox toggle : settingsBox.clipCustom]; return;
-		case 'l': [settingsBox toggle : settingsBox.clipLock];   return;
-		case 'L': [settingsBox   push : settingsBox.clipReset];  return;
 
 		case 't': [settingsBox  cycle : settingsBox.textureMode direction : +1]; return;
 		case 'T': [settingsBox  cycle : settingsBox.textureMode direction : -1]; return;
 		case 'v': [settingsBox  cycle : settingsBox.vfMode      direction : +1]; return;
 		case 'V': [settingsBox  cycle : settingsBox.vfMode      direction : -1]; return;
 
-		case 'e': [axisBox equalRanges]; return;
-		case 'u': [axisBox     topView]; return;
-		case 'U': [axisBox  bottomView]; return;
-		case 'f': [axisBox   frontView]; return;
-		case 'F': [axisBox    backView]; return;
-		case 'r': [axisBox   rightView]; return;
-		case 'R': [axisBox    leftView]; return;
-		case 'z': [axisBox  centerAxis]; return;
 
 		case '0': case '1': case '2': case '3': case '4':
 		case '5': case '6': case '7': case '8': case '9':

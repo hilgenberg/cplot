@@ -83,7 +83,11 @@ void TextureControl::OnContextItem(UINT which)
 
 void TextureControl::SetImage(GL_Image *im_)
 {
-	if (im_ == im) return;
+	if (im_ == im)
+	{
+		Invalidate();
+		return;
+	}
 	im = im_;
 
 	HGDIOBJ old = bmp.Detach();
@@ -97,10 +101,11 @@ void TextureControl::SetImage(GL_Image *im_)
 
 	const unsigned w = im->w(), h = im->h();
 
-	if (!im->opaque() || ((DWORD_PTR)im->data().data()) & (sizeof(DWORD)-1))
+	if (!im->opaque() || ((DWORD_PTR)im->data().data()) & (sizeof(WORD)-1))
 	{
 		const size_t n = (size_t)w * (size_t)h;
-		buf.resize(n); // this should DWORD-align the data and all rows
+		std::vector<uint32_t> buf(n); // premultiplied and aligned copy of im
+		buf.resize(n); // this should WORD-align the data and all rows
 		BYTE *d = (BYTE *)buf.data();
 		for (const BYTE *e = im->data().data(), *end = e + 4*n; e < end; e += 4)
 		{
