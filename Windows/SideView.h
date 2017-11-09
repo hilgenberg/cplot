@@ -40,6 +40,9 @@ public:
 	void Update();
 	void UpdateAxis();
 
+	bool Animating() const;
+	void Animate();
+
 	int  OnCreate(LPCREATESTRUCT cs);
 	BOOL PreCreateWindow(CREATESTRUCT &cs) override;
 	BOOL OnEraseBkgnd(CDC *dc);
@@ -51,6 +54,9 @@ public:
 	BOOL OnMouseWheel(UINT flags, short dz, CPoint p);
 
 private:
+	void AnimStateChanged(bool active);
+	int  active_anims;
+
 	friend class PlotView; // access to OnXxx methods
 
 	Document *doc;

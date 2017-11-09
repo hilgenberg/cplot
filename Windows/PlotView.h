@@ -3,6 +3,7 @@
 #include "../Graphs/OpenGL/GL_RM.h"
 #include "../Graphs/OpenGL/GL_StringCache.h"
 #include "../Engine/Namespace/Parameter.h"
+#include "../Utility/System.h"
 class Document;
 
 class PlotView : public CWnd
@@ -38,6 +39,7 @@ public:
 	void OnSysKeyDown(UINT c, UINT rep, UINT flags);
 	void OnKeyUp     (UINT c, UINT rep, UINT flags);
 	void OnSysKeyUp  (UINT c, UINT rep, UINT flags);
+	UINT OnGetDlgCode();
 
 	enum AnimType { Linear, Saw, PingPong, Sine };
 
@@ -46,13 +48,14 @@ private:
 	void zoom(double dy, int flags);
 	void move(double dx, double dy, int flags);
 	void handleArrows();
+	bool animating();
 
 	Document  *doc;
 	CClientDC *dc;
 	CRect      bounds;
 
+	Timer    timer;
 	double   tnf; // scheduled time for next frame
-	bool     need_redraw; // call draw after all pending events are handled
 	double   last_frame; // time of last draw
 	double   last_key; // time of last handleArrows
 	GL_RM   *rm;

@@ -24,7 +24,7 @@ const DWORD buttonStyle  = WS_CHILD | BS_PUSHBUTTON | WS_TABSTOP;
 #define COLOR(c)      CREATE(c, _T(""), colorStyle); c.EnableOtherButton(_T("More Colors..."))
 #define SLIDER(c, m)  CREATE(c, sliderStyle); c.SetRange(0, m)
 #define VSLIDER(c, m) CREATE(c, vSliderStyle); c.SetRange(0, m)
-#define DELTA(c)      CREATE(c, deltaStyle)
+#define DELTA(c)      CREATE(c, deltaStyle); c.stateChange = [this](bool a){ AnimStateChanged(a); }
 #define CHECK(c, s)   CREATE(c, _T(s), checkStyle)
 #define BUTTON(c, s)  CREATE(c, _T(s), buttonStyle)
 #define POPUP(c)      CREATE(c, popupStyle); currentPopup = &c; currentIdx = 0

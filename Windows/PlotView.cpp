@@ -33,27 +33,34 @@ BEGIN_MESSAGE_MAP(PlotView, CWnd)
 	ON_WM_SYSKEYDOWN()
 	ON_WM_KEYUP()
 	ON_WM_SYSKEYUP()
+	ON_WM_GETDLGCODE()
 END_MESSAGE_MAP()
 
 PlotView::PlotView()
 : dc(NULL), doc(NULL)
 , tnf(-1.0)
-, need_redraw(false)
 , last_frame(-1.0)
 , last_key(-1.0)
 , rm(NULL)
 , nums_on(0)
 , mb(0)
+, timer(1.0/60.0)
 {
 	arrows.all = 0;
 	memset(inertia, 0, 3 * sizeof(double));
 	memset(nums, 0, 10 * sizeof(bool));
+	timer.callback = [this]() { Invalidate(); };
 }
 
 PlotView::~PlotView()
 {
 	delete rm;
 	delete dc;
+}
+
+UINT PlotView::OnGetDlgCode()
+{
+	return CWnd::OnGetDlgCode() | DLGC_WANTALLKEYS;
 }
 
 BOOL PlotView::PreCreateWindow(CREATESTRUCT& cs)
@@ -150,6 +157,28 @@ BOOL PlotView::OnEraseBkgnd(CDC *dc)
 	return TRUE;
 }
 
+bool PlotView::animating()
+{
+	bool anim = false;
+	if (doc)
+	{
+		Plot &plot = doc->plot;
+		anim = (plot.axis_type() == Axis::Invalid ||
+			arrows.all ||
+			!panims.empty() ||
+			((MainWindow*)GetParentFrame())->GetSideView().Animating());
+	}
+	if (anim)
+	{
+		if (!timer.running()) timer.start();
+	}
+	else
+	{
+		if (timer.running()) timer.stop();
+	}
+	return anim;
+}
+
 void PlotView::OnPaint()
 {
 	CPaintDC pdc(this);
@@ -158,6 +187,8 @@ void PlotView::OnPaint()
 
 	if (last_frame <= 0.0) reshape();
 	last_frame = now();
+
+	bool anim = animating();
 
 	if (plot.axis_type() == Axis::Invalid)
 	{
@@ -189,13 +220,16 @@ void PlotView::OnPaint()
 
 		glFinish();
 		SwapBuffers(wglGetCurrentDC());
-		need_redraw = false;
-		//start();
 		return;
 	}
 
+	if (anim)
+	{
+		handleArrows();
+		((MainWindow*)GetParentFrame())->GetSideView().Animate();
+	}
+
 	bool dynamic = true; // todo: from pref
-	bool anim = false;// dynamic && (!ikeys.empty() || modifiers & (Button1Mask | Button2Mask | Button3Mask));
 	if (!anim && !plot.at_full_quality()) plot.update(CH_UNKNOWN);
 	GL_CHECK;
 
@@ -210,8 +244,6 @@ void PlotView::OnPaint()
 
 	glFinish();
 	SwapBuffers(wglGetCurrentDC());
-
-	need_redraw = !plot.at_full_quality();
 }
 
 void PlotView::OnSize(UINT nType, int w, int h)
@@ -507,12 +539,15 @@ void PlotView::handleArrows()
 		if (dy) accel(inertia[1], scale);
 		if (dz) accel(inertia[2], scale);
 
-		//NSLog(@"arrow timer %g", scale);
-
 		int flags = 0;// [NSEvent modifierFlags];
-		if (arrows.plus || arrows.minus) flags |= SHIFT;
 
-		move(dx*inertia[0], dy*inertia[1] + dz*inertia[2], flags);
+		if (GetKeyState(VK_SHIFT) & 0x8000) flags |= SHIFT;
+		//const bool alt = c & (1 << 13);
+		if (GetKeyState(VK_RMENU) & 0x8000) flags |= WIN;
+		//const bool ctrl = GetKeyState(VK_CONTROL) & 0x8000;
+
+		if (dx || dy) move(dx*inertia[0], dy*inertia[1], flags);
+		if (dz) move(0, dz*inertia[2], flags | SHIFT);
 	}
 }
 
@@ -520,12 +555,14 @@ void PlotView::OnKeyUp(UINT c, UINT rep, UINT flags)
 {
 	switch (c)
 	{
-		case  VK_LEFT: arrows.left  = false; inertia[0] = 0.0; break;
-		case VK_RIGHT: arrows.right = false; inertia[0] = 0.0; break;
-		case    VK_UP: arrows.up    = false; inertia[1] = 0.0; break;
-		case  VK_DOWN: arrows.down  = false; inertia[1] = 0.0; break;
-		case      '+': arrows.plus  = false; inertia[2] = 0.0; break;
-		case      '-': arrows.minus = false; inertia[2] = 0.0; break;
+		case      VK_LEFT: arrows.left  = false; inertia[0] = 0.0; break;
+		case     VK_RIGHT: arrows.right = false; inertia[0] = 0.0; break;
+		case        VK_UP: arrows.up    = false; inertia[1] = 0.0; break;
+		case      VK_DOWN: arrows.down  = false; inertia[1] = 0.0; break;
+		case  VK_OEM_PLUS:
+		case       VK_ADD: arrows.plus  = false; inertia[2] = 0.0; break;
+		case VK_OEM_MINUS:
+		case  VK_SUBTRACT: arrows.minus = false; inertia[2] = 0.0; break;
 
 		case '0': case '1': case '2': case '3': case '4':
 		case '5': case '6': case '7': case '8': case '9':
@@ -537,8 +574,7 @@ void PlotView::OnKeyUp(UINT c, UINT rep, UINT flags)
 	}
 	if (!arrows.all)
 	{
-		//STOP_TIMER(arrowKeyTimer);
-		//[self endAnimation];
+		animating();
 
 		SideView &sv = ((MainWindow*)GetParentFrame())->GetSideView();
 		sv.UpdateAxis();
@@ -558,22 +594,20 @@ void PlotView::OnKeyDown(UINT c, UINT rep, UINT flags)
 	bool done = true;
 	switch (c)
 	{
-		case  VK_LEFT: arrows.left  = true; break;
-		case VK_RIGHT: arrows.right = true; break;
-		case    VK_UP: arrows.up    = true; break;
-		case  VK_DOWN: arrows.down  = true; break;
-		case      '+': arrows.plus  = true; break;
-		case      '-': arrows.minus = true; break;
+		case      VK_LEFT: arrows.left  = true; break;
+		case     VK_RIGHT: arrows.right = true; break;
+		case        VK_UP: arrows.up    = true; break;
+		case      VK_DOWN: arrows.down  = true; break;
+		case  VK_OEM_PLUS: 
+		case       VK_ADD: arrows.plus  = true; break;
+		case VK_OEM_MINUS:
+		case  VK_SUBTRACT: arrows.minus = true; break;
 		default: done = false;
 	}
 
 	if (done)
 	{
-		/*if (arrows.all && !arrowKeyTimer)
-		{
-			TIMER(arrowKeyTimer, handleArrows, 1.0 / 60.0);
-			[self startAnimation];
-		}*/
+		if (arrows.all) animating();
 		return;
 	}
 

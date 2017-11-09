@@ -168,6 +168,76 @@ int SideView::OnCreate(LPCREATESTRUCT cs)
 	return 0;
 }
 
+void SideView::AnimStateChanged(bool active)
+{
+	active_anims += active ? 1 : -1;
+	if (active_anims == 1) Redraw();
+}
+bool SideView::Animating() const
+{
+	return active_anims;
+}
+void SideView::Animate()
+{
+	if (!active_anims || !doc) return;
+	Plot &plot = doc->plot;
+	Axis &axis = plot.axis;
+	Camera &camera = plot.camera;
+
+	double t = now();
+	bool recalc = false;
+
+	double dx = xDelta.evolve(t);
+	double dy = yDelta.evolve(t);
+	double dz = zDelta.evolve(t);
+	double dr = xyzDelta.evolve(t);
+	if (dx || dy || dz)
+	{
+		double scale = 0.05;
+		dx *= axis.range(0) * scale;
+		dy *= axis.range(1) * scale;
+		dz *= axis.range(2) * scale;
+		axis.move(dx, dy, dz);
+		recalc = true;
+	}
+	if (dr)
+	{
+		axis.zoom(1.0 + 0.05 * dr);
+		recalc = true;
+	}
+
+	double du = uDelta.evolve(t);
+	double dv = vDelta.evolve(t);
+	double duv = uvDelta.evolve(t);
+	if (du || dv)
+	{
+		double scale = 0.05;
+		du *= axis.in_range(0) * scale;
+		dv *= axis.in_range(1) * scale;
+		axis.in_move(du, dv);
+		recalc = true;
+	}
+	if (duv)
+	{
+		axis.in_zoom(1.0 + 0.05 * duv);
+		recalc = true;
+	}
+
+	double dphi = phiDelta.evolve(t);
+	double dpsi = psiDelta.evolve(t);
+	double dtheta = thetaDelta.evolve(t);
+	if (dphi) camera.set_phi(camera.phi() + dphi * 10.0);
+	if (dpsi) camera.set_psi(camera.psi() + dpsi * 10.0);
+	if (dtheta) camera.set_theta(camera.theta() + dtheta * 10.0);
+
+	double dd = distDelta.evolve(t);
+	if (dd) camera.zoom(1.0 + 0.05 * dd);
+
+	if (recalc) Recalc(plot);
+	UpdateAxis();
+	UpdateWindow();
+}
+
 static int find(CComboBox &b, DWORD_PTR itemData)
 {
 	for (int i = 0, n = b.GetCount(); i < n; ++i)
@@ -626,7 +696,7 @@ void SideView::Update()
 		const bool in3d = (plot.axis_type() != Axis::Rect);
 
 		MOVE(centerLabel, x1, x2 - SPC, y, h_label, h_row);
-		MOVE(rangeLabel, x3, x4 - SPC, y, h_label, h_row);
+		MOVE(rangeLabel, x2, x3 - SPC, y, h_label, h_row);
 		y += h_row - DS(5);
 
 		MOVE(xLabel, x0, x1 - SPC, y, h_label, h_row);

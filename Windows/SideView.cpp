@@ -47,6 +47,7 @@ END_MESSAGE_MAP()
 SideView::SideView()
 : CFormView(IDD_SIDEVIEW)
 , doc(NULL)
+, active_anims(0)
 {
 }
 SideView::~SideView()

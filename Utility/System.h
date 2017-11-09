@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <functional>
 
 extern int argc;
 extern char **argv;
@@ -46,3 +47,21 @@ private:
 };
 
 extern Settings settings;
+
+class Timer
+{
+public:
+	Timer(double dt);
+	~Timer();
+	void start();
+	void stop();
+	bool running() const;
+	double dt() const { return dt_; }
+	std::function<void(void)> callback;
+
+private:
+	#ifdef _WINDOWS
+	HANDLE timer;
+	#endif
+	double dt_;
+};
