@@ -1,17 +1,17 @@
 
-CFont &controlFont()
+CFont &controlFont(bool bold)
 {
-	static CFont font;
+	static CFont font, boldFont;
 
 	if (!font.GetSafeHandle())
 	{
 		font.CreatePointFont(80, _T("MS Shell Dlg"));
 
-		/*LOGFONT lf;
+		LOGFONT lf;
 		font.GetLogFont(&lf);
 		lf.lfWeight = FW_SEMIBOLD;
-		boldFont.CreateFontIndirect(&lf);*/
+		boldFont.CreateFontIndirect(&lf);
 	}
 	
-	return font;
+	return bold ? boldFont : font;
 }

@@ -22,6 +22,7 @@ BEGIN_MESSAGE_MAP(SideView, CFormView)
 	ON_BN_CLICKED(ID_axis, OnBoxChange)
 	ON_BN_CLICKED(ID_parameters, OnBoxChange)
 	ON_BN_CLICKED(ID_definitions, OnBoxChange)
+	ON_BN_CLICKED(ID_graphs, OnBoxChange)
 
 	ON_BN_CLICKED(ID_disco, OnDisco)
 	ON_CBN_SELCHANGE(ID_displayMode, OnDisplayMode)
@@ -265,6 +266,17 @@ void SideView::OnAdd(HeaderControl *sender)
 	{
 		OnEdit((UserFunction*)NULL);
 	}
+	else if (sender == &graphs)
+	{
+		if (!doc) return;
+		Plot &plot = doc->plot;
+		plot.add_graph();
+		plot.update_axis();
+		Update();
+		Redraw();
+		MainWindow *w = (MainWindow*)GetParentFrame();
+		w->GetMainView().Update();
+	}
 }
 void SideView::OnEdit(Parameter *p)
 {
@@ -287,7 +299,23 @@ void SideView::OnEdit(UserFunction *f)
 
 void SideView::OnRemove(HeaderControl *sender)
 {
+	if (sender == &graphs)
+	{
+		if (!doc) return;
+		Plot &plot = doc->plot;
+		Graph *g = plot.current_graph();
+		if (!g) return;
+		if (IDOK == MessageBox(_T("Really delete graph?"), _T("Confirmation"), MB_ICONQUESTION | MB_OKCANCEL))
+		{
+			plot.delete_graph(g);
+			plot.update_axis();
+			Update();
+			Redraw();
 
+			MainWindow *w = (MainWindow*)GetParentFrame();
+			w->GetMainView().Update();
+		}
+	}
 }
 
 //---------------------------------------------------------------------------------------------

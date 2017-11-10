@@ -7,6 +7,7 @@
 #include "Controls/NumericEdit.h"
 #include "Controls/ParameterView.h"
 #include "Controls/DefinitionView.h"
+#include "Controls/GraphView.h"
 #include "../Graphs/Geometry/Vector.h"
 class Document;
 class Graph;
@@ -77,6 +78,7 @@ private:
 	std::vector<DefinitionView*> defs;
 	//--------------------------------------------------------
 	HeaderControl   graphs;
+	std::vector<GraphView*> gdefs;
 	//--------------------------------------------------------
 	HeaderControl   settings;
 	CStatic         qualityLabel; CSliderCtrl quality;

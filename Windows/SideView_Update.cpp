@@ -370,6 +370,54 @@ void SideView::Update()
 	}
 	//----------------------------------------------------------------------------------
 	MOVE(graphs, 0, W, y, h_section, h_row); y += h_row;
+	graphs.SetCanRemove(g ? HeaderControl::Active : HeaderControl::Inactive);
+	if (!graphs.GetCheck())
+	{
+		for (auto *d : gdefs) HIDE(*d);
+	}
+	else
+	{
+		// add new graphs, remove deleted ones, sort by name
+		std::map<Graph*, GraphView*> m;
+		for (auto *q : gdefs)
+		{
+			auto *f = q->graph();
+			if (!f)
+			{
+				delete q;
+			}
+			else
+			{
+				m.insert(std::make_pair(f, q));
+			}
+		}
+		for (int i = 0, n = plot.number_of_graphs(); i < n; ++i)
+		{
+			Graph *f = plot.graph(i);
+			if (m.count(f)) continue;
+			GraphView *q = new GraphView(*this, *f);
+			m.insert(std::make_pair(f, q));
+			q->Create(CRect(0, 0, 20, 20), this, 2000 + (UINT)f->oid());
+		}
+		gdefs.clear(); gdefs.reserve(m.size());
+		for (int i = 0, n = plot.number_of_graphs(); i < n; ++i)
+		{
+			Graph *f = plot.graph(i);
+			auto it = m.find(f);
+			if (it == m.end()) { assert(false); continue; }
+			gdefs.push_back(it->second);
+		}
+
+		// place the controls
+		for (auto *q : gdefs)
+		{
+			int hq = q->height(W);
+			MOVE(*q, 0, W, y, hq, hq);
+			q->Update();
+			y += hq;
+		}
+		if (!gdefs.empty()) y += SPC;
+	}
 	//----------------------------------------------------------------------------------
 	MOVE(settings, 0, W, y, h_section, h_row); y += h_row;
 	if (!settings.GetCheck())

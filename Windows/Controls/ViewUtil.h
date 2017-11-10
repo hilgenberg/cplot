@@ -61,4 +61,4 @@ static void MOVE(CWnd &c, int x0, int x1, int y0, int h, int h_row)
 	}
 }
 
-CFont &controlFont();
+CFont &controlFont(bool bold = false);

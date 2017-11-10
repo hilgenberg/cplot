@@ -46,7 +46,7 @@ Plot::Plot(const Plot &p)
 	try
 	{
 		assert(p.ns.isRoot());
-		
+
 		for (const Element *e : p.ns)
 		{
 			e->copy(ns);
@@ -58,7 +58,7 @@ Plot::Plot(const Plot &p)
 			graphs[i] = new Graph(*p.graphs[i], *this);
 		}
 	}
-	catch(...)
+	catch (...)
 	{
 		for (Graph *g : graphs) delete g;
 		delete &ns;
@@ -83,7 +83,7 @@ void Plot::load(Deserializer &s)
 {
 	for (Graph *g : graphs) delete g;
 	graphs.clear();
-	
+
 	axis.load(s);
 	camera.load(s);
 	options.load(s);
@@ -125,17 +125,30 @@ void Plot::add_graph(Graph *g, bool make_current)
 
 void Plot::delete_graph(Graph *g)
 {
-	auto i = std::find(graphs.begin(), graphs.end(), g);
-	if (i == graphs.end()){ assert(false); return; }
-	if (current_graph() == g && current == (int)graphs.size()-1) --current;
-	graphs.erase(i);
+	for (int i = 0, n = (int)graphs.size(); i < n; ++i)
+	{
+		if (graphs[i] == g)
+		{
+			if (i == current && i == n-1) --current;
+			graphs.erase(graphs.begin() + i);
+			delete g;
+			return;
+		}
+	}
+	assert(false);
 	delete g;
 }
 void Plot::set_current_graph(Graph *g)
 {
-	auto i = std::find(graphs.begin(), graphs.end(), g);
-	if (i == graphs.end()){ assert(false); return; }
-	current = (int)(graphs.begin() - i);
+	for (int i = 0, n = (int)graphs.size(); i < n; ++i)
+	{
+		if (graphs[i] == g)
+		{
+			current = i;
+			return;
+		}
+	}
+	assert(false);
 }
 void Plot::set_current_graph(int i)
 {
