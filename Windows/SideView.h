@@ -6,11 +6,13 @@
 #include "Controls/TextureControl.h"
 #include "Controls/NumericEdit.h"
 #include "Controls/ParameterView.h"
+#include "Controls/DefinitionView.h"
 #include "../Graphs/Geometry/Vector.h"
 class Document;
 class Graph;
 struct Plot;
 class Parameter;
+class UserFunction;
 
 union BoxState
 {
@@ -55,6 +57,7 @@ public:
 	void OnAdd   (HeaderControl *sender);
 	void OnRemove(HeaderControl *sender);
 	void OnEdit(Parameter *p);
+	void OnEdit(UserFunction *f);
 	BOOL OnMouseWheel(UINT flags, short dz, CPoint p);
 
 private:
@@ -71,6 +74,7 @@ private:
 	std::vector<ParameterView*> params;
 	//--------------------------------------------------------
 	HeaderControl   definitions;
+	std::vector<DefinitionView*> defs;
 	//--------------------------------------------------------
 	HeaderControl   graphs;
 	//--------------------------------------------------------

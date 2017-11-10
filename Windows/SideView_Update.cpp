@@ -8,6 +8,7 @@
 #include "Controls/ViewUtil.h"
 #include "res/resource.h"
 #include "SideView_IDs.h"
+#include "../Engine/Namespace/UserFunction.h"
 
 int SideView::OnCreate(LPCREATESTRUCT cs)
 {
@@ -326,6 +327,47 @@ void SideView::Update()
 	}
 	//----------------------------------------------------------------------------------
 	MOVE(definitions, 0, W, y, h_section, h_row); y += h_row;
+	if (!definitions.GetCheck())
+	{
+		for (auto *d : defs) HIDE(*d);
+	}
+	else
+	{
+		// add new parameters, remove deleted ones, sort by name
+		std::map<UserFunction*, DefinitionView*, std::function<bool(const UserFunction*, const UserFunction*)>>
+			m([](const UserFunction *a, const UserFunction *b) { return a->formula() < b->formula(); });
+		for (auto *q : defs)
+		{
+			auto *f = q->function();
+			if (!f)
+			{
+				delete q;
+			}
+			else
+			{
+				m.insert(std::make_pair(f, q));
+			}
+		}
+		for (UserFunction *f : plot.ns.all_functions(true))
+		{
+			if (m.count(f)) continue;
+			DefinitionView *q = new DefinitionView(*this, *f);
+			m.insert(std::make_pair(f, q));
+			q->Create(CRect(0, 0, 20, 20), this, 2000 + (UINT)f->oid());
+		}
+		defs.clear(); defs.reserve(m.size());
+		for (auto i : m) defs.push_back(i.second);
+
+		// place the controls
+		for (auto *q : defs)
+		{
+			int hq = q->height(W);
+			MOVE(*q, 0, W, y, hq, hq);
+			q->Update();
+			y += hq;
+		}
+		if (!defs.empty()) y += SPC;
+	}
 	//----------------------------------------------------------------------------------
 	MOVE(graphs, 0, W, y, h_section, h_row); y += h_row;
 	//----------------------------------------------------------------------------------

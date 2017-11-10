@@ -20,6 +20,8 @@
 #define IDD_DIALOG1                     310
 #define IDD_PARAMETER                   310
 #define IDD_MAINVIEW                    311
+#define IDD_PARAMETER1                  312
+#define IDD_DEFINITION                  312
 #define IDC_BUTTON1                     1000
 #define IDC_MFCBUTTON1                  1001
 #define IDC_CHECK1                      1002
@@ -40,6 +42,7 @@
 #define IDC_PARAM_IMIN                  1022
 #define IDC_PARAM_IMAX                  1023
 #define IDC_PARAM_ABSMAX                1024
+#define IDC_DEF_FORMULA                 1025
 #define ID_FILE_EXIT                    32776
 #define ID_VIEW_PROPERTIES              32777
 #define ID_ACCELERATOR32778             32778
@@ -51,7 +54,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        317
 #define _APS_NEXT_COMMAND_VALUE         32781
-#define _APS_NEXT_CONTROL_VALUE         1016
+#define _APS_NEXT_CONTROL_VALUE         1026
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif

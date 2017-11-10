@@ -16,7 +16,6 @@ private:
 	BOOL OnInitDialog() override;
 
 	void OnOk();
-	void OnApply();
 	void OnCancel();
 	void OnDelete();
 	void OnTypeChange();

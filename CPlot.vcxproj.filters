@@ -369,6 +369,12 @@
     <ClInclude Include="Windows\ParameterController.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Windows\Controls\DefinitionView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\DefinitionController.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Windows\Controls\DeltaSlider.cpp">
@@ -687,6 +693,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Windows\ParameterController.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\Controls\DefinitionView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\DefinitionController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

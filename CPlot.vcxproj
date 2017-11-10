@@ -236,6 +236,8 @@ copy "$(SolutionDir)Windows\zlib\$(Platform)\zlib1.dll" "$(OutputPath)"</Command
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Windows\Controls\DefinitionView.h" />
+    <ClInclude Include="Windows\DefinitionController.h" />
     <ClInclude Include="Windows\ParameterController.h" />
     <ClInclude Include="Windows\Controls\NumericEdit.h" />
     <ClInclude Include="Windows\Controls\ParameterView.h" />
@@ -356,6 +358,8 @@ copy "$(SolutionDir)Windows\zlib\$(Platform)\zlib1.dll" "$(OutputPath)"</Command
     <ClInclude Include="Windows\Controls\ViewUtil.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Windows\Controls\DefinitionView.cpp" />
+    <ClCompile Include="Windows\DefinitionController.cpp" />
     <ClCompile Include="Windows\ParameterController.cpp" />
     <ClCompile Include="Windows\Controls\NumericEdit.cpp" />
     <ClCompile Include="Windows\Controls\ParameterView.cpp" />

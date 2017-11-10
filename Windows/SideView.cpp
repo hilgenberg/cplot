@@ -9,6 +9,7 @@
 #include "res/resource.h"
 #include "SideView_IDs.h"
 #include "ParameterController.h"
+#include "DefinitionController.h"
 
 IMPLEMENT_DYNCREATE(SideView, CFormView)
 BEGIN_MESSAGE_MAP(SideView, CFormView)
@@ -16,9 +17,11 @@ BEGIN_MESSAGE_MAP(SideView, CFormView)
 	ON_WM_ERASEBKGND()
 	ON_WM_SIZE()
 	ON_WM_MOUSEHWHEEL()
+
 	ON_BN_CLICKED(ID_settings, OnBoxChange)
 	ON_BN_CLICKED(ID_axis, OnBoxChange)
 	ON_BN_CLICKED(ID_parameters, OnBoxChange)
+	ON_BN_CLICKED(ID_definitions, OnBoxChange)
 
 	ON_BN_CLICKED(ID_disco, OnDisco)
 	ON_CBN_SELCHANGE(ID_displayMode, OnDisplayMode)
@@ -258,11 +261,24 @@ void SideView::OnAdd(HeaderControl *sender)
 	{
 		OnEdit((Parameter*)NULL);
 	}
+	else if (sender == &definitions)
+	{
+		OnEdit((UserFunction*)NULL);
+	}
 }
 void SideView::OnEdit(Parameter *p)
 {
 	ParameterController pc(*this, p);
 	if (pc.DoModal() == IDOK)
+	{
+		Redraw();
+		Update();
+	}
+}
+void SideView::OnEdit(UserFunction *f)
+{
+	DefinitionController dc(*this, f);
+	if (dc.DoModal() == IDOK)
 	{
 		Redraw();
 		Update();
