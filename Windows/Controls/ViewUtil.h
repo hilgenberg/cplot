@@ -3,6 +3,7 @@
 const DWORD sectionStyle = WS_CHILD | BS_AUTOCHECKBOX;
 const DWORD labelStyle   = WS_CHILD | SS_CENTER | SS_WORDELLIPSIS;
 const DWORD rlabelStyle  = WS_CHILD | SS_RIGHT | SS_WORDELLIPSIS;
+const DWORD llabelStyle = WS_CHILD  | SS_LEFT | SS_WORDELLIPSIS;
 const DWORD colorStyle   = WS_CHILD | BS_PUSHBUTTON | WS_TABSTOP;
 const DWORD sliderStyle  = WS_CHILD | TBS_NOTICKS | TBS_BOTH | WS_TABSTOP;
 const DWORD deltaStyle   = WS_CHILD | TBS_NOTICKS | TBS_BOTH;
@@ -20,6 +21,8 @@ const DWORD buttonStyle  = WS_CHILD | BS_PUSHBUTTON | WS_TABSTOP;
 #define CREATEI(c, ID, ...) c.Create(__VA_ARGS__, whatever, this, ID);     c.SetFont(&controlFont())
 
 #define LABEL(c, s)   CREATE(c, _T(s),  labelStyle)
+#define RLABEL(c, s)   CREATE(c, _T(s),  rlabelStyle)
+#define LLABEL(c, s)   CREATE(c, _T(s),  llabelStyle)
 #define SECTION(c, s) CREATE(c, _T(s),  sectionStyle); c.SetCheck(TRUE); c.SetOwner(this)
 #define COLOR(c)      CREATE(c, _T(""), colorStyle); c.EnableOtherButton(_T("More Colors..."))
 #define SLIDER(c, m)  CREATE(c, sliderStyle); c.SetRange(0, m)

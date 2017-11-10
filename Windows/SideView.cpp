@@ -8,6 +8,7 @@
 #include "Controls/ViewUtil.h"
 #include "res/resource.h"
 #include "SideView_IDs.h"
+#include "ParameterController.h"
 
 IMPLEMENT_DYNCREATE(SideView, CFormView)
 BEGIN_MESSAGE_MAP(SideView, CFormView)
@@ -15,8 +16,9 @@ BEGIN_MESSAGE_MAP(SideView, CFormView)
 	ON_WM_ERASEBKGND()
 	ON_WM_SIZE()
 	ON_WM_MOUSEHWHEEL()
-	ON_BN_CLICKED(ID_settings, OnSettings)
-	ON_BN_CLICKED(ID_axis, OnAxis)
+	ON_BN_CLICKED(ID_settings, OnBoxChange)
+	ON_BN_CLICKED(ID_axis, OnBoxChange)
+	ON_BN_CLICKED(ID_parameters, OnBoxChange)
 
 	ON_BN_CLICKED(ID_disco, OnDisco)
 	ON_CBN_SELCHANGE(ID_displayMode, OnDisplayMode)
@@ -56,6 +58,8 @@ SideView::~SideView()
 
 void SideView::SetDoc(Document *d)
 {
+	assert(!doc || d == doc);
+	assert(d != NULL);
 	doc = d;
 }
 
@@ -154,17 +158,12 @@ void SideView::SetBoxState(BoxState b)
 	graphs.SetCheck(b.graphs);
 	settings.SetCheck(b.settings);
 	axis.SetCheck(b.axis);
-	Update();
 }
 
-void SideView::OnSettings()
+void SideView::OnBoxChange()
 {
 	Update();
-}
-
-void SideView::OnAxis()
-{
-	Update();
+	Invalidate();
 }
 
 //---------------------------------------------------------------------------------------------
@@ -255,8 +254,21 @@ void SideView::ChangeView(const P3d &v)
 
 void SideView::OnAdd(HeaderControl *sender)
 {
-
+	if (sender == &parameters)
+	{
+		OnEdit((Parameter*)NULL);
+	}
 }
+void SideView::OnEdit(Parameter *p)
+{
+	ParameterController pc(*this, p);
+	if (pc.DoModal() == IDOK)
+	{
+		Redraw();
+		Update();
+	}
+}
+
 void SideView::OnRemove(HeaderControl *sender)
 {
 

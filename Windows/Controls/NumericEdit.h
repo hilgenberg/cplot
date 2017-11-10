@@ -10,15 +10,16 @@ public:
 
 	std::function<void(void)> OnChange;
 
-	double GetDouble();   // these also set the mode to Real
+	double GetDouble() const;   // these also set the mode to Real
 	void   SetDouble(double x);
-	//cnum   GetComplex() const;   // these also set the mode to Complex
-	//void   SetComplex(cnum z);
+	cnum   GetComplex() const;   // these also set the mode to Complex
+	void   SetComplex(cnum z);
 
 private:
 	mutable bool    real;
 	mutable cnum    value;
-	mutable CString text; 
+	mutable CString text;
+	Namespace *find_namespace() const;
 
 	BOOL PreTranslateMessage(MSG *m) override;
 	BOOL OnKillFocus();

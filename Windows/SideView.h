@@ -5,10 +5,12 @@
 #include "Controls/FocusEdit.h"
 #include "Controls/TextureControl.h"
 #include "Controls/NumericEdit.h"
+#include "Controls/ParameterView.h"
 #include "../Graphs/Geometry/Vector.h"
 class Document;
 class Graph;
 struct Plot;
+class Parameter;
 
 union BoxState
 {
@@ -32,6 +34,7 @@ public:
 	Document &document() const { assert(doc); return *doc; }
 	BoxState GetBoxState() const;
 	void SetBoxState(BoxState b);
+	void OnBoxChange();
 
 	void SetDoc(Document *d);
 	void Redraw();
@@ -51,26 +54,27 @@ public:
 	void OnInitialUpdate();
 	void OnAdd   (HeaderControl *sender);
 	void OnRemove(HeaderControl *sender);
+	void OnEdit(Parameter *p);
 	BOOL OnMouseWheel(UINT flags, short dz, CPoint p);
 
 private:
-	void AnimStateChanged(bool active);
 	int  active_anims;
+	void AnimStateChanged(bool active);
 
 	friend class PlotView; // access to OnXxx methods
+	friend class ParameterView; // access to AnimStateChanged
 
 	Document *doc;
 
 	//--------------------------------------------------------
 	HeaderControl   parameters;
+	std::vector<ParameterView*> params;
 	//--------------------------------------------------------
 	HeaderControl   definitions;
 	//--------------------------------------------------------
 	HeaderControl   graphs;
 	//--------------------------------------------------------
 	HeaderControl   settings;
-	void            OnSettings();
-
 	CStatic         qualityLabel; CSliderCtrl quality;
 	void            OnHScroll(UINT code, UINT pos, CScrollBar *sb);
 	
@@ -132,7 +136,6 @@ private:
 	void            OnClipReset();
 	//--------------------------------------------------------
 	HeaderControl   axis;
-	void            OnAxis();
 	CStatic         centerLabel, rangeLabel;
 	CStatic xLabel; NumericEdit xCenter, xRange; DeltaSlider xDelta;
 	CStatic yLabel; NumericEdit yCenter, yRange; DeltaSlider yDelta;

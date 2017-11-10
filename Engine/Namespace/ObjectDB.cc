@@ -71,7 +71,7 @@ public:
 	IDCarrier *find(IDCarrier::OID oid) const
 	{
 		auto i = objects.find(oid);
-		assert(i != objects.end());
+		//assert(i != objects.end());
 		return (i == objects.end() ? NULL : i->second);
 	}
 

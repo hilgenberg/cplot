@@ -2,6 +2,7 @@
 #include "NumericEdit.h"
 #include "../SideView.h"
 #include "../Document.h"
+#include "../MainWindow.h"
 
 BEGIN_MESSAGE_MAP(NumericEdit, CEdit)
 	ON_CONTROL_REFLECT_EX(EN_KILLFOCUS, OnKillFocus)
@@ -25,6 +26,15 @@ BOOL NumericEdit::OnKillFocus()
 	return FALSE; // pass on to CEdit
 }
 
+Namespace *NumericEdit::find_namespace() const
+{
+	MainWindow *w = (MainWindow*)GetParentFrame();
+	if (!w) return NULL;
+	Document *doc = (Document*)w->GetActiveDocument();
+	if (!doc) return NULL;
+	return &doc->rns;
+}
+
 void NumericEdit::SetDouble(double x)
 {
 	if (real && is_real(value) && defined(x) && eq(x, value.real())) return;
@@ -35,22 +45,51 @@ void NumericEdit::SetDouble(double x)
 	SetWindowText(text);
 	Invalidate();
 }
-double NumericEdit::GetDouble()
+double NumericEdit::GetDouble() const
 {
+	Namespace *ns = find_namespace();
+	if (!ns) { assert(false); return UNDEFINED; }
+
 	CString s; GetWindowText(s);
 	if (s == text && real) return value.real();
 
-	SideView *sv = (SideView*)GetParent(); assert(sv);
-	Document &doc = sv->document();
-	cnum x = evaluate(Convert(s), doc.rns);
+	cnum x = evaluate(Convert(s), *ns);
 	if (!is_real(x)) return UNDEFINED;
 
 	real = true;
 	//text = s;
 	value = x;
 	text.Format(_T("%.3g"), value.real());
-	SetWindowText(text);
+	const_cast<NumericEdit*>(this)->SetWindowText(text);
 	return value.real();
 }
 
 
+void NumericEdit::SetComplex(cnum z)
+{
+	if (!real && defined(z) && eq(z, value)) return;
+
+	real = false;
+	value = z;
+	text = to_string(z).c_str();
+	SetWindowText(text);
+	Invalidate();
+}
+cnum NumericEdit::GetComplex() const
+{
+	Namespace *ns = find_namespace();
+	if (!ns) { assert(false); return UNDEFINED; }
+
+	CString s; GetWindowText(s);
+	if (s == text && !real) return value;
+
+	cnum z = evaluate(Convert(s), *ns);
+	if (!defined(z)) return UNDEFINED;
+
+	real = false;
+	//text = s;
+	value = z;
+	text = to_string(z).c_str();
+	const_cast<NumericEdit*>(this)->SetWindowText(text);
+	return value;
+}

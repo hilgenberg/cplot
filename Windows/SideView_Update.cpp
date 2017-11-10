@@ -171,6 +171,7 @@ int SideView::OnCreate(LPCREATESTRUCT cs)
 void SideView::AnimStateChanged(bool active)
 {
 	active_anims += active ? 1 : -1;
+	assert(active_anims >= 0);
 	if (active_anims == 1) Redraw();
 }
 bool SideView::Animating() const
@@ -233,6 +234,8 @@ void SideView::Animate()
 	double dd = distDelta.evolve(t);
 	if (dd) camera.zoom(1.0 + 0.05 * dd);
 
+	for (auto *q : params) q->Animate(t);
+
 	if (recalc) Recalc(plot);
 	UpdateAxis();
 	UpdateWindow();
@@ -280,6 +283,47 @@ void SideView::Update()
 
 	//----------------------------------------------------------------------------------
 	MOVE(parameters, 0, W, y, h_section, h_section); y += h_row - (h_row - h_section) / 2;
+	if (!parameters.GetCheck())
+	{
+		for (auto *p : params) HIDE(*p);
+	}
+	else
+	{
+		// add new parameters, remove deleted ones, sort by name
+		std::map<Parameter*, ParameterView*, std::function<bool(const Parameter*, const Parameter*)>>
+			m([](const Parameter *a, const Parameter *b) { return a->name() < b->name(); });
+		for (auto *q : params)
+		{
+			auto *p = q->parameter();
+			if (!p)
+			{
+				delete q;
+			}
+			else
+			{
+				m.insert(std::make_pair(p, q));
+			}
+		}
+		for (Parameter *p : plot.ns.all_parameters(true))
+		{
+			if (m.count(p)) continue;
+			ParameterView *q = new ParameterView(*this, *p);
+			m.insert(std::make_pair(p, q));
+			q->Create(CRect(0, 0, 20, 20), this, 2000 + (UINT)p->oid());
+		}
+		params.clear(); params.reserve(m.size());
+		for (auto i : m) params.push_back(i.second);
+		
+		// place the controls
+		for (auto *q : params)
+		{
+			int hq = q->height(W);
+			MOVE(*q, 0, W, y, hq, hq);
+			q->Update();
+			y += hq;
+		}
+		if (!params.empty()) y += SPC;
+	}
 	//----------------------------------------------------------------------------------
 	MOVE(definitions, 0, W, y, h_section, h_row); y += h_row;
 	//----------------------------------------------------------------------------------
