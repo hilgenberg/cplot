@@ -3,12 +3,12 @@
 #include "../../Graphs/Graph.h"
 #include "NumericEdit.h"
 #include "DeltaSlider.h"
-class SideView;
+class SideSectionGraphs;
 
 class GraphView : public CWnd
 {
 public:
-	GraphView(SideView &parent, Graph &g);
+	GraphView(SideSectionGraphs &parent, Graph &g);
 	Graph *graph() const { return (Graph*)IDCarrier::find(g_id); }
 
 	BOOL   PreCreateWindow(CREATESTRUCT &cs) override;
@@ -20,10 +20,10 @@ public:
 	void   OnSelect();
 
 	int  height(int w) const;
-	void Update();
+	void Update(bool full);
 	
 private:
-	SideView &parent;
+	SideSectionGraphs &parent;
 	IDCarrier::OID g_id;
 
 	CMFCButton  desc;

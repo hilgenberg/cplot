@@ -360,9 +360,6 @@
     <ClInclude Include="Windows\Controls\NumericEdit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Windows\SideView_IDs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Windows\Controls\ParameterView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -376,6 +373,24 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Windows\Controls\GraphView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\Controls\SideSection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\Controls\SideSectionParams.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\Controls\SideSectionDefs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\Controls\SideSectionGraphs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\Controls\SideSectionAxis.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows\Controls\SideSectionSettings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -689,9 +704,6 @@
     <ClCompile Include="Windows\Controls\NumericEdit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Windows\SideView_Update.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Windows\Controls\ParameterView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -705,6 +717,24 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Windows\Controls\GraphView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\Controls\SideSection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\Controls\SideSectionParams.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\Controls\SideSectionDefs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\Controls\SideSectionGraphs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\Controls\SideSectionAxis.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\Controls\SideSectionSettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

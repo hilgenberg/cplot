@@ -37,7 +37,7 @@ BEGIN_MESSAGE_MAP(PlotView, CWnd)
 END_MESSAGE_MAP()
 
 PlotView::PlotView()
-: dc(NULL), doc(NULL)
+: dc(NULL)
 , tnf(-1.0)
 , last_frame(-1.0)
 , last_key(-1.0)
@@ -56,6 +56,11 @@ PlotView::~PlotView()
 {
 	delete rm;
 	delete dc;
+}
+
+Document &PlotView::document() const
+{
+	return *((MainWindow*)GetParentFrame())->doc;
 }
 
 UINT PlotView::OnGetDlgCode()
@@ -159,15 +164,11 @@ BOOL PlotView::OnEraseBkgnd(CDC *dc)
 
 bool PlotView::animating()
 {
-	bool anim = false;
-	if (doc)
-	{
-		Plot &plot = doc->plot;
-		anim = (plot.axis_type() == Axis::Invalid ||
-			arrows.all ||
-			!panims.empty() ||
-			((MainWindow*)GetParentFrame())->GetSideView().Animating());
-	}
+	bool anim = (document().plot.axis_type() == Axis::Invalid ||
+		arrows.all ||
+		!panims.empty() ||
+		((MainWindow*)GetParentFrame())->GetSideView().Animating());
+
 	if (anim)
 	{
 		if (!timer.running()) timer.start();
@@ -182,8 +183,7 @@ bool PlotView::animating()
 void PlotView::OnPaint()
 {
 	CPaintDC pdc(this);
-	if (!doc) return;
-	Plot &plot = doc->plot;
+	Plot &plot = document().plot;
 
 	if (last_frame <= 0.0) reshape();
 	last_frame = now();
@@ -255,8 +255,7 @@ void PlotView::OnSize(UINT nType, int w, int h)
 
 void PlotView::reshape()
 {
-	if (!doc) return;
-	Plot &plot = doc->plot;
+	Plot &plot = document().plot;
 	int w = bounds.Width(), h = bounds.Height();
 	glViewport(0, 0, w, h);
 	plot.camera.viewport(w, h, plot.axis);
@@ -268,8 +267,8 @@ void PlotView::reshape()
 
 COLORREF PlotView::GetBgColor()
 {
-	if (!doc || !doc->plot.number_of_graphs()) return GREY(0);
-	return doc->plot.axis.options.background_color;
+	if (!document().plot.number_of_graphs()) return GREY(0);
+	return document().plot.axis.options.background_color;
 }
 
 //----------------------------------------------------------------------------------------------------------
@@ -343,7 +342,7 @@ void PlotView::OnMouseMove(UINT flags, CPoint p)
 	}
 
 	SideView &sv = ((MainWindow*)GetParentFrame())->GetSideView();
-	sv.UpdateAxis();
+	sv.UpdateAxis(false);
 	Invalidate();
 }
 
@@ -355,7 +354,7 @@ BOOL PlotView::OnMouseWheel(UINT flags, short dz, CPoint p)
 	zoom(-0.03*dz, mods);
 
 	SideView &sv = ((MainWindow*)GetParentFrame())->GetSideView();
-	sv.UpdateAxis();
+	sv.UpdateAxis(false);
 	Invalidate();
 	return TRUE;
 }
@@ -364,8 +363,8 @@ BOOL PlotView::OnMouseWheel(UINT flags, short dz, CPoint p)
 
 void PlotView::zoom(double dy, int flags)
 {
-	if (!doc || fabs(dy) < 1e-5) return;
-	Plot &plot = doc->plot;
+	if (fabs(dy) < 1e-5) return;
+	Plot &plot = document().plot;
 	Axis &axis = plot.axis;
 	bool shift = flags & SHIFT;
 	bool   alt = flags & ALT;
@@ -421,9 +420,8 @@ static inline double absmax(double a, double b) { return fabs(a) > fabs(b) ? a :
 void PlotView::move(double dx, double dy, int flags)
 {
 	if (fabs(dx) < 1e-5 && fabs(dy) < 1e-5) return;
-	if (!doc) return;
 
-	Plot   &plot = doc->plot;
+	Plot   &plot = document().plot;
 	Axis   &axis = plot.axis;
 	Camera &camera = plot.camera;
 	bool   shift = flags & SHIFT;
@@ -577,14 +575,13 @@ void PlotView::OnKeyUp(UINT c, UINT rep, UINT flags)
 		animating();
 
 		SideView &sv = ((MainWindow*)GetParentFrame())->GetSideView();
-		sv.UpdateAxis();
+		sv.UpdateAxis(false);
 	}
 }
 
 void PlotView::OnKeyDown(UINT c, UINT rep, UINT flags)
 {
 	if (flags & KF_REPEAT) return;
-	if (!doc) return;
 
 	const bool ctrl  = GetKeyState(VK_CONTROL) & 0x8000;
 	const bool shift = GetKeyState(VK_SHIFT) & 0x8000;
@@ -611,7 +608,7 @@ void PlotView::OnKeyDown(UINT c, UINT rep, UINT flags)
 		return;
 	}
 
-	Plot &plot = doc->plot;
+	Plot &plot = document().plot;
 	Axis &axis = plot.axis;
 
 	SideView &sv = ((MainWindow*)GetParentFrame())->GetSideView();
@@ -620,22 +617,22 @@ void PlotView::OnKeyDown(UINT c, UINT rep, UINT flags)
 
 	switch (c)
 	{
-		case 'a': sv.OnDrawAxis(); break;
-		case 'd': sv.OnDisco(); break;
+		case 'a': sv.settings.OnDrawAxis(); break;
+		case 'd': sv.settings.OnDisco(); break;
 
-		case 'c': sv.OnClip(); break;
-		case 'C': sv.OnClipCustom(); break;
-		case 'l': sv.OnClipLock(); break;
-		case 'L': sv.OnClipReset(); break;
+		case 'c': sv.settings.OnClip(); break;
+		case 'C': sv.settings.OnClipCustom(); break;
+		case 'l': sv.settings.OnClipLock(); break;
+		case 'L': sv.settings.OnClipReset(); break;
 
-		case 'u': sv.OnTopView(); break;
-		case 'U': sv.OnBottomView(); break;
-		case 'f': sv.OnFrontView(); break;
-		case 'F': sv.OnBackView(); break;
-		case 'r': sv.OnRightView(); break;
-		case 'R': sv.OnLeftView(); break;
-		case 'z': sv.OnCenterAxis(); break;
-		case 'e': sv.OnEqualRanges(); break;
+		case 'u': sv.axis.OnTopView(); break;
+		case 'U': sv.axis.OnBottomView(); break;
+		case 'f': sv.axis.OnFrontView(); break;
+		case 'F': sv.axis.OnBackView(); break;
+		case 'r': sv.axis.OnRightView(); break;
+		case 'R': sv.axis.OnLeftView(); break;
+		case 'z': sv.axis.OnCenterAxis(); break;
+		case 'e': sv.axis.OnEqualRanges(); break;
 
 		/*case 'g': [settingsBox toggle : settingsBox.gridMode];   return;
 

@@ -1,15 +1,14 @@
 #pragma once
 #include "afxwin.h"
-#include "res/Resource.h"
 #include "../Engine/Namespace/Parameter.h"
-#include "SideView.h"
+class SideSectionParams;
 
 class ParameterController : public CDialogEx
 {
 	DECLARE_DYNAMIC(ParameterController)
 
 public:
-	ParameterController(SideView &parent, Parameter *p); // p == NULL adds a new parameter
+	ParameterController(SideSectionParams &parent, Parameter *p); // p == NULL adds a new parameter
 
 private:
 	virtual void DoDataExchange(CDataExchange* pDX);
@@ -28,7 +27,7 @@ private:
 	void type(ParameterType t);  // select matching radio button
 
 	Parameter *p;
-	SideView  &sv;
+	SideSectionParams &sv;
 
 	DECLARE_MESSAGE_MAP()
 };

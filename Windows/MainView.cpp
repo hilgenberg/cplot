@@ -288,7 +288,7 @@ void MainView::OnDomainChange()
 	doc.plot.update_axis();
 	Update();
 	RedrawHeader();
-	GetSideView().Update();
+	GetSideView().UpdateAll();
 	plotView.Invalidate();
 }
 
@@ -320,6 +320,6 @@ void MainView::OnModeChange()
 	doc.plot.update_axis();
 	Update();
 	RedrawHeader();
-	GetSideView().Update();
+	GetSideView().UpdateAll();
 	plotView.Invalidate();
 }

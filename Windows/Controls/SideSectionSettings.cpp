@@ -1,28 +1,434 @@
-#include "stdafx.h"
-#include "CPlotApp.h"
-#include "SideView.h"
-#include "Document.h"
-#include "Controls/SplitterWnd.h"
-#include "MainWindow.h"
-#include "MainView.h"
-#include "Controls/ViewUtil.h"
-#include "res/resource.h"
-#include "SideView_IDs.h"
-#include "../Engine/Namespace/UserFunction.h"
+#include "../stdafx.h"
+#include "SideSectionSettings.h"
+#include "ViewUtil.h"
+#include "../res/resource.h"
+#include "../DefinitionController.h"
+#include "DefinitionView.h"
+#include "../../Graphs/Plot.h"
+#include "../SideView.h"
+#include "../Document.h"
+#include "../MainWindow.h"
+#include "../MainView.h"
 
-int SideView::OnCreate(LPCREATESTRUCT cs)
+enum
 {
-	if (CFormView::OnCreate(cs) < 0) return -1;
+	ID_header = 2000,
 
-	EnableScrollBarCtrl(SB_HORZ, FALSE);
+	ID_qualityLabel, ID_quality,
+	ID_discoLabel, ID_disco,
+	ID_displayModeLabel, ID_displayMode, ID_vfMode,
+	ID_histoModeLabel, ID_histoMode,
+	ID_histoScaleLabel, ID_histoScale, ID_histoScaleSlider,
+
+	ID_aaModeLabel, ID_aaMode,
+	ID_transparencyModeLabel, ID_transparencyMode,
+	ID_fogLabel, ID_fog,
+	ID_lineWidthLabel, ID_lineWidth,
+	ID_shinynessLabel, ID_shinyness,
+
+	ID_bgLabel, ID_fillLabel, ID_axisLabel, ID_gridLabel,
+	ID_bgColor, ID_fillColor, ID_axisColor, ID_gridColor,
+	ID_bgAlpha, ID_fillAlpha, ID_axisAlpha, ID_gridAlpha,
+
+	ID_textureLabel, ID_reflectionLabel,
+	ID_texture, ID_reflection,
+	ID_textureStrength, ID_reflectionStrength,
+	ID_textureMode,
+
+	ID_gridModeLabel, ID_meshModeLabel,
+	ID_gridMode, ID_meshMode,
+	ID_gridDensity, ID_meshDensity,
+
+	ID_drawAxis, ID_axisModeLabel,
+	ID_clip, ID_axisMode,
+	ID_clipCustom, ID_clipLock, ID_clipReset,
+	ID_clipDistance,
+};
+
+BEGIN_MESSAGE_MAP(SideSectionSettings, SideSection)
+	ON_WM_CREATE()
+	ON_BN_CLICKED(ID_disco, OnDisco)
+	ON_CBN_SELCHANGE(ID_displayMode, OnDisplayMode)
+	ON_CBN_SELCHANGE(ID_vfMode, OnVFMode)
+	ON_CBN_SELCHANGE(ID_histoMode, OnHistoMode)
+	ON_CBN_SELCHANGE(ID_aaMode, OnAAMode)
+	ON_CBN_SELCHANGE(ID_transparencyMode, OnTransparencyMode)
+	ON_BN_CLICKED(ID_bgColor, OnBgColor)
+	ON_BN_CLICKED(ID_fillColor, OnFillColor)
+	ON_BN_CLICKED(ID_axisColor, OnAxisColor)
+	ON_BN_CLICKED(ID_gridColor, OnGridColor)
+	ON_WM_HSCROLL()
+	ON_WM_VSCROLL()
+	ON_CBN_SELCHANGE(ID_textureMode, OnTextureMode)
+	ON_CBN_SELCHANGE(ID_gridMode, OnGridMode)
+	ON_CBN_SELCHANGE(ID_meshMode, OnMeshMode)
+	ON_BN_CLICKED(ID_drawAxis, OnDrawAxis)
+	ON_BN_CLICKED(ID_clip, OnClip)
+	ON_CBN_SELCHANGE(ID_axisMode, OnAxisMode)
+	ON_BN_CLICKED(ID_clipCustom, OnClipCustom)
+	ON_BN_CLICKED(ID_clipLock, OnClipLock)
+	ON_BN_CLICKED(ID_clipReset, OnClipReset)
+END_MESSAGE_MAP()
+
+static constexpr int    SLIDER_MAX = 64000;
+static constexpr double HISTO_MAX  = 1.0e4;
+
+//---------------------------------------------------------------------------------------------
+// Check Boxes & Buttons
+//---------------------------------------------------------------------------------------------
+
+static inline void toggle(bool &b) { b = !b; }
+
+void SideSectionSettings::OnDisco()
+{
+	Graph *g = document().plot.current_graph(); if (!g) return;
+	toggle(g->options.disco);
+	disco.SetCheck(g->options.disco ? BST_CHECKED : BST_UNCHECKED);
+	Recalc(g);
+}
+
+void SideSectionSettings::OnDrawAxis()
+{
+	toggle(document().plot.axis.options.hidden);
+	drawAxis.SetCheck(!document().plot.axis.options.hidden ? BST_CHECKED : BST_UNCHECKED);
+	Redraw();
+}
+
+void SideSectionSettings::OnClip()
+{
+	Graph *g = document().plot.current_graph(); if (!g) return;
+
+	g->clipping(!g->clipping());
+	clip.SetCheck(g->clipping() ? BST_CHECKED : BST_UNCHECKED);
+	Recalc(g);
+}
+void SideSectionSettings::OnClipCustom()
+{
+	Plot &plot = document().plot;
+	plot.options.clip.on(!plot.options.clip.on());
+	clipCustom.SetCheck(plot.options.clip.on() ? BST_CHECKED : BST_UNCHECKED);
+	Update(false);
+	Redraw();
+}
+void SideSectionSettings::OnClipLock()
+{
+	Plot &plot = document().plot;
+	plot.options.clip.locked(!plot.options.clip.locked());
+	clipLock.SetCheck(plot.options.clip.locked() ? BST_CHECKED : BST_UNCHECKED);
+	Update(false);
+	Redraw();
+}
+void SideSectionSettings::OnClipReset()
+{
+	Plot &plot = document().plot;
+	plot.options.clip.normal(plot.camera.view_vector());
+	Recalc(plot);
+}
+
+//---------------------------------------------------------------------------------------------
+// Sliders
+//---------------------------------------------------------------------------------------------
+
+void SideSectionSettings::OnHScroll(UINT code, UINT pos, CScrollBar *sb)
+{
+	CSliderCtrl *sc = (CSliderCtrl*)sb;
+	if (sc == &quality)
+	{
+		Graph *g = document().plot.current_graph(); if (!g) return;
+		g->options.quality = quality.GetPos() / (double)SLIDER_MAX;
+		Recalc(g);
+	}
+	else if (sc == &bgAlpha)
+	{
+		document().plot.axis.options.background_color.SetAlpha(bgAlpha.GetPos());
+		Redraw();
+	}
+	else if (sc == &axisAlpha)
+	{
+		document().plot.axis.options.axis_color.SetAlpha(axisAlpha.GetPos());
+		Redraw();
+	}
+	else if (sc == &fillAlpha)
+	{
+		Graph *g = document().plot.current_graph(); if (!g || !g->hasFill()) return;
+		g->options.fill_color.SetAlpha(fillAlpha.GetPos());
+		Redraw();
+	}
+	else if (sc == &gridAlpha)
+	{
+		Graph *g = document().plot.current_graph(); if (!g) return;
+		(g->usesLineColor() ? g->options.line_color : g->options.grid_color).SetAlpha(gridAlpha.GetPos());
+		Redraw();
+	}
+	else if (sc == &fog)
+	{
+		document().plot.options.fog = fog.GetPos() / (double)SLIDER_MAX;
+		Redraw();
+	}
+	else if (sc == &lineWidth)
+	{
+		Graph *g = document().plot.current_graph(); if (!g) return;
+		(g->usesLineColor() ? g->options.line_width : g->options.gridline_width) = lineWidth.GetPos() / (double)SLIDER_MAX;
+		Redraw();
+	}
+	else if (sc == &shinyness)
+	{
+		Graph *g = document().plot.current_graph(); if (!g) return;
+		g->options.shinyness = shinyness.GetPos() / (double)SLIDER_MAX;
+		Redraw();
+	}
+	else if (sc == &gridDensity)
+	{
+		Graph *g = document().plot.current_graph(); if (!g) return;
+		g->options.grid_density = sc->GetPos() / (double)SLIDER_MAX;
+		Recalc(g);
+	}
+	else if (sc == &meshDensity)
+	{
+		Graph *g = document().plot.current_graph(); if (!g) return;
+		g->options.mask.density(sc->GetPos() / (double)SLIDER_MAX);
+		Redraw();
+	}
+	else if (sc == &histoScaleSlider)
+	{
+		Graph *g = document().plot.current_graph(); if (!g) return;
+		double x = std::max(0.0, sc->GetPos() / (double)SLIDER_MAX);
+		g->options.hist_scale = (exp(2.0*x*log(HISTO_MAX - 1.0)) - 1.0) / (HISTO_MAX - 2.0);
+		Update(false); // update the edit field
+		Recalc(g);
+	}
+	else if (sc == &clipDistance)
+	{
+		document().plot.options.clip.distance(sc->GetPos() / (float)SLIDER_MAX);
+		Redraw();
+	}
+	else
+	{
+		SideSection::OnHScroll(code, pos, sb);
+	}
+}
+
+void SideSectionSettings::OnVScroll(UINT code, UINT pos, CScrollBar *sb)
+{
+	CSliderCtrl *sc = (CSliderCtrl*)sb;
+	if (sc == &textureStrength)
+	{
+		Graph *g = document().plot.current_graph(); if (!g) return;
+		g->options.texture_opacity = (SLIDER_MAX - textureStrength.GetPos()) / (double)SLIDER_MAX;
+		Redraw();
+	}
+	else if (sc == &reflectionStrength)
+	{
+		Graph *g = document().plot.current_graph(); if (!g) return;
+		g->options.reflection_opacity = (SLIDER_MAX - reflectionStrength.GetPos()) / (double)SLIDER_MAX;
+		Redraw();
+	}
+	else
+	{
+		SideSection::OnVScroll(code, pos, sb);
+	}
+}
+
+//---------------------------------------------------------------------------------------------
+// Edit Fields
+//---------------------------------------------------------------------------------------------
+
+void SideSectionSettings::OnHistoScale()
+{
+	Graph *g = document().plot.current_graph(); if (!g) return;
+	double x = histoScale.GetDouble();
+	if (defined(x)) g->options.hist_scale = std::max(0.0, x);
+
+	Update(false); // update the slider
+	Recalc(g);
+}
+
+//---------------------------------------------------------------------------------------------
+// Combo Boxes
+//---------------------------------------------------------------------------------------------
+
+void SideSectionSettings::OnDisplayMode()
+{
+	Graph *g = document().plot.current_graph(); if (!g) return;
+
+	int i = displayMode.GetCurSel();
+	ShadingMode m = (ShadingMode)displayMode.GetItemData(i);
+	if (m == g->options.shading_mode) return;
+
+	g->options.shading_mode = m;
+	document().plot.update_axis();
+	parent().UpdateSettings(true);
+	Recalc(g);
+}
+
+void SideSectionSettings::OnVFMode()
+{
+	Graph *g = document().plot.current_graph(); if (!g) return;
+
+	int i = vfMode.GetCurSel();
+	VectorfieldMode m = (VectorfieldMode)vfMode.GetItemData(i);
+	if (m == g->options.vf_mode) return;
+
+	g->options.vf_mode = m;
+	Recalc(g);
+}
+
+void SideSectionSettings::OnHistoMode()
+{
+	Graph *g = document().plot.current_graph(); if (!g) return;
+
+	int i = histoMode.GetCurSel();
+	HistogramMode m = (HistogramMode)histoMode.GetItemData(i);
+	if (m == g->options.hist_mode) return;
+
+	g->options.hist_mode = m;
+	document().plot.update_axis();
+
+	parent().UpdateSettings(true);
+	Recalc(g);
+}
+
+void SideSectionSettings::OnAAMode()
+{
+	Plot &plot = document().plot;
+
+	int i = aaMode.GetCurSel();
+	AntialiasMode m = (AntialiasMode)aaMode.GetItemData(i);
+	if (m == plot.options.aa_mode) return;
+
+	plot.options.aa_mode = m;
+	Redraw();
+}
+
+void SideSectionSettings::OnTransparencyMode()
+{
+	Graph *g = document().plot.current_graph(); if (!g) return;
+
+	int i = transparencyMode.GetCurSel();
+	auto &tm = DefaultBlendModes();
+	int n = (int)tm.size();
+	if (i >= 0 && i < n)
+	{
+		if (g->options.transparency == tm[i].mode) return;
+		g->options.transparency = tm[i].mode;
+		if (i == 0)
+		{
+			// [self.customTransparency hideForGraph : g];
+		}
+		else
+		{
+			// [self.customTransparency updateForGraph : g];
+		}
+	}
+	else
+	{
+		//[self.customTransparency runForGraph : g];
+		Update(false);
+		return;
+	}
+
+	Redraw();
+}
+
+void SideSectionSettings::OnGridMode()
+{
+	Graph *g = document().plot.current_graph(); if (!g) return;
+
+	int i = gridMode.GetCurSel();
+	GridStyle m = (GridStyle)gridMode.GetItemData(i);
+	if (m == g->options.grid_style) return;
+
+	g->options.grid_style = m;
+	Update(false); // enable slider
+	Recalc(g);
+}
+
+void SideSectionSettings::OnMeshMode()
+{
+	Graph *g = document().plot.current_graph(); if (!g) return;
+
+	int i = meshMode.GetCurSel();
+	MaskStyle m = (MaskStyle)meshMode.GetItemData(i);
+	if (m == g->options.mask.style()) return;
+
+	if (m == Mask_Custom) return;
+
+	g->options.mask.style(m);
+	Update(false); // enable slider
+	Redraw();
+}
+
+void SideSectionSettings::OnAxisMode()
+{
+	Plot &plot = document().plot;
+
+	int i = axisMode.GetCurSel();
+	AxisOptions::AxisGridMode m = (AxisOptions::AxisGridMode)gridMode.GetItemData(i);
+	if (m == plot.axis.options.axis_grid) return;
+
+	plot.axis.options.axis_grid = m;
+	Redraw();
+}
+
+void SideSectionSettings::OnTextureMode()
+{
+	Graph *g = document().plot.current_graph(); if (!g) return;
+
+	int i = textureMode.GetCurSel();
+	TextureProjection m = (TextureProjection)textureMode.GetItemData(i);
+	if (m == g->options.texture_projection) return;
+
+	g->options.texture_projection = m;
+	Recalc(g);
+}
+
+//---------------------------------------------------------------------------------------------
+// Textures & Colors
+//---------------------------------------------------------------------------------------------
+
+void SideSectionSettings::OnChangeTexture(int i)
+{
+	Graph *g = document().plot.current_graph(); if (!g) return;
+
+	g->isColor() ? Recalc(g) : Redraw();
+}
+
+void SideSectionSettings::OnBgColor()
+{
+	document().plot.axis.options.background_color = bgColor.GetColor();
+	Redraw();
+
+	MainWindow *w = (MainWindow*)GetParentFrame();
+	w->GetMainView().RedrawHeader();
+}
+void SideSectionSettings::OnAxisColor()
+{
+	document().plot.axis.options.axis_color = axisColor.GetColor();
+	Redraw();
+}
+void SideSectionSettings::OnFillColor()
+{
+	Graph *g = document().plot.current_graph(); if (!g || !g->hasFill()) return;
+	g->options.fill_color = fillColor.GetColor();
+	Redraw();
+}
+void SideSectionSettings::OnGridColor()
+{
+	Graph *g = document().plot.current_graph(); if (!g) return;
+	(g->usesLineColor() ? g->options.line_color : g->options.grid_color) = gridColor.GetColor();
+	Redraw();
+}
+
+//---------------------------------------------------------------------------------------------
+// Create & Update
+//---------------------------------------------------------------------------------------------
+
+int SideSectionSettings::OnCreate(LPCREATESTRUCT cs)
+{
+	if (SideSection::OnCreate(cs) < 0) return -1;
 
 	START_CREATE;
 
-	SECTION(parameters, "Parameters"); parameters.SetCanAdd(HeaderControl::Active);
-	SECTION(definitions, "Definitions"); definitions.SetCanAdd(HeaderControl::Active);
-	SECTION(graphs, "Graphs"); graphs.SetCanAdd(HeaderControl::Active); graphs.SetCanRemove(HeaderControl::Inactive);
-
-	SECTION(settings, "Settings");
 	LABEL(qualityLabel, "Quality:");
 	SLIDER(quality, SLIDER_MAX / 10);
 
@@ -131,115 +537,7 @@ int SideView::OnCreate(LPCREATESTRUCT cs)
 	BUTTON(clipReset, "Reset");
 	SLIDER(clipDistance, SLIDER_MAX); clipDistance.SetRangeMin(-SLIDER_MAX);
 
-	//----------------------------------------------------------------------------------
-
-	SECTION(axis, "Axis");
-	LABEL(centerLabel, "Center"); LABEL(rangeLabel, "Range");
-	LABEL(xLabel, "x:"); EDIT(xCenter); EDIT(xRange); DELTA(xDelta);
-	LABEL(yLabel, "y:"); EDIT(yCenter); EDIT(yRange); DELTA(yDelta);
-	LABEL(zLabel, "z:"); EDIT(zCenter); EDIT(zRange); DELTA(zDelta);
-	DELTA(xyzDelta);
-	LABEL(uLabel, "u:"); EDIT(uCenter); EDIT(uRange); DELTA(uDelta);
-	LABEL(vLabel, "v:"); EDIT(vCenter); EDIT(vRange); DELTA(vDelta);
-	DELTA(uvDelta);
-	LABEL(phiLabel, "phi"); LABEL(psiLabel, "psi"); LABEL(thetaLabel, "theta");
-	EDIT(phi); EDIT(psi); EDIT(theta);
-	DELTA(phiDelta); DELTA(psiDelta); DELTA(thetaDelta);
-	LABEL(distLabel, "Zoom:"); EDIT(dist); DELTA(distDelta);
-	BUTTON(center, "Center"); BUTTON(top, "Upright"); BUTTON(front, "Front");
-
-	xCenter.OnChange = [this] { OnAxisCenter( 0, xCenter); };
-	yCenter.OnChange = [this] { OnAxisCenter( 1, yCenter); };
-	zCenter.OnChange = [this] { OnAxisCenter( 2, zCenter); };
-	uCenter.OnChange = [this] { OnAxisCenter(-1, uCenter); };
-	vCenter.OnChange = [this] { OnAxisCenter(-2, vCenter); };
-
-	xRange.OnChange = [this] { OnAxisRange( 0, xRange); };
-	yRange.OnChange = [this] { OnAxisRange( 1, yRange); };
-	zRange.OnChange = [this] { OnAxisRange( 2, zRange); };
-	uRange.OnChange = [this] { OnAxisRange(-1, uRange); };
-	vRange.OnChange = [this] { OnAxisRange(-2, vRange); };
-
-	phi.OnChange   = [this] { OnAxisAngle(0, phi); };
-	psi.OnChange   = [this] { OnAxisAngle(1, psi); };
-	theta.OnChange = [this] { OnAxisAngle(2, theta); };
-
-	dist.OnChange = [this] { OnDistance(); };
-
 	return 0;
-}
-
-void SideView::AnimStateChanged(bool active)
-{
-	active_anims += active ? 1 : -1;
-	assert(active_anims >= 0);
-	if (active_anims == 1) Redraw();
-}
-bool SideView::Animating() const
-{
-	return active_anims;
-}
-void SideView::Animate()
-{
-	if (!active_anims || !doc) return;
-	Plot &plot = doc->plot;
-	Axis &axis = plot.axis;
-	Camera &camera = plot.camera;
-
-	double t = now();
-	bool recalc = false;
-
-	double dx = xDelta.evolve(t);
-	double dy = yDelta.evolve(t);
-	double dz = zDelta.evolve(t);
-	double dr = xyzDelta.evolve(t);
-	if (dx || dy || dz)
-	{
-		double scale = 0.05;
-		dx *= axis.range(0) * scale;
-		dy *= axis.range(1) * scale;
-		dz *= axis.range(2) * scale;
-		axis.move(dx, dy, dz);
-		recalc = true;
-	}
-	if (dr)
-	{
-		axis.zoom(1.0 + 0.05 * dr);
-		recalc = true;
-	}
-
-	double du = uDelta.evolve(t);
-	double dv = vDelta.evolve(t);
-	double duv = uvDelta.evolve(t);
-	if (du || dv)
-	{
-		double scale = 0.05;
-		du *= axis.in_range(0) * scale;
-		dv *= axis.in_range(1) * scale;
-		axis.in_move(du, dv);
-		recalc = true;
-	}
-	if (duv)
-	{
-		axis.in_zoom(1.0 + 0.05 * duv);
-		recalc = true;
-	}
-
-	double dphi = phiDelta.evolve(t);
-	double dpsi = psiDelta.evolve(t);
-	double dtheta = thetaDelta.evolve(t);
-	if (dphi) camera.set_phi(camera.phi() + dphi * 10.0);
-	if (dpsi) camera.set_psi(camera.psi() + dpsi * 10.0);
-	if (dtheta) camera.set_theta(camera.theta() + dtheta * 10.0);
-
-	double dd = distDelta.evolve(t);
-	if (dd) camera.zoom(1.0 + 0.05 * dd);
-
-	for (auto *q : params) q->Animate(t);
-
-	if (recalc) Recalc(plot);
-	UpdateAxis();
-	UpdateWindow();
 }
 
 static int find(CComboBox &b, DWORD_PTR itemData)
@@ -251,13 +549,14 @@ static int find(CComboBox &b, DWORD_PTR itemData)
 	return -1;
 }
 
-void SideView::Update()
+void SideSectionSettings::Update(bool full)
 {
-	CRect bounds; GetClientRect(bounds);
-	if (!doc || bounds.Width() < 2) return;
+	SideSection::Update(full);
+	CRect bounds; GetWindowRect(bounds);
+	if (bounds.Width() < 2) return;
 
-	const Plot   &plot = doc->plot;
-	const Graph  *g = plot.current_graph();
+	const Plot &plot = GetPlot();
+	const Graph *g = GetGraph();
 	const Axis   &ax = plot.axis;
 	const Camera &cam = plot.camera;
 	DS0;
@@ -272,7 +571,7 @@ void SideView::Update()
 
 	const int W = bounds.Width();
 	const int SPC = DS(5); // amount of spacing
-	const int y0 = -GetScrollPos(SB_VERT);
+	const int y0 = DS(22);
 	int       y = y0;// y for next control
 	const int x0 = SPC;  // row x start / amount of space on the left
 
@@ -282,145 +581,7 @@ void SideView::Update()
 
 	const COLORREF OFF_COLOR = GREY(127);
 
-	//----------------------------------------------------------------------------------
-	MOVE(parameters, 0, W, y, h_section, h_section); y += h_row - (h_row - h_section) / 2;
-	if (!parameters.GetCheck())
-	{
-		for (auto *p : params) HIDE(*p);
-	}
-	else
-	{
-		// add new parameters, remove deleted ones, sort by name
-		std::map<Parameter*, ParameterView*, std::function<bool(const Parameter*, const Parameter*)>>
-			m([](const Parameter *a, const Parameter *b) { return a->name() < b->name(); });
-		for (auto *q : params)
-		{
-			auto *p = q->parameter();
-			if (!p)
-			{
-				delete q;
-			}
-			else
-			{
-				m.insert(std::make_pair(p, q));
-			}
-		}
-		for (Parameter *p : plot.ns.all_parameters(true))
-		{
-			if (m.count(p)) continue;
-			ParameterView *q = new ParameterView(*this, *p);
-			m.insert(std::make_pair(p, q));
-			q->Create(CRect(0, 0, 20, 20), this, 2000 + (UINT)p->oid());
-		}
-		params.clear(); params.reserve(m.size());
-		for (auto i : m) params.push_back(i.second);
-		
-		// place the controls
-		for (auto *q : params)
-		{
-			int hq = q->height(W);
-			MOVE(*q, 0, W, y, hq, hq);
-			q->Update();
-			y += hq;
-		}
-		if (!params.empty()) y += SPC;
-	}
-	//----------------------------------------------------------------------------------
-	MOVE(definitions, 0, W, y, h_section, h_row); y += h_row;
-	if (!definitions.GetCheck())
-	{
-		for (auto *d : defs) HIDE(*d);
-	}
-	else
-	{
-		// add new parameters, remove deleted ones, sort by name
-		std::map<UserFunction*, DefinitionView*, std::function<bool(const UserFunction*, const UserFunction*)>>
-			m([](const UserFunction *a, const UserFunction *b) { return a->formula() < b->formula(); });
-		for (auto *q : defs)
-		{
-			auto *f = q->function();
-			if (!f)
-			{
-				delete q;
-			}
-			else
-			{
-				m.insert(std::make_pair(f, q));
-			}
-		}
-		for (UserFunction *f : plot.ns.all_functions(true))
-		{
-			if (m.count(f)) continue;
-			DefinitionView *q = new DefinitionView(*this, *f);
-			m.insert(std::make_pair(f, q));
-			q->Create(CRect(0, 0, 20, 20), this, 2000 + (UINT)f->oid());
-		}
-		defs.clear(); defs.reserve(m.size());
-		for (auto i : m) defs.push_back(i.second);
-
-		// place the controls
-		for (auto *q : defs)
-		{
-			int hq = q->height(W);
-			MOVE(*q, 0, W, y, hq, hq);
-			q->Update();
-			y += hq;
-		}
-		if (!defs.empty()) y += SPC;
-	}
-	//----------------------------------------------------------------------------------
-	MOVE(graphs, 0, W, y, h_section, h_row); y += h_row;
-	graphs.SetCanRemove(g ? HeaderControl::Active : HeaderControl::Inactive);
-	if (!graphs.GetCheck())
-	{
-		for (auto *d : gdefs) HIDE(*d);
-	}
-	else
-	{
-		// add new graphs, remove deleted ones, sort by name
-		std::map<Graph*, GraphView*> m;
-		for (auto *q : gdefs)
-		{
-			auto *f = q->graph();
-			if (!f)
-			{
-				delete q;
-			}
-			else
-			{
-				m.insert(std::make_pair(f, q));
-			}
-		}
-		for (int i = 0, n = plot.number_of_graphs(); i < n; ++i)
-		{
-			Graph *f = plot.graph(i);
-			if (m.count(f)) continue;
-			GraphView *q = new GraphView(*this, *f);
-			m.insert(std::make_pair(f, q));
-			q->Create(CRect(0, 0, 20, 20), this, 2000 + (UINT)f->oid());
-		}
-		gdefs.clear(); gdefs.reserve(m.size());
-		for (int i = 0, n = plot.number_of_graphs(); i < n; ++i)
-		{
-			Graph *f = plot.graph(i);
-			auto it = m.find(f);
-			if (it == m.end()) { assert(false); continue; }
-			gdefs.push_back(it->second);
-		}
-
-		// place the controls
-		for (auto *q : gdefs)
-		{
-			int hq = q->height(W);
-			MOVE(*q, 0, W, y, hq, hq);
-			q->Update();
-			y += hq;
-		}
-		if (!gdefs.empty()) y += SPC;
-	}
-	//----------------------------------------------------------------------------------
-	MOVE(settings, 0, W, y, h_section, h_row); y += h_row;
-	if (!settings.GetCheck())
+	if (!header.GetCheck())
 	{
 		HIDE(qualityLabel);     HIDE(quality);
 		HIDE(discoLabel);       HIDE(disco);
@@ -804,207 +965,6 @@ void SideView::Update()
 		}
 		y += SPC;
 	}
-	//----------------------------------------------------------------------------------
-	MOVE(axis, 0, W, y, h_section, h_row); y += h_row;
-	if (!axis.GetCheck())
-	{
-		HIDE(centerLabel); HIDE(rangeLabel);
-		HIDE(xLabel); HIDE(xCenter); HIDE(xRange); HIDE(xDelta);
-		HIDE(yLabel); HIDE(yCenter); HIDE(yRange); HIDE(yDelta);
-		HIDE(zLabel); HIDE(zCenter); HIDE(zRange); HIDE(zDelta);
-		HIDE(xyzDelta);
-		HIDE(uLabel); HIDE(uCenter); HIDE(uRange); HIDE(uDelta);
-		HIDE(vLabel); HIDE(vCenter); HIDE(vRange); HIDE(vDelta);
-		HIDE(uvDelta);
-		HIDE(phiLabel); HIDE(psiLabel); HIDE(thetaLabel);
-		HIDE(phi); HIDE(psi); HIDE(theta);
-		HIDE(phiDelta); HIDE(psiDelta); HIDE(thetaDelta);
-		HIDE(distLabel); HIDE(dist); HIDE(distDelta);
-		HIDE(center); HIDE(top); HIDE(front);
-	}
-	else
-	{
-		const int w1 = DS(20); // label width
-		int d = (W - 2 * (w1 + 2 * SPC) - 2 * SPC) / 3;
-		const int x1 = x0 + w1 + SPC, x2 = x1 + d + SPC, x3 = x2 + d + SPC, x4 = x3 + d + SPC, xe = W - SPC;
-		const bool in3d = (plot.axis_type() != Axis::Rect);
 
-		MOVE(centerLabel, x1, x2 - SPC, y, h_label, h_row);
-		MOVE(rangeLabel, x2, x3 - SPC, y, h_label, h_row);
-		y += h_row - DS(5);
-
-		MOVE(xLabel, x0, x1 - SPC, y, h_label, h_row);
-		MOVE(xCenter, x1, x2 - SPC, y, h_edit, h_row);
-		MOVE(xRange, x2, x3 - SPC, y, h_edit, h_row);
-		MOVE(xDelta, x3, xe, y, h_delta, h_row);
-		y += h_row;
-		xCenter.SetDouble(ax.center(0));
-		xRange.SetDouble(ax.range(0)*2.0);
-
-		MOVE(yLabel, x0, x1 - SPC, y, h_label, h_row);
-		MOVE(yCenter, x1, x2 - SPC, y, h_edit, h_row);
-		MOVE(yRange, x2, x3 - SPC, y, h_edit, h_row);
-		MOVE(yDelta, x3, xe, y, h_delta, h_row);
-		y += h_row;
-		yCenter.SetDouble(ax.center(1));
-		yRange.SetDouble(ax.range(1)*2.0);
-		yRange.EnableWindow(in3d);
-
-		if (!in3d)
-		{
-			HIDE(zLabel);
-			HIDE(zCenter);
-			HIDE(zRange);
-			HIDE(zDelta);
-		}
-		else
-		{
-			MOVE(zLabel, x0, x1 - SPC, y, h_label, h_row);
-			MOVE(zCenter, x1, x2 - SPC, y, h_edit, h_row);
-			MOVE(zRange, x2, x3 - SPC, y, h_edit, h_row);
-			MOVE(zDelta, x3, xe, y, h_delta, h_row);
-			y += h_row;
-			zCenter.SetDouble(ax.center(2));
-			zRange.SetDouble(ax.range(2)*2.0);
-		}
-		MOVE(xyzDelta, x1, x3 - SPC, y, h_delta, h_row);
-		y += h_row;
-
-		const int nin = g ? g->inRangeDimension() : -1;
-
-		if (nin < 1)
-		{
-			HIDE(uLabel);
-			HIDE(uCenter);
-			HIDE(uRange);
-			HIDE(uDelta);
-		}
-		else
-		{
-			MOVE(uLabel, x0, x1 - SPC, y, h_label, h_row);
-			MOVE(uCenter, x1, x2 - SPC, y, h_edit, h_row);
-			MOVE(uRange, x2, x3 - SPC, y, h_edit, h_row);
-			MOVE(uDelta, x3, xe, y, h_delta, h_row);
-			y += h_row;
-			uCenter.SetDouble(ax.in_center(0));
-			uRange.SetDouble(ax.in_range(0)*2.0);
-		}
-		if (nin < 2)
-		{
-			HIDE(vLabel);
-			HIDE(vCenter);
-			HIDE(vRange);
-			HIDE(vDelta);
-		}
-		else
-		{
-			MOVE(vLabel, x0, x1 - SPC, y, h_label, h_row);
-			MOVE(vCenter, x1, x2 - SPC, y, h_edit, h_row);
-			MOVE(vRange, x2, x3 - SPC, y, h_edit, h_row);
-			MOVE(vDelta, x3, xe, y, h_delta, h_row);
-			y += h_row;
-			vCenter.SetDouble(ax.in_center(1));
-			vRange.SetDouble(ax.in_range(1)*2.0);
-		}
-		if (nin < 1)
-		{
-			HIDE(uvDelta);
-		}
-		else
-		{
-			MOVE(uvDelta, x1, x3 - SPC, y, h_delta, h_row);
-			y += h_row;
-			y += 2 * SPC;
-		}
-
-		if (!in3d)
-		{
-			HIDE(phiLabel); HIDE(psiLabel); HIDE(thetaLabel);
-			HIDE(phi); HIDE(psi); HIDE(theta);
-			HIDE(phiDelta); HIDE(psiDelta); HIDE(thetaDelta);
-			HIDE(distLabel); HIDE(dist); HIDE(distDelta);
-			HIDE(center); HIDE(top); HIDE(front);
-		}
-		else
-		{
-			MOVE(phiLabel, x1, x2 - SPC, y, h_label, h_row);
-			MOVE(psiLabel, x2, x3 - SPC, y, h_label, h_row);
-			MOVE(thetaLabel, x3, x4 - SPC, y, h_label, h_row);
-			y += h_row;
-			MOVE(phi, x1, x2 - SPC, y, h_edit, h_row);
-			MOVE(psi, x2, x3 - SPC, y, h_edit, h_row);
-			MOVE(theta, x3, x4 - SPC, y, h_edit, h_row);
-			y += h_row;
-			MOVE(phiDelta, x1, x2 - SPC, y, h_delta, h_row);
-			MOVE(psiDelta, x2, x3 - SPC, y, h_delta, h_row);
-			MOVE(thetaDelta, x3, x4 - SPC, y, h_delta, h_row);
-			y += h_row;
-			phi.SetDouble(cam.phi());
-			psi.SetDouble(cam.psi());
-			theta.SetDouble(cam.theta());
-
-			MOVE(distLabel, x1, x2 - SPC, y, h_label, h_row);
-			MOVE(dist, x2, x3 - SPC, y, h_edit, h_row);
-			MOVE(distDelta, x3, x4 - SPC, y, h_delta, h_row);
-			y += h_row + 2 * SPC;
-			dist.SetDouble(1.0 / cam.zoom());
-
-			d = (W - 2 * (2 * SPC) - 2 * SPC) / 3;
-			const int t0 = 2 * SPC, t1 = t0 + d + SPC, t2 = t1 + d + SPC, t3 = W - 2 * SPC;
-
-			MOVE(center, t0, t1 - SPC, y, h_button, h_row);
-			MOVE(top, t1, t2 - SPC, y, h_button, h_row);
-			MOVE(front, t2, t3 - SPC, y, h_button, h_row);
-			y += h_row;
-		}
-
-		y += SPC;
-	}
-	//----------------------------------------------------------------------------------
-
-	EnableScrollBarCtrl(SB_HORZ, FALSE);
-	SetScrollSizes(MM_TEXT, CSize(W, y - y0), CSize(W, bounds.Height()), CSize(h_row, h_row));
-}
-
-void SideView::UpdateAxis()
-{
-	CRect bounds; GetClientRect(bounds);
-	if (!doc || bounds.Width() < 2) return;
-	if (!axis.GetCheck()) return;
-
-	const Plot   &plot = doc->plot;
-	const Graph  *g = plot.current_graph();
-	const Axis   &ax = plot.axis;
-	const Camera &cam = plot.camera;
-
-	const bool in3d = (plot.axis_type() != Axis::Rect);
-
-	xCenter.SetDouble(ax.center(0));
-	xRange.SetDouble(ax.range(0)*2.0);
-
-	yCenter.SetDouble(ax.center(1));
-	yRange.SetDouble(ax.range(1)*2.0);
-
-	if (in3d)
-	{
-		zCenter.SetDouble(ax.center(2));
-		zRange.SetDouble(ax.range(2)*2.0);
-		phi.SetDouble(cam.phi());
-		psi.SetDouble(cam.psi());
-		theta.SetDouble(cam.theta());
-		dist.SetDouble(1.0 / cam.zoom());
-	}
-
-	const int nin = g ? g->inRangeDimension() : -1;
-
-	if (nin >= 1)
-	{
-		uCenter.SetDouble(ax.in_center(0));
-		uRange.SetDouble(ax.in_range(0)*2.0);
-	}
-	if (nin >= 2)
-	{
-		vCenter.SetDouble(ax.in_center(1));
-		vRange.SetDouble(ax.in_range(1)*2.0);
-	}
+	if (full) MoveWindow(0, 0, W, y);
 }

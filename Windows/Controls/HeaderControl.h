@@ -1,12 +1,14 @@
 #pragma once
 #include "afxwin.h"
+
 class HeaderControl : public CButton
 {
 public:
 	HeaderControl() : canAdd(Hidden), canRemove(Hidden) {}
 
 	enum State{Hidden, Inactive, Active};
-	void SetCanAdd(State s) { if (canAdd == s) return;  canAdd = s; Invalidate(); }
+
+	void SetCanAdd   (State s) { if (canAdd    == s) return;  canAdd    = s; Invalidate(); }
 	void SetCanRemove(State s) { if (canRemove == s) return;  canRemove = s; Invalidate(); }
 
 	void OnPaint();

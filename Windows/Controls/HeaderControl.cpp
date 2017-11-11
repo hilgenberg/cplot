@@ -1,5 +1,5 @@
 #include "HeaderControl.h"
-#include "../SideView.h"
+#include "SideSection.h"
 #include <math.h>
 
 BEGIN_MESSAGE_MAP(HeaderControl, CButton)
@@ -24,7 +24,7 @@ void HeaderControl::OnLButtonDown(UINT flags, CPoint p)
 		if (r1.PtInRect(p))
 		{
 			if (canRemove == Inactive) return;
-			((SideView*)GetOwner())->OnRemove(this);
+			((SideSection*)GetOwner())->OnRemove();
 			return;
 		}
 		++nr;
@@ -34,7 +34,7 @@ void HeaderControl::OnLButtonDown(UINT flags, CPoint p)
 		if ((nr==1 ? r2 : r1).PtInRect(p))
 		{
 			if (canAdd == Inactive) return;
-			((SideView*)GetOwner())->OnAdd(this);
+			((SideSection*)GetOwner())->OnAdd();
 			return;
 		}
 		++nr;

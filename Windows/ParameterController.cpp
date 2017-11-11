@@ -3,6 +3,8 @@
 #include "afxdialogex.h"
 #include "Document.h"
 #include "../Engine/Namespace/Expression.h"
+#include "Controls/SideSectionParams.h"
+#include "res/resource.h"
 
 IMPLEMENT_DYNAMIC(ParameterController, CDialogEx)
 BEGIN_MESSAGE_MAP(ParameterController, CDialogEx)
@@ -32,7 +34,7 @@ void ParameterController::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDDELETE, del);
 }
 
-ParameterController::ParameterController(SideView &parent, Parameter *p)
+ParameterController::ParameterController(SideSectionParams &parent, Parameter *p)
 : CDialogEx(IDD_PARAMETER, &parent)
 , p(p)
 , sv(parent)

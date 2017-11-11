@@ -238,6 +238,12 @@ copy "$(SolutionDir)Windows\zlib\$(Platform)\zlib1.dll" "$(OutputPath)"</Command
   <ItemGroup>
     <ClInclude Include="Windows\Controls\DefinitionView.h" />
     <ClInclude Include="Windows\Controls\GraphView.h" />
+    <ClInclude Include="Windows\Controls\SideSection.h" />
+    <ClInclude Include="Windows\Controls\SideSectionAxis.h" />
+    <ClInclude Include="Windows\Controls\SideSectionDefs.h" />
+    <ClInclude Include="Windows\Controls\SideSectionGraphs.h" />
+    <ClInclude Include="Windows\Controls\SideSectionParams.h" />
+    <ClInclude Include="Windows\Controls\SideSectionSettings.h" />
     <ClInclude Include="Windows\DefinitionController.h" />
     <ClInclude Include="Windows\ParameterController.h" />
     <ClInclude Include="Windows\Controls\NumericEdit.h" />
@@ -353,7 +359,6 @@ copy "$(SolutionDir)Windows\zlib\$(Platform)\zlib1.dll" "$(OutputPath)"</Command
     <ClInclude Include="Windows\res\Resource.h" />
     <ClInclude Include="Windows\SideView.h" />
     <ClInclude Include="Windows\Controls\SplitterWnd.h" />
-    <ClInclude Include="Windows\SideView_IDs.h" />
     <ClInclude Include="Windows\stdafx.h" />
     <ClInclude Include="Windows\targetver.h" />
     <ClInclude Include="Windows\Controls\ViewUtil.h" />
@@ -361,11 +366,16 @@ copy "$(SolutionDir)Windows\zlib\$(Platform)\zlib1.dll" "$(OutputPath)"</Command
   <ItemGroup>
     <ClCompile Include="Windows\Controls\DefinitionView.cpp" />
     <ClCompile Include="Windows\Controls\GraphView.cpp" />
+    <ClCompile Include="Windows\Controls\SideSection.cpp" />
+    <ClCompile Include="Windows\Controls\SideSectionAxis.cpp" />
+    <ClCompile Include="Windows\Controls\SideSectionDefs.cpp" />
+    <ClCompile Include="Windows\Controls\SideSectionGraphs.cpp" />
+    <ClCompile Include="Windows\Controls\SideSectionParams.cpp" />
+    <ClCompile Include="Windows\Controls\SideSectionSettings.cpp" />
     <ClCompile Include="Windows\DefinitionController.cpp" />
     <ClCompile Include="Windows\ParameterController.cpp" />
     <ClCompile Include="Windows\Controls\NumericEdit.cpp" />
     <ClCompile Include="Windows\Controls\ParameterView.cpp" />
-    <ClCompile Include="Windows\SideView_Update.cpp" />
     <ClCompile Include="Windows\Controls\TextureControl.cpp" />
     <ClCompile Include="Windows\Controls\FocusEdit.cpp" />
     <ClCompile Include="Windows\Conversions.cpp" />

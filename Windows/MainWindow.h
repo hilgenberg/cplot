@@ -2,6 +2,7 @@
 #include "Controls/SplitterWnd.h"
 class MainView;
 class SideView;
+class Document;
 
 class MainWindow : public CFrameWndEx
 {
@@ -16,6 +17,8 @@ public:
 	BOOL OnCreateClient(LPCREATESTRUCT cs, CCreateContext *ctx) override;
 	BOOL PreCreateWindow(CREATESTRUCT &cs) override;
 	int  OnCreate(LPCREATESTRUCT cs);
+
+	Document *doc;
 
 private:
 	SplitterWnd splitter;

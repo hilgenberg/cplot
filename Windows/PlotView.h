@@ -13,7 +13,6 @@ public:
 	~PlotView();
 
 	COLORREF GetBgColor();
-	void SetDoc(Document *d) { doc = d; }
 
 	BOOL PreCreateWindow(CREATESTRUCT &cs);
 	BOOL Create(const RECT &rect, CWnd *parent, UINT ID);
@@ -50,7 +49,7 @@ private:
 	void handleArrows();
 	bool animating();
 
-	Document  *doc;
+	Document  &document() const;
 	CClientDC *dc;
 	CRect      bounds;
 

@@ -3,7 +3,7 @@
 #include "../Document.h"
 #include "../res/resource.h"
 #include "ViewUtil.h"
-#include "../SideView.h"
+#include "SideSectionDefs.h"
 #include "../MainWindow.h"
 #include "../MainView.h"
 #include "../CPlotApp.h"
@@ -25,7 +25,7 @@ BEGIN_MESSAGE_MAP(DefinitionView, CWnd)
 	ON_BN_CLICKED(ID_edit, OnEdit)
 END_MESSAGE_MAP()
 
-DefinitionView::DefinitionView(SideView &parent, UserFunction &f)
+DefinitionView::DefinitionView(SideSectionDefs &parent, UserFunction &f)
 : parent(parent), f_id(f.oid())
 {
 }
@@ -75,14 +75,16 @@ int DefinitionView::height(int w) const
 	return DS(10+22);
 }
 
-void DefinitionView::Update()
+void DefinitionView::Update(bool full)
 {
 	CRect bounds; GetClientRect(bounds);
 	UserFunction *f = function();
-	if (bounds.Width() < 2 || !f) return;
+	if (!f) return;
 	DS0;
 	
 	def.SetWindowText(Convert(f->formula()));
+
+	if (!full) return;
 
 	const int W = bounds.Width();
 	const int SPC = DS(5); // amount of spacing
@@ -99,14 +101,14 @@ void DefinitionView::Update()
 
 void DefinitionView::OnInitialUpdate()
 {
-	Update();
+	Update(true);
 }
 
 void DefinitionView::OnSize(UINT type, int w, int h)
 {
 	CWnd::OnSize(type, w, h);
 	EnableScrollBarCtrl(SB_BOTH, FALSE);
-	Update();
+	Update(true);
 }
 
 void DefinitionView::OnEdit()

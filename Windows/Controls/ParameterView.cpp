@@ -3,7 +3,7 @@
 #include "../Document.h"
 #include "../res/resource.h"
 #include "ViewUtil.h"
-#include "../SideView.h"
+#include "SideSectionParams.h"
 #include "../MainWindow.h"
 #include "../MainView.h"
 #include "../CPlotApp.h"
@@ -29,7 +29,7 @@ BEGIN_MESSAGE_MAP(ParameterView, CWnd)
 	//ON_LBN_DBLCLK(ID_name, OnEdit)
 END_MESSAGE_MAP()
 
-ParameterView::ParameterView(SideView &parent, Parameter &param)
+ParameterView::ParameterView(SideSectionParams &parent, Parameter &param)
 : parent(parent), p_id(param.oid())
 {
 }
@@ -69,7 +69,7 @@ int ParameterView::OnCreate(LPCREATESTRUCT cs)
 	LLABEL(name, "p"); // proper name is set in Update()
 	LABEL(eq, "=");
 	EDIT(value); value.OnChange = [this]() { OnValueChange(); };
-	CREATE(delta, deltaStyle); delta.stateChange = [this](bool a) { parent.AnimStateChanged(a); };
+	CREATE(delta, deltaStyle); delta.stateChange = [this](bool a) { parent.parent().AnimStateChanged(a); };
 	BUTTON(edit, "...");
 	edit.SetButtonStyle(BS_VCENTER | BS_CENTER | BS_FLAT, 0);
 	return 0;
@@ -82,13 +82,10 @@ int ParameterView::height(int w) const
 	return DS(10+2*22);
 }
 
-void ParameterView::Update()
+void ParameterView::Update(bool full)
 {
-	CRect bounds; GetClientRect(bounds);
-	Parameter *p = parameter();
-	if (bounds.Width() < 2 || !p) return;
-	DS0;
-	
+	Parameter *p = parameter(); if (!p) return;
+
 	name.SetWindowText(Convert(p->name()));
 
 	if (p->is_real())
@@ -100,6 +97,11 @@ void ParameterView::Update()
 		value.SetComplex(p->value());
 	}
 
+	if (!full) return;
+
+	CRect bounds; GetClientRect(bounds);
+	if (bounds.Width() < 2 || !p) return;
+	DS0;
 	const int W = bounds.Width();
 	const int SPC = DS(5); // amount of spacing
 	const int w1 = DS(40); // label width
@@ -122,14 +124,14 @@ void ParameterView::Update()
 
 void ParameterView::OnInitialUpdate()
 {
-	Update();
+	Update(true);
 }
 
 void ParameterView::OnSize(UINT type, int w, int h)
 {
 	CWnd::OnSize(type, w, h);
 	EnableScrollBarCtrl(SB_BOTH, FALSE);
-	Update();
+	Update(true);
 }
 
 void ParameterView::OnValueChange()

@@ -3,12 +3,12 @@
 #include "../../Engine/Namespace/UserFunction.h"
 #include "NumericEdit.h"
 #include "DeltaSlider.h"
-class SideView;
+class SideSectionDefs;
 
 class DefinitionView : public CWnd
 {
 public:
-	DefinitionView(SideView &parent, UserFunction &f);
+	DefinitionView(SideSectionDefs &parent, UserFunction &f);
 	UserFunction *function() const { return (UserFunction*)IDCarrier::find(f_id); }
 
 	BOOL   PreCreateWindow(CREATESTRUCT &cs) override;
@@ -18,11 +18,11 @@ public:
 	void   OnInitialUpdate();
 
 	int  height(int w) const;
-	void Update();
+	void Update(bool full);
 	void OnEdit();
 
 private:
-	SideView &parent;
+	SideSectionDefs &parent;
 	IDCarrier::OID f_id;
 
 	CStatic     def;

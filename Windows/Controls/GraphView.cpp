@@ -27,7 +27,7 @@ BEGIN_MESSAGE_MAP(GraphView, CWnd)
 	//ON_LBN_DBLCLK(ID_name, OnEdit)
 END_MESSAGE_MAP()
 
-GraphView::GraphView(SideView &parent, Graph &g)
+GraphView::GraphView(SideSectionGraphs &parent, Graph &g)
 : parent(parent), g_id(g.oid())
 {
 }
@@ -96,17 +96,17 @@ void GraphView::OnSelect()
 	Plot &plot = parent.document().plot;
 	plot.set_current_graph(g);
 
-	parent.Update();
+	parent.Update(false);
 	MainWindow *w = (MainWindow*)GetParentFrame();
 	w->GetMainView().Update();
 
 }
 
-void GraphView::Update()
+void GraphView::Update(bool full)
 {
 	CRect bounds; GetClientRect(bounds);
 	Graph *g = graph();
-	if (bounds.Width() < 2 || !g) return;
+	if (!g) return;
 	DS0;
 	
 	visible.SetCheck(!g->options.hidden);
@@ -114,6 +114,8 @@ void GraphView::Update()
 	Plot &plot = parent.document().plot;
 	bool bold = (plot.number_of_graphs() > 1 && plot.current_graph() == g);
 	desc.SetFont(&controlFont(bold));
+
+	if (!full) return;
 
 	const int W = bounds.Width();
 	const int SPC = DS(5); // amount of spacing
@@ -130,12 +132,12 @@ void GraphView::Update()
 
 void GraphView::OnInitialUpdate()
 {
-	Update();
+	Update(true);
 }
 
 void GraphView::OnSize(UINT type, int w, int h)
 {
 	CWnd::OnSize(type, w, h);
 	EnableScrollBarCtrl(SB_BOTH, FALSE);
-	Update();
+	Update(true);
 }

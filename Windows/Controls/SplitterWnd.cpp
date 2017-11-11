@@ -31,7 +31,7 @@ void SplitterWnd::OnInvertTracker(const CRect &rect)
 
 BOOL SplitterWnd::OnEraseBkgnd(CDC *dc)
 {
-	return TRUE;
+	return FALSE;
 }
 
 void SplitterWnd::Show()

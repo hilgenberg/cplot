@@ -3,6 +3,7 @@
 #include "afxdialogex.h"
 #include "Document.h"
 #include "../Engine/Namespace/Expression.h"
+#include "../Engine/Namespace/UserFunction.h"
 
 IMPLEMENT_DYNAMIC(DefinitionController, CDialogEx)
 BEGIN_MESSAGE_MAP(DefinitionController, CDialogEx)
@@ -16,7 +17,7 @@ void DefinitionController::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDDELETE, del);
 }
 
-DefinitionController::DefinitionController(SideView &parent, UserFunction *f)
+DefinitionController::DefinitionController(SideSectionDefs &parent, UserFunction *f)
 : CDialogEx(IDD_DEFINITION, &parent)
 , f(f)
 , sv(parent)

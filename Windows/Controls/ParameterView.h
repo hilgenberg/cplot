@@ -3,12 +3,12 @@
 #include "../../Engine/Namespace/Parameter.h"
 #include "NumericEdit.h"
 #include "DeltaSlider.h"
-class SideView;
+class SideSectionParams;
 
 class ParameterView : public CWnd
 {
 public:
-	ParameterView(SideView &parent, Parameter &p);
+	ParameterView(SideSectionParams &parent, Parameter &p);
 	Parameter *parameter() const { return (Parameter*)IDCarrier::find(p_id); }
 
 	BOOL   PreCreateWindow(CREATESTRUCT &cs) override;
@@ -18,14 +18,14 @@ public:
 	void   OnInitialUpdate();
 
 	int  height(int w) const;
-	void Update();
+	void Update(bool full);
 	
 	void OnValueChange();
 	void OnEdit();
 	void Animate(double t);
 
 private:
-	SideView &parent;
+	SideSectionParams &parent;
 	IDCarrier::OID p_id;
 
 	CStatic     name, eq;
