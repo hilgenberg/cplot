@@ -28,6 +28,7 @@ END_MESSAGE_MAP()
 SideView::SideView()
 : CFormView(IDD_SIDEVIEW)
 , active_anims(0)
+, update_w(-1)
 {
 }
 
@@ -60,9 +61,9 @@ BOOL SideView::PreCreateWindow(CREATESTRUCT& cs)
 	cs.style &= ~WS_BORDER;
 	cs.style &= ~WS_HSCROLL;
 	//cs.style |= WS_TABSTOP| WS_GROUP;
-	cs.style |= WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
+	cs.style |= WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_CHILD;
 
-	cs.lpszClass = AfxRegisterWndClass(CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS,
+	cs.lpszClass = AfxRegisterWndClass(CS_DBLCLKS,
 		::LoadCursor(NULL, IDC_ARROW), reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1), NULL);
 	
 	return TRUE;
@@ -70,8 +71,8 @@ BOOL SideView::PreCreateWindow(CREATESTRUCT& cs)
 
 void SideView::OnInitialUpdate()
 {
-	UpdateAll();
 	CFormView::OnInitialUpdate();
+	UpdateAll();
 }
 
 BOOL SideView::OnEraseBkgnd(CDC *dc)
@@ -85,7 +86,11 @@ BOOL SideView::OnEraseBkgnd(CDC *dc)
 void SideView::OnSize(UINT type, int w, int h)
 {
 	CFormView::OnSize(type, w, h);
-	UpdateAll();
+
+	if (w != update_w)
+	{
+		UpdateAll();
+	}
 }
 
 BOOL SideView::OnMouseWheel(UINT flags, short dz, CPoint p)
@@ -180,6 +185,7 @@ void SideView::Update(bool full)
 	const int W = bounds.Width();
 	const int y0 = -GetScrollPos(SB_VERT);
 	int y = y0;
+	update_w = W;
 
 	params.Position(y);
 	defs.Position(y);
@@ -190,9 +196,9 @@ void SideView::Update(bool full)
 	DS0;
 	const int h_row = DS(24);
 	EnableScrollBarCtrl(SB_HORZ, FALSE);
-	SetScrollSizes(MM_TEXT, CSize(W, std::max(y - y0, bounds.Height())), CSize(W, bounds.Height()), CSize(h_row, h_row));
+	SetScrollSizes(MM_TEXT, CSize(W, y - y0), CSize(W, bounds.Height()), CSize(h_row, h_row));
 
-	GetParent()->Invalidate();
+	GetParent()->Invalidate(false);
 }
 
 //---------------------------------------------------------------------------------------------

@@ -37,11 +37,11 @@ public:
 	void Recalc(Graph *g);
 	void Update(bool full);
 
-	void UpdateParams(bool full) { params.Update(full); if (full) Update(full); }
-	void UpdateDefs(bool full) { defs.Update(full); if (full) Update(full); }
-	void UpdateGraphs(bool full) { graphs.Update(full); if (full) Update(full); }
-	void UpdateSettings(bool full) { settings.Update(full); if (full) Update(full); }
-	void UpdateAxis(bool full) { axis.Update(full); if (full) Update(full); }
+	void UpdateParams(bool full) { params.Update(full); if (full) Update(false); }
+	void UpdateDefs(bool full) { defs.Update(full); if (full) Update(false); }
+	void UpdateGraphs(bool full) { graphs.Update(full); if (full) Update(false); }
+	void UpdateSettings(bool full) { settings.Update(full); if (full) Update(false); }
+	void UpdateAxis(bool full) { axis.Update(full); if (full) Update(false); }
 	void UpdateAll();
 
 	bool Animating() const;
@@ -57,6 +57,8 @@ public:
 private:
 	int  active_anims;
 	void AnimStateChanged(bool active);
+
+	int update_w; // bounds.width in last Update call (to optimize OnSize)
 
 	friend class PlotView; // access to OnXxx methods
 	friend class ParameterView; // access to AnimStateChanged

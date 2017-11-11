@@ -86,7 +86,7 @@ BOOL SideSection::Create(SideView *parent, UINT ID)
 	if (!reg.count(cls))
 	{
 		WNDCLASS wndcls; memset(&wndcls, 0, sizeof(WNDCLASS));
-		wndcls.style = CS_DBLCLKS;// | CS_HREDRAW | CS_VREDRAW;
+		wndcls.style = CS_DBLCLKS;
 		wndcls.lpfnWndProc = ::DefWindowProc;
 		wndcls.hInstance = AfxGetInstanceHandle();
 		wndcls.hCursor = theApp.LoadStandardCursor(IDC_ARROW);

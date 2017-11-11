@@ -3,7 +3,7 @@
 const DWORD sectionStyle = WS_CHILD | BS_AUTOCHECKBOX;
 const DWORD labelStyle   = WS_CHILD | SS_CENTER | SS_WORDELLIPSIS;
 const DWORD rlabelStyle  = WS_CHILD | SS_RIGHT | SS_WORDELLIPSIS;
-const DWORD llabelStyle = WS_CHILD  | SS_LEFT | SS_WORDELLIPSIS;
+const DWORD llabelStyle  = WS_CHILD | SS_LEFT | SS_WORDELLIPSIS;
 const DWORD colorStyle   = WS_CHILD | BS_PUSHBUTTON | WS_TABSTOP;
 const DWORD sliderStyle  = WS_CHILD | TBS_NOTICKS | TBS_BOTH | WS_TABSTOP;
 const DWORD deltaStyle   = WS_CHILD | TBS_NOTICKS | TBS_BOTH;
