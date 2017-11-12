@@ -77,7 +77,7 @@ int GraphView::OnCreate(LPCREATESTRUCT cs)
 int GraphView::height(int w) const
 {
 	DS0;
-	return DS(10+22);
+	return DS(22);
 }
 
 void GraphView::OnVisible()
@@ -121,7 +121,7 @@ void GraphView::Update(bool full)
 	const int w1 = DS(20); // checkbox width
 	const int x0 = SPC;  // row x start / amount of space on the left
 	const int x1 = W - SPC;
-	int y = SPC; // y for next control
+	int y = 0; // y for next control
 
 	const int h_label = DS(14), h_edit = DS(20), h_delta = DS(20), h_button = DS(20), h_row = DS(22);
 

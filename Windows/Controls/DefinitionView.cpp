@@ -72,7 +72,7 @@ int DefinitionView::height(int w) const
 {
 	auto *f = function(); if (!f) return 0;
 	DS0;
-	return DS(10+22);
+	return DS(22);
 }
 
 void DefinitionView::Update(bool full)
@@ -91,7 +91,7 @@ void DefinitionView::Update(bool full)
 	const int x0 = SPC;  // row x start / amount of space on the left
 	const int x1 = W - SPC;
 	const int dw = DS(20); // edit width
-	int y = SPC; // y for next control
+	int y = 0; // y for next control
 
 	const int h_label = DS(14), h_button = DS(20), h_row = DS(22);
 
