@@ -101,32 +101,26 @@ void TextureControl::SetImage(GL_Image *im_)
 
 	const unsigned w = im->w(), h = im->h();
 
-	if (!im->opaque() || ((DWORD_PTR)im->data().data()) & (sizeof(WORD)-1))
+	const size_t n = (size_t)w * (size_t)h;
+	std::vector<uint32_t> buf(n); // premultiplied and aligned copy of im
+	buf.resize(n); // this should WORD-align the data and all rows
+	BYTE *d = (BYTE *)buf.data();
+	for (const BYTE *e = im->data().data(), *end = e + 4 * n; e < end; e += 4)
 	{
-		const size_t n = (size_t)w * (size_t)h;
-		std::vector<uint32_t> buf(n); // premultiplied and aligned copy of im
-		buf.resize(n); // this should WORD-align the data and all rows
-		BYTE *d = (BYTE *)buf.data();
-		for (const BYTE *e = im->data().data(), *end = e + 4*n; e < end; e += 4)
-		{
-			*d++ = (BYTE)((unsigned)e[0] * e[3] / 255);
-			*d++ = (BYTE)((unsigned)e[1] * e[3] / 255);
-			*d++ = (BYTE)((unsigned)e[2] * e[3] / 255);
-			*d++ = e[3];
-		}
+		// BGRA --> RGBA
+		*d++ = (BYTE)((unsigned)e[2] * e[3] / 255);
+		*d++ = (BYTE)((unsigned)e[1] * e[3] / 255);
+		*d++ = (BYTE)((unsigned)e[0] * e[3] / 255);
+		*d++ = e[3];
+	}
 
-		bmp.CreateBitmap(w, h, 1, 32, (BYTE *)buf.data());
-	}
-	else
-	{
-		bmp.CreateBitmap(w, h, 1, 32, im->data().data());
-	}
+	bmp.CreateBitmap(w, h, 1, 32, (BYTE *)buf.data());
 	Invalidate();
 }
 
 BOOL TextureControl::OnEraseBkgnd(CDC *dc)
 {
-	return TRUE;
+	return FALSE;
 }
 
 void TextureControl::OnPaint()
