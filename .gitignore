@@ -17,6 +17,7 @@
 /gmon.out
 Windows/boost/*
 Windows/Build/*
+Windows/zlib/sln/
 
 ### Visual Studio stuff ###
 *.suo
@@ -33,7 +34,6 @@ TestResult.xml
 *.meta
 *.obj
 *.pch
-*.pdb
 *.pgc
 *.pgd
 *.rsp

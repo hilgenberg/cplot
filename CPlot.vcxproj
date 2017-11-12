@@ -74,16 +74,16 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <LinkIncremental>true</LinkIncremental>
+    <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)Windows\Build\$(Configuration)_$(Platform)\</OutDir>
     <IntDir>Windows\Build\$(Configuration)_$(Platform)\</IntDir>
     <IncludePath>$(SolutionDir)\Windows\glew;$(SolutionDir)\Windows\boost;$(SolutionDir)\Windows\zlib;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)Windows\Build\$(Configuration)_$(Platform)\</OutDir>
     <IntDir>Windows\Build\$(Configuration)_$(Platform)\</IntDir>
     <IncludePath>$(SolutionDir)\Windows\glew;$(SolutionDir)\Windows\boost;$(SolutionDir)\Windows\zlib;$(IncludePath)</IncludePath>
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -108,10 +108,12 @@
       <ForcedIncludeFiles>$(SolutionDir)Windows\stdafx.h</ForcedIncludeFiles>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>opengl32.lib;glu32.lib;$(SolutionDir)Windows\glew\lib\$(Platform)\glew32s.lib;$(SolutionDir)Windows\glew\lib\$(Platform)\glew32.lib;$(SolutionDir)Windows\zlib\$(Platform)\zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>MSVCRT</IgnoreSpecificDefaultLibraries>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -124,8 +126,7 @@
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <PostBuildEvent>
-      <Command>copy "$(SolutionDir)Windows\glew\bin\$(Platform)\glew32.dll" "$(OutputPath)"
-copy "$(SolutionDir)Windows\zlib\$(Platform)\zlib1.dll" "$(OutputPath)"</Command>
+      <Command>copy "$(SolutionDir)Windows\glew\bin\$(Platform)\glew32.dll" "$(OutputPath)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -139,10 +140,12 @@ copy "$(SolutionDir)Windows\zlib\$(Platform)\zlib1.dll" "$(OutputPath)"</Command
       <ForcedIncludeFiles>$(SolutionDir)Windows\stdafx.h</ForcedIncludeFiles>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <AdditionalDependencies>opengl32.lib;glu32.lib;$(SolutionDir)Windows\glew\lib\$(Platform)\glew32s.lib;$(SolutionDir)Windows\glew\lib\$(Platform)\glew32.lib;$(SolutionDir)Windows\zlib\$(Platform)\zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <IgnoreSpecificDefaultLibraries>MSVCRT</IgnoreSpecificDefaultLibraries>
     </Link>
     <Midl>
       <MkTypLibCompatible>false</MkTypLibCompatible>
@@ -156,7 +159,7 @@ copy "$(SolutionDir)Windows\zlib\$(Platform)\zlib1.dll" "$(OutputPath)"</Command
     </ResourceCompile>
     <PostBuildEvent>
       <Command>copy "$(SolutionDir)Windows\glew\bin\$(Platform)\glew32.dll" "$(OutputPath)"
-copy "$(SolutionDir)Windows\zlib\$(Platform)\zlib1.dll" "$(OutputPath)"</Command>
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -193,8 +196,7 @@ copy "$(SolutionDir)Windows\zlib\$(Platform)\zlib1.dll" "$(OutputPath)"</Command
       <AdditionalIncludeDirectories>$(IntDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <PostBuildEvent>
-      <Command>copy "$(SolutionDir)Windows\glew\bin\$(Platform)\glew32.dll" "$(OutputPath)"
-copy "$(SolutionDir)Windows\zlib\$(Platform)\zlib1.dll" "$(OutputPath)"</Command>
+      <Command>copy "$(SolutionDir)Windows\glew\bin\$(Platform)\glew32.dll" "$(OutputPath)"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -232,7 +234,7 @@ copy "$(SolutionDir)Windows\zlib\$(Platform)\zlib1.dll" "$(OutputPath)"</Command
     </ResourceCompile>
     <PostBuildEvent>
       <Command>copy "$(SolutionDir)Windows\glew\bin\$(Platform)\glew32.dll" "$(OutputPath)"
-copy "$(SolutionDir)Windows\zlib\$(Platform)\zlib1.dll" "$(OutputPath)"</Command>
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

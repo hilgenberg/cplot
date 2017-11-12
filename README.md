@@ -11,7 +11,7 @@ target function for example), and realtime parameter variation (where parameters
 are things like a mass or spring constant, order of a pole, etc).
 
 Some screenshots are at the link above, but the interface is completely different
-(and quite rubbish, tbh) on Linux.
+(and on Linux quite rubbish, tbh).
 
 ### Linux build needs:
 
@@ -29,6 +29,4 @@ It can actually do quite a bit more, but the UI does not exist yet.
 
 ### On Windows:
 
-So far only the 32-bit build works.
-After building, open test.cplot, click the graph, hit 'A' to toggle the axis. 
-Most of the interface is still missing.
+Open CPlot.sln in Visual Studio 2017, and it should just build.
