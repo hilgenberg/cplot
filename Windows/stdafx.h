@@ -53,6 +53,7 @@ inline COLORREF GREY(BYTE y) { return RGB(y, y, y); }
 #define strncasecmp _strnicmp
 #undef ERROR
 
+#define GLEW_STATIC
 #include <glew.h>
 #include <wglew.h>
 
