@@ -8,6 +8,8 @@
 //--- Helper functions -------------------------------------------------------------------
 
 static int isdig02(int c){ return c == '0' || c == '1'; }
+static int isdig10(int c) { return c >= '0' && c <= '9'; }
+static int isdig16(int c) { return c >= '0' && c <= '9' || c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z'; }
 static int  d2n_10(int c){ return c - '0'; }
 static int  d2n_16(int c){ return isdigit(c) ? c - '0' : tolower(c) - 'a' + 10; }
 
@@ -21,8 +23,8 @@ static size_t readnum(const std::string &s, size_t i0, size_t i1, double &x, int
 	switch(base)
 	{
 		case  2: is_digit = &isdig02;  dig2num = &d2n_10; break;
-		case 10: is_digit = &isdigit;  dig2num = &d2n_10; break;
-		case 16: is_digit = &isxdigit; dig2num = &d2n_16; break;
+		case 10: is_digit = &isdig10;  dig2num = &d2n_10; break;
+		case 16: is_digit = &isdig16; dig2num = &d2n_16; break;
 		default: return 0;
 	}
 	const char exponent_char = (base == 16 ? 'q' : 'e');
@@ -73,7 +75,7 @@ static size_t readnum(const std::string &s, size_t i0, size_t i1, double &x, int
 		if(neg) e = -e;
 		x *= pow((double)base, e);
 	}
-	return saw_digit && (i >= i1 || !isdigit(s[i]) && s[i] != '.') ? i-i0 : 0;
+	return saw_digit && (i >= i1 || !isdig10(s[i]) && s[i] != '.') ? i-i0 : 0;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -101,7 +103,7 @@ static inline int isd(uint32_t c)
 // Returns length of the number, or 0 if garbage
 size_t readnum(const std::string &s, size_t i0, size_t i1, double &x)
 {
-	if (i1 <= i0 || !isdigit(s[i0]) && s[i0] != '.') return 0;
+	if (i1 <= i0 || !isdig10(s[i0]) && s[i0] != '.') return 0;
 	
 	if (s[i0] == '0' && i0+2 < i1 && (s[i0+1]=='b' || s[i0+1]=='x'))
 	{

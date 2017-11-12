@@ -87,7 +87,11 @@ Element *Namespace::copy() const
 
 static inline bool valid_name_char(int c)
 {
-	return !isspace(c) && !iscntrl(c) && !strchr("+-*/^%~!&?()[]{},;<>°\"'|¹²³", c) && (c < 0x2070 || c > 0x2079 /*exponents*/);
+	return !(c < 256 && (isspace(c) || iscntrl(c) || strchr("+-*/^%~!&?()[]{},;<>°\"'|¹²³", c))) && (c < 0x2070 || c > 0x2079 /*exponents*/);
+}
+static inline bool is_digit(int c)
+{
+	return c >= '0' && c <= '9';
 }
 bool Namespace::valid_name(const std::string &name)
 {
@@ -96,7 +100,7 @@ bool Namespace::valid_name(const std::string &name)
 	auto i = name.begin();
 
 	int c0 = utf8::next(i, name.end());
-	if (isdigit(c0) || !valid_name_char(c0)) return false;
+	if (is_digit(c0) || !valid_name_char(c0)) return false;
 	
 	while (i != name.end()) if (!valid_name_char(utf8::next(i, name.end()))) return false;
 	return true;
@@ -161,11 +165,11 @@ std::string Namespace::unique_name(const std::string &basename, int arity) const
 	size_t len = t.size(), numlen = 0;
 	bool asc = false; // numeric suffix is ASCII or UTF-subscript?
 	int sub0 = 0x2080, sub9 = 0x2089; // subscript 0 and 9
-	if (isdigit(t[len-1]))
+	if (is_digit(t[len-1]))
 	{
 		asc = true;
 		numlen = 1;
-		while(numlen < len && isdigit(t[len-1-numlen])) ++numlen;
+		while(numlen < len && is_digit(t[len-1-numlen])) ++numlen;
 	}
 	else if(t[len-1] >= sub0 && t[len-1] <= sub9)
 	{

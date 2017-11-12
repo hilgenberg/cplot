@@ -49,6 +49,20 @@ void depth_first(PreTokens &root, std::vector<PreTokens*> &stack)
 
 typedef std::string::const_iterator SI;
 
+// work around isspace and friends throwing exceptions on non-ascii input
+static inline bool is_space(uint32_t cp)
+{
+	return cp < 256 && isspace(cp);
+}
+static inline bool is_wordchar(uint32_t cp)
+{
+	return cp >= 256 || (!isspace(cp) && !strchr("|(){}[],", cp));
+}
+static inline bool is_digit(char c)
+{
+	return c > 0 && isdigit(c);
+}
+
 #define ERROR0(err, i, n) do{\
 	info.error(err, i, n);\
 	root.clear();\
@@ -172,14 +186,16 @@ bool PreToken::parse(PreTokens &root, const std::string &s, ParsingResult &info,
 			default:
 			{
 				auto i0 = i;
-				if (isspace(*i))
+				if (is_space(utf8::peek_next(i, s.end())))
 				{
-					do ++i; while (i != s.end() && isspace(*i));
+					do utf8::next(i, s.end());
+					while (i != s.end() && is_space(utf8::peek_next(i, s.end())));
 					t->emplace_back(TT_Space, s, i0, i, private_key());
 				}
 				else
 				{
-					do utf8::next(i, s.end()); while (i != s.end() && !isspace(*i) && !strchr("|(){}[],", *i));
+					do utf8::next(i, s.end());
+					while (i != s.end() && is_wordchar(utf8::peek_next(i, s.end())));
 					t->emplace_back(TT_String, s, i0, i, private_key());
 				}
 			}
@@ -314,7 +330,7 @@ bool PreToken::parse(PreTokens &root, const std::string &s, ParsingResult &info,
 			assert(a.n > 0);
 			
 			char c = s[a.i];
-			if (isdigit(c) || c=='.' || c =='c')
+			if (is_digit(c) || c=='.' || c =='c')
 			{
 				size_t  l = (c == 'c' ? readconst : readnum)(s, a.i, a.i+a.n, a.number);
 				assert (l <= a.n);

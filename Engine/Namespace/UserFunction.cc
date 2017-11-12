@@ -171,7 +171,7 @@ static inline bool nameChar(int c, bool first = false)
 
 static inline void skipspace(const std::string &s, size_t &i, size_t n)
 {
-	while (i < n && isspace(s[i])) ++i;
+	while (i < n && isascii(s[i]) && isspace(s[i])) ++i;
 }
 
 static inline size_t readname(const std::string &s, size_t &i, size_t n)
