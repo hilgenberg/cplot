@@ -273,6 +273,7 @@ void MainView::OnChangeF(int i, const CString &s_)
 	if (s == g->fn(i)) return;
 	g->set(s, i);
 	plotView.Invalidate();
+	GetSideView().UpdateGraphs(false);
 }
 
 void MainView::OnDomainChange()
