@@ -18,14 +18,18 @@ enum
 	ID_eq,
 	ID_value,
 	ID_delta,
-	ID_edit
+	ID_edit,
+	ID_plus,
+	ID_minus
 };
 
 IMPLEMENT_DYNAMIC(ParameterView, CWnd)
 BEGIN_MESSAGE_MAP(ParameterView, CWnd)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
-	ON_BN_CLICKED(ID_edit, OnEdit)
+	ON_BN_CLICKED(ID_edit,  OnEdit)
+	ON_BN_CLICKED(ID_plus,  OnPlus)
+	ON_BN_CLICKED(ID_minus, OnMinus)
 	//ON_LBN_DBLCLK(ID_name, OnEdit)
 END_MESSAGE_MAP()
 
@@ -70,8 +74,9 @@ int ParameterView::OnCreate(LPCREATESTRUCT cs)
 	LABEL(eq, "=");
 	EDIT(value); value.OnChange = [this]() { OnValueChange(); };
 	CREATE(delta, deltaStyle); delta.stateChange = [this](bool a) { parent.parent().AnimStateChanged(a); };
-	BUTTON(edit, "...");
-	edit.SetButtonStyle(BS_VCENTER | BS_CENTER | BS_FLAT, 0);
+	BUTTON(edit, "..."); edit.SetButtonStyle(BS_VCENTER | BS_CENTER | BS_FLAT, 0);
+	BUTTON(plus,  "+"); plus. SetButtonStyle(BS_VCENTER | BS_CENTER | BS_FLAT, 0);
+	BUTTON(minus, "-"); minus.SetButtonStyle(BS_VCENTER | BS_CENTER | BS_FLAT, 0);
 	return 0;
 }
 
@@ -79,7 +84,7 @@ int ParameterView::height(int w) const
 {
 	Parameter *p = parameter(); if (!p) return 0;
 	DS0;
-	return DS(10+2*22);
+	return DS(2*22);
 }
 
 void ParameterView::Update(bool full)
@@ -91,6 +96,12 @@ void ParameterView::Update(bool full)
 	if (p->is_real())
 	{
 		value.SetDouble(p->rvalue());
+
+		if (p->type() == ParameterType::Integer)
+		{
+			plus. EnableWindow(!defined(p->max()) || p->rvalue() + 0.01 < p->max());
+			minus.EnableWindow(!defined(p->min()) || p->rvalue() - 0.01 > p->min());
+		}
 	}
 	else
 	{
@@ -109,7 +120,7 @@ void ParameterView::Update(bool full)
 	const int x1 = W - SPC;
 	const int wq = DS(8);
 	const int dw = DS(60); // delta width
-	int y = SPC; // y for next control
+	int y = 0; // y for next control
 
 	const int h_label = DS(14), h_edit = DS(20), h_delta = DS(20), h_button = DS(20), h_row = DS(22);
 
@@ -119,7 +130,19 @@ void ParameterView::Update(bool full)
 
 	MOVE(eq, x0, x0+wq, y, h_label, h_row);
 	MOVE(value, x0+wq+SPC, x1 - SPC - dw, y, h_edit, h_row);
-	MOVE(delta, x1 - dw, x1, y, h_delta, h_row);
+
+	if (p->type() == ParameterType::Integer)
+	{
+		HIDE(delta);
+		MOVE(minus, x1 - dw, x1 - (dw + SPC) / 2, y, h_button, h_row);
+		MOVE(plus,  x1 - (dw - SPC)/2, x1, y, h_button, h_row);
+	}
+	else
+	{
+		MOVE(delta, x1 - dw, x1, y, h_delta, h_row);
+		HIDE(plus);
+		HIDE(minus);
+	}
 }
 
 void ParameterView::OnInitialUpdate()
@@ -163,13 +186,14 @@ void ParameterView::Animate(double t)
 
 	Parameter *p = parameter(); if (!p) return;
 
+	dx *= 0.1;
 	switch (p->type())
 	{
 		case Real: p->rvalue(p->rvalue() + dx); break;
 		case Complex: p->value(p->value() + dx); break;
 		case Angle:p->rvalue(p->rvalue() + dx); break;
 		case ComplexAngle:p->rvalue(p->rvalue() + dx); break;
-		case Integer:p->rvalue(p->rvalue() + dx); break;
+		case Integer: assert(false); return;
 	}
 	if (p->is_real())
 	{
@@ -179,6 +203,26 @@ void ParameterView::Animate(double t)
 	{
 		value.SetComplex(p->value());
 	}
+
+	MainView &v = ((MainWindow*)GetParentFrame())->GetMainView();
+	if (v.GetDocument().plot.recalc(p)) v.GetPlotView().Invalidate();
+	UpdateWindow();
+}
+
+void ParameterView::OnPlus()
+{
+	Parameter *p = parameter(); if (!p) return;
+	p->rvalue(p->rvalue() + 1.0);
+	value.SetDouble(p->rvalue());
+
+	MainView &v = ((MainWindow*)GetParentFrame())->GetMainView();
+	if (v.GetDocument().plot.recalc(p)) v.GetPlotView().Invalidate();
+}
+void ParameterView::OnMinus()
+{
+	Parameter *p = parameter(); if (!p) return;
+	p->rvalue(p->rvalue() - 1.0);
+	value.SetDouble(p->rvalue());
 
 	MainView &v = ((MainWindow*)GetParentFrame())->GetMainView();
 	if (v.GetDocument().plot.recalc(p)) v.GetPlotView().Invalidate();

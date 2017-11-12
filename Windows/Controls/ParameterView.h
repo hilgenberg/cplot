@@ -22,6 +22,8 @@ public:
 	
 	void OnValueChange();
 	void OnEdit();
+	void OnPlus();
+	void OnMinus();
 	void Animate(double t);
 
 private:
@@ -32,6 +34,7 @@ private:
 	NumericEdit value;
 	DeltaSlider delta;
 	CButton     edit;
+	CButton     plus, minus; // for integer params
 
 	DECLARE_DYNAMIC(ParameterView)
 	DECLARE_MESSAGE_MAP()
