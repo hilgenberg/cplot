@@ -138,13 +138,6 @@ BEGIN
     PUSHBUTTON      "Delete",IDDELETE,156,97,50,14
 END
 
-IDD_SIDEVIEWPARAM DIALOGEX 0, 0, 312, 179
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Dialog"
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
-BEGIN
-END
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -169,14 +162,6 @@ BEGIN
         TOPMARGIN, 7
         BOTTOMMARGIN, 111
     END
-
-    IDD_SIDEVIEWPARAM, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 305
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 172
-    END
 END
 #endif    // APSTUDIO_INVOKED
 
@@ -192,11 +177,6 @@ BEGIN
 END
 
 IDD_DEFINITION AFX_DIALOG_LAYOUT
-BEGIN
-    0
-END
-
-IDD_SIDEVIEWPARAM AFX_DIALOG_LAYOUT
 BEGIN
     0
 END
@@ -263,8 +243,8 @@ STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSM
 CAPTION "About CPlot"
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
-    ICON            IDR_MAINFRAME,IDC_STATIC,14,14,21,20
-    LTEXT           "CPlot, Version 1.0",IDC_STATIC,42,14,114,8,SS_NOPREFIX
+    ICON            IDR_MAINFRAME,IDC_STATIC,14,14,20,20
+    LTEXT           "CPlot, Version 1.10",IDC_STATIC,42,14,114,8,SS_NOPREFIX
     LTEXT           "Copyright (C) 2017",IDC_STATIC,42,26,114,8
     DEFPUSHBUTTON   "OK",IDOK,113,41,50,14,WS_GROUP
 END
@@ -287,6 +267,17 @@ BEGIN
     END
 END
 #endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_ABOUTBOX AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -329,10 +320,6 @@ BEGIN
     END
     POPUP "&View"
     BEGIN
-        POPUP "&Toolbars and Docking Windows"
-        BEGIN
-            MENUITEM "<placeholder>",               ID_VIEW_TOOLBAR
-        END
         MENUITEM "&Properties\tCtrl+T",         ID_VIEW_PROPERTIES, CHECKED
         MENUITEM "S&plit",                      ID_WINDOW_SPLIT
     END
@@ -389,8 +376,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,0,0,1
- PRODUCTVERSION 1,0,0,1
+ FILEVERSION 1,10,0,0
+ PRODUCTVERSION 1,10,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -403,16 +390,16 @@ VS_VERSION_INFO VERSIONINFO
 BEGIN
     BLOCK "StringFileInfo"
     BEGIN
-        BLOCK "040904B0"
+        BLOCK "040904b0"
         BEGIN
-            VALUE "CompanyName", "TODO: <Company name>"
+            VALUE "CompanyName", "Torsten Hilgenberg"
             VALUE "FileDescription", "CPlot"
-            VALUE "FileVersion", "1.0.0.1"
+            VALUE "FileVersion", "1.10"
             VALUE "InternalName", "CPlot.exe"
-            VALUE "LegalCopyright", "TODO: (c) <Company name>.  All rights reserved."
+            VALUE "LegalCopyright", "(c) 2017.  All rights reserved."
             VALUE "OriginalFilename", "CPlot.exe"
-            VALUE "ProductName", "TODO: <Product name>"
-            VALUE "ProductVersion", "1.0.0.1"
+            VALUE "ProductName", "CPlot"
+            VALUE "ProductVersion", "1.10"
         END
     END
     BLOCK "VarFileInfo"
