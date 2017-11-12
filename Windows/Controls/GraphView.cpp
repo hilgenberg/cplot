@@ -96,10 +96,9 @@ void GraphView::OnSelect()
 	Plot &plot = parent.document().plot;
 	plot.set_current_graph(g);
 
-	parent.Update(false);
+	parent.parent().UpdateAll();
 	MainWindow *w = (MainWindow*)GetParentFrame();
 	w->GetMainView().Update();
-
 }
 
 void GraphView::Update(bool full)
