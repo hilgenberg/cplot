@@ -105,7 +105,8 @@ public:
 	{
 		int32_t t;
 		int32_(t);
-		if (t < min || t > max) throw std::runtime_error("enum out of range");
+		if (t < min || t > max)
+			throw std::runtime_error("enum out of range");
 		x = (T)t;
 	}
 	void float_(float &x);

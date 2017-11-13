@@ -35,9 +35,10 @@ private:
 	CRect headerRect() const;
 
 	CComboBox domain, coord, mode;
-	FocusEdit  f[3];
+	FocusEdit f [3];
 	CStatic   fs[3];
 	PlotView  plotView;
+	CStatic   error;
 
 	DECLARE_DYNCREATE(MainView)
 	DECLARE_MESSAGE_MAP()

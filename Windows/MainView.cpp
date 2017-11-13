@@ -6,6 +6,7 @@
 #include "MainWindow.h"
 #include "SideView.h"
 #include "Controls/ViewUtil.h"
+#include "../Engine/Namespace/Expression.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -16,7 +17,8 @@ enum
 	ID_f1 = 1000, ID_f2, ID_f3,
 	ID_fs1, ID_fs2, ID_fs3,
 	ID_domain, ID_coord, ID_mode,
-	ID_plotView
+	ID_plotView,
+	ID_error
 };
 
 IMPLEMENT_DYNCREATE(MainView, CFormView)
@@ -97,6 +99,8 @@ int MainView::OnCreate(LPCREATESTRUCT cs)
 	f[1].OnChange = [this] { OnChangeF2(); };
 	f[2].OnChange = [this] { OnChangeF3(); };
 
+	LLABEL(error, "");
+
 	plotView.Create(whatever, this, ID_plotView);
 
 	return 0;
@@ -132,6 +136,7 @@ void MainView::Update()
 		HIDE(domain);
 		HIDE(coord);
 		HIDE(mode);
+		HIDE(error);
 	}
 	else
 	{
@@ -221,6 +226,43 @@ void MainView::Update()
 	}
 	y += SPC;
 
+	// parsing errors
+	if (graph)
+	{
+		bool show = false;
+		Expression *expr = graph->expression();
+		if (!expr)
+		{
+			if (plot.number_of_visible_graphs() > 0 && !plot.axis.valid())
+			{
+				error.SetWindowText(_T("Axis type mismatch"));
+				show = true;
+			}
+		}
+		else
+		{
+			auto &result = expr->result();
+			int nf = graph->n_components();
+			int i = (int)result.index;
+			if (!result.ok && i < nf && !graph->fn(i + 1).empty())
+			{
+				error.SetWindowText(Convert(result.info));
+				show = true;
+				// TODO: mark the error position somehow
+			}
+		}
+
+		if (!show)
+		{
+			HIDE(error);
+		}
+		else
+		{
+			MOVE(error, xmm, x1, y, h_label, h_label);
+			y += h_row + SPC;
+		}
+	}
+
 	plotView.ShowWindow(SW_SHOW);
 	plotView.MoveWindow(0, y, W, bounds.Height() - y, 0);
 }
@@ -272,6 +314,8 @@ void MainView::OnChangeF(int i, const CString &s_)
 	std::string s = Convert(s_);
 	if (s == g->fn(i)) return;
 	g->set(s, i);
+	Update(); // errors might have changed
+	RedrawHeader();
 	plotView.Invalidate();
 	GetSideView().UpdateGraphs(false);
 }
