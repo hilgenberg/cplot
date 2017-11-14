@@ -368,6 +368,7 @@
     <ClInclude Include="Windows\stdafx.h" />
     <ClInclude Include="Windows\targetver.h" />
     <ClInclude Include="Windows\Controls\ViewUtil.h" />
+    <ClInclude Include="Windows\Util\DropHandler.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Windows\Controls\DefinitionView.cpp" />
@@ -489,6 +490,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Windows\Util\DropHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Windows\res\CPlot.reg" />

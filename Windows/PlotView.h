@@ -4,6 +4,7 @@
 #include "../Graphs/OpenGL/GL_StringCache.h"
 #include "../Engine/Namespace/Parameter.h"
 #include "../Utility/System.h"
+#include "Util/DropHandler.h"
 class Document;
 
 class PlotView : public CWnd
@@ -49,9 +50,12 @@ private:
 	void handleArrows();
 	bool animating();
 
-	Document  &document() const;
-	CClientDC *dc;
-	CRect      bounds;
+	Document   &document() const;
+	CClientDC  *dc;
+	CRect       bounds;
+
+	DropHandler drop;
+	bool load(const CString &f);
 
 	Timer    timer;
 	double   tnf; // scheduled time for next frame

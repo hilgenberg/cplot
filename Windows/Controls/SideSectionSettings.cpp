@@ -867,8 +867,8 @@ void SideSectionSettings::Update(bool full)
 			reflectionStrength.EnableWindow(hasRef);
 			textureStrength.SetPos(color ? 0 : SLIDER_MAX - (hasTex ? (int)(g->options.texture_opacity*SLIDER_MAX) : 0));
 			reflectionStrength.SetPos(SLIDER_MAX - (hasRef ? (int)(g->options.reflection_opacity*SLIDER_MAX) : 0));
-			texture.SetImage(hasTex ? const_cast<GL_Image*>(&g->options.texture) : NULL);
-			reflection.SetImage(hasRef ? const_cast<GL_Image*>(&g->options.reflection_texture) : NULL);
+			texture.SetImage(hasTex ? const_cast<GL_Image*>(&g->options.texture) : NULL, full);
+			reflection.SetImage(hasRef ? const_cast<GL_Image*>(&g->options.reflection_texture) : NULL, full);
 			y += dt;
 
 			if (!color)

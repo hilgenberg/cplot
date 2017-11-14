@@ -3,17 +3,16 @@
 #include "../../Graphs/OpenGL/GL_Image.h"
 
 BEGIN_MESSAGE_MAP(TextureControl, CWnd)
+	ON_WM_CREATE()
 	ON_WM_PAINT()
 	ON_WM_RBUTTONUP()
 	ON_COMMAND_RANGE(1000, 1000+IP_UNITS, OnContextItem)
 	ON_WM_ERASEBKGND()
 END_MESSAGE_MAP()
 
-TextureControl::TextureControl() : im(NULL)
-{
-}
-
-TextureControl::~TextureControl()
+TextureControl::TextureControl()
+: im(NULL)
+, drop(DropHandler::IMAGE, [this](const CString &f)->bool { return load(f); })
 {
 }
 
@@ -34,6 +33,13 @@ BOOL TextureControl::Create(DWORD style, const RECT &rect, CWnd *parent, UINT ID
 	}
 
 	return CWnd::Create(_T("TextureControl"), NULL, style, rect, parent, ID);
+}
+
+int TextureControl::OnCreate(LPCREATESTRUCT cs)
+{
+	if (CWnd::OnCreate(cs) < 0) return -1;
+	drop.Register(this);
+	return 0;
 }
 
 void TextureControl::OnRButtonUp(UINT flags, CPoint p)
@@ -75,15 +81,13 @@ void TextureControl::OnContextItem(UINT which)
 	
 	if (OnChange) OnChange();
 	
-	GL_Image *im_ = im;
-	SetImage(NULL);
-	SetImage(im_);
+	SetImage(im, true);
 	Invalidate();
 }
 
-void TextureControl::SetImage(GL_Image *im_)
+void TextureControl::SetImage(GL_Image *im_, bool force)
 {
-	if (im_ == im)
+	if (!force && im_ == im)
 	{
 		Invalidate();
 		return;
@@ -163,4 +167,57 @@ void TextureControl::OnPaint()
 	BLENDFUNCTION f; f.BlendOp = AC_SRC_OVER; f.BlendFlags = 0; f.SourceConstantAlpha = 255; f.AlphaFormat = AC_SRC_ALPHA;
 
 	dc.AlphaBlend(bounds.left + (W - w) / 2, bounds.top + (H - h) / 2, w, h, &bmpDC, 0, 0, im->w(), im->h(), f);
+}
+
+bool TextureControl::load(const CString &f)
+{
+	if (!im) return false;
+	CImage image; if (FAILED(image.Load(f))) return false;
+
+	int dr = image.GetPitch();
+	int w = image.GetWidth();
+	int h = image.GetHeight();
+	if (!w || !h) return false;
+	if (!image.GetBits()) return false;
+	
+	switch (image.GetBPP())
+	{
+		case 32:
+		{
+			auto *d = im->redim(w, h);
+			for (int y = 0; y < h; ++y)
+			{
+				unsigned char *b = (unsigned char *)image.GetPixelAddress(0, y);
+				for (int x = 0; x < w; ++x)
+				{
+					*d++ = b[2];
+					*d++ = b[1];
+					*d++ = b[0];
+					*d++ = b[3];
+					b += 4;
+				}
+			}
+			break;
+		}
+		default:
+		{
+			auto *d = im->redim(w, h);
+			for (int y = 0; y < h; ++y)
+			{
+				for (int x = 0; x < w; ++x)
+				{
+					COLORREF v = image.GetPixel(x, y);
+					*d++ = GetRValue(v);
+					*d++ = GetGValue(v);
+					*d++ = GetBValue(v);
+					*d++ = 255;
+				}
+			}
+			break;
+		}
+	}
+
+	if (OnChange) OnChange();
+	SetImage(im, true);
+	return true;
 }

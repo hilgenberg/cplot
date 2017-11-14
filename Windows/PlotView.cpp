@@ -6,6 +6,7 @@
 #include "res/resource.h"
 #include "Document.h"
 #include "../Utility/System.h"
+#include "MainView.h"
 
 #include "gl/gl.h"
 #include "gl/glu.h"
@@ -45,6 +46,7 @@ PlotView::PlotView()
 , nums_on(0)
 , mb(0)
 , timer(1.0/60.0)
+, drop(DropHandler::CPLOT, [this](const CString &f) { return load(f); })
 {
 	arrows.all = 0;
 	memset(inertia, 0, 3 * sizeof(double));
@@ -140,6 +142,8 @@ int PlotView::OnCreate(LPCREATESTRUCT cs)
 	GetClientRect(&bounds);
 	glClearDepth(1.0f);
 	glEnable(GL_DEPTH_TEST);
+
+	drop.Register(this);
 
 	return 0;
 }
@@ -661,3 +665,16 @@ void PlotView::OnSysKeyDown(UINT c, UINT rep, UINT flags)
 {}
 void PlotView::OnSysKeyUp(UINT c, UINT rep, UINT flags)
 {}
+
+bool PlotView::load(const CString &f)
+{
+	auto &d = document();
+	if (!d.OnOpenDocument(f)) return false;
+	d.SetPathName(f);
+	d.UpdateAllViews(NULL);
+
+	MainWindow* w = (MainWindow*)AfxGetMainWnd();
+	w->GetSideView().UpdateAll();
+	w->GetMainView().Update();
+	return true;
+}

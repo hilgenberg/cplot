@@ -46,7 +46,7 @@ BOOL CPlotApp::InitInstance()
 	// AfxInitRichEdit2() is required to use RichEdit control	
 	// AfxInitRichEdit2();
 
-	SetRegistryKey(_T("CPlot 2.1"));
+	SetRegistryKey(_T("CPlot 1.10"));
 	LoadStdProfileSettings(8);
 
 	InitContextMenuManager();
@@ -74,7 +74,7 @@ BOOL CPlotApp::InitInstance()
 
 	m_pMainWnd->ShowWindow(SW_SHOW);
 	m_pMainWnd->UpdateWindow();
-	m_pMainWnd->DragAcceptFiles();
+	m_pMainWnd->DragAcceptFiles(false);
 
 	return TRUE;
 }
