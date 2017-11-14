@@ -20,6 +20,11 @@ enum
 	ID_header = 2000
 };
 
+SideSectionGraphs::~SideSectionGraphs()
+{
+	for (auto *d : defs) delete d;
+}
+
 void SideSectionGraphs::OnAdd()
 {
 	Plot &plot = document().plot;

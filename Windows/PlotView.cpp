@@ -47,6 +47,7 @@ PlotView::PlotView()
 , mb(0)
 , timer(1.0/60.0)
 , drop(DropHandler::CPLOT, [this](const CString &f) { return load(f); })
+, in_resize(false)
 {
 	arrows.all = 0;
 	memset(inertia, 0, 3 * sizeof(double));
@@ -67,12 +68,12 @@ Document &PlotView::document() const
 
 UINT PlotView::OnGetDlgCode()
 {
-	return CWnd::OnGetDlgCode() | DLGC_WANTALLKEYS;
+	return CWnd::OnGetDlgCode() | DLGC_WANTARROWS;
 }
 
 BOOL PlotView::PreCreateWindow(CREATESTRUCT& cs)
 {
-	cs.style |= WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_GROUP | WS_TABSTOP;
+	cs.style |= WS_CHILD | WS_GROUP | WS_TABSTOP;
 	return CWnd::PreCreateWindow(cs);
 }
 
@@ -88,6 +89,7 @@ BOOL PlotView::Create(const RECT &rect, CWnd *parent, UINT ID)
 		wndcls.hCursor = theApp.LoadStandardCursor(IDC_ARROW);
 		wndcls.lpszMenuName = NULL;
 		wndcls.lpszClassName = _T("PlotView");
+		wndcls.hbrBackground = NULL;
 		if (!AfxRegisterClass(&wndcls)) throw std::runtime_error("AfxRegisterClass(PlotView) failed");
 		init = true;
 	}
@@ -163,6 +165,11 @@ void PlotView::OnDestroy()
 
 BOOL PlotView::OnEraseBkgnd(CDC *dc)
 {
+	if (!in_resize) return false;
+	CRect bounds; GetClientRect(bounds);
+	CBrush bg(GetBgColor());
+	dc->FillRect(bounds, &bg);
+	in_resize = false;
 	return TRUE;
 }
 
@@ -255,6 +262,7 @@ void PlotView::OnSize(UINT nType, int w, int h)
 	CWnd::OnSize(nType, w, h);
 	GetClientRect(&bounds);
 	reshape();
+	in_resize = true;
 }
 
 void PlotView::reshape()
@@ -282,7 +290,7 @@ COLORREF PlotView::GetBgColor()
 void PlotView::OnButtonDown(int i, CPoint p)
 {
 	// activate
-	::SendMessage(*GetParent(), WM_NEXTDLGCTL, (WPARAM)(HWND)*this, TRUE);
+	((MainWindow*)GetParentFrame())->Focus(this);
 
 	m0 = p;
 	if (!mb)
@@ -676,5 +684,6 @@ bool PlotView::load(const CString &f)
 	MainWindow* w = (MainWindow*)AfxGetMainWnd();
 	w->GetSideView().UpdateAll();
 	w->GetMainView().Update();
+	Invalidate();
 	return true;
 }

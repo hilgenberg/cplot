@@ -62,6 +62,7 @@ private:
 	double   last_frame; // time of last draw
 	double   last_key; // time of last handleArrows
 	GL_RM   *rm;
+	bool     in_resize;
 
 	union
 	{

@@ -6,6 +6,12 @@
 
 BEGIN_MESSAGE_MAP(NumericEdit, CEdit)
 	ON_CONTROL_REFLECT_EX(EN_KILLFOCUS, OnKillFocus)
+	ON_COMMAND(ID_EDIT_CUT, OnEditCut)
+	ON_COMMAND(ID_EDIT_COPY, OnEditCopy)
+	ON_COMMAND(ID_EDIT_PASTE, OnEditPaste)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_CUT, OnUpdateEditCopy) // sic
+	ON_UPDATE_COMMAND_UI(ID_EDIT_COPY, OnUpdateEditCopy)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_PASTE, OnUpdateEditPaste)
 END_MESSAGE_MAP()
 
 BOOL NumericEdit::PreTranslateMessage(MSG *m)
@@ -30,7 +36,7 @@ Namespace *NumericEdit::find_namespace() const
 {
 	MainWindow *w = (MainWindow*)GetParentFrame();
 	if (!w) return NULL;
-	Document *doc = (Document*)w->GetActiveDocument();
+	Document *doc = (Document*)w->doc;
 	if (!doc) return NULL;
 	return &doc->rns;
 }

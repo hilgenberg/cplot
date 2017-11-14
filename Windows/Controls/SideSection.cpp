@@ -23,10 +23,6 @@ BEGIN_MESSAGE_MAP(SideSection, CWnd)
 	ON_BN_CLICKED(ID_header, OnHeader)
 END_MESSAGE_MAP()
 
-SideSection::SideSection()
-{
-}
-
 Document &SideSection::document() const { return parent().document(); }
 void SideSection::Redraw()
 {
@@ -53,7 +49,8 @@ BOOL SideSection::PreCreateWindow(CREATESTRUCT& cs)
 	cs.style &= ~WS_BORDER;
 	cs.style &= ~WS_HSCROLL;
 	//cs.style |= WS_TABSTOP| WS_GROUP;
-	cs.style |= WS_CLIPCHILDREN | WS_CLIPSIBLINGS;
+	cs.style |= WS_CHILD;
+	cs.dwExStyle |= WS_EX_CONTROLPARENT | WS_EX_TRANSPARENT;
 
 	cs.lpszClass = AfxRegisterWndClass(CS_DBLCLKS,
 		::LoadCursor(NULL, IDC_ARROW), reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1), NULL);
@@ -63,10 +60,7 @@ BOOL SideSection::PreCreateWindow(CREATESTRUCT& cs)
 
 BOOL SideSection::OnEraseBkgnd(CDC *dc)
 {
-	RECT bounds; GetClientRect(&bounds);
-	CBrush bg(GetSysColor(COLOR_BTNFACE));
-	dc->FillRect(&bounds, &bg);
-	return TRUE;
+	return false;
 }
 
 //---------------------------------------------------------------------------------------------
@@ -92,6 +86,7 @@ BOOL SideSection::Create(SideView *parent, UINT ID)
 		wndcls.hCursor = theApp.LoadStandardCursor(IDC_ARROW);
 		wndcls.lpszMenuName = NULL;
 		wndcls.lpszClassName = cls;
+		wndcls.hbrBackground = NULL;
 		if (!AfxRegisterClass(&wndcls)) throw std::runtime_error("AfxRegisterClass(SideSection subclass) failed");
 		reg.insert(cls);
 	}

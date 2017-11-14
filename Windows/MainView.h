@@ -5,12 +5,19 @@
 #include "Controls/FocusEdit.h"
 class Document;
 
-class MainView : public CFormView
+class BGStatic: public CStatic
 {
 public:
-	MainView();
+	BOOL Create(CWnd *parent, UINT ID, DWORD style);
+	BOOL   OnEraseBkgnd(CDC *dc);
+	COLORREF bg; // background color
+	DECLARE_MESSAGE_MAP()
+};
 
-	inline Document& GetDocument() const { return *(Document*)m_pDocument; }
+class MainView : public CWnd
+{
+public:
+	inline Document& GetDocument() const { return *((MainWindow*)GetParentFrame())->doc; }
 	inline PlotView& GetPlotView() const { return const_cast<PlotView&>(plotView); }
 	inline SideView& GetSideView() const { return ((MainWindow*)GetParentFrame())->GetSideView(); }
 
@@ -36,9 +43,9 @@ private:
 
 	CComboBox domain, coord, mode;
 	FocusEdit f [3];
-	CStatic   fs[3];
+	BGStatic  fs[3];
 	PlotView  plotView;
-	CStatic   error;
+	BGStatic  error;
 
 	DECLARE_DYNCREATE(MainView)
 	DECLARE_MESSAGE_MAP()

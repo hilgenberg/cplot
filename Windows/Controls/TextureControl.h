@@ -14,7 +14,6 @@ public:
 	void SetImage(GL_Image *im, bool forceReload); // NULL to clear
 
 	int  OnCreate(LPCREATESTRUCT cs);
-	BOOL OnEraseBkgnd(CDC *dc);
 	void OnPaint();
 	void OnRButtonUp(UINT flags, CPoint p);
 	void OnContextItem(UINT which);

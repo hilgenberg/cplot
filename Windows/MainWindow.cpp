@@ -12,23 +12,38 @@
 #define new DEBUG_NEW
 #endif
 
+IMPLEMENT_DYNCREATE(MainForm, CFormView)
+BEGIN_MESSAGE_MAP(MainForm, CFormView)
+	ON_WM_CREATE()
+	ON_WM_SIZE()
+	ON_WM_ERASEBKGND()
+END_MESSAGE_MAP()
+
 IMPLEMENT_DYNCREATE(MainWindow, CFrameWndEx)
 BEGIN_MESSAGE_MAP(MainWindow, CFrameWndEx)
 	ON_WM_CREATE()
+	ON_WM_ERASEBKGND()
 END_MESSAGE_MAP()
 
-MainWindow::MainWindow() : doc(NULL)
+BOOL MainWindow::OnCmdMsg(UINT id, int code, void *extra, AFX_CMDHANDLERINFO *handler)
 {
-}
-
-MainWindow::~MainWindow()
-{
+	MainForm *v = (MainForm*)GetDlgItem(AFX_IDW_PANE_FIRST);
+	if (v)
+	{
+		if (v->OnCmdMsg(id, code, extra, handler))
+			return true;
+		CWnd *w = v->GetFocus();
+		if (w && w->OnCmdMsg(id, code, extra, handler))
+			return true;
+	}
+	
+	return CFrameWndEx::OnCmdMsg(id, code, extra, handler);
 }
 
 BOOL MainWindow::PreCreateWindow(CREATESTRUCT &cs)
 {
 	if (!CFrameWndEx::PreCreateWindow(cs)) return FALSE;
-
+	cs.dwExStyle |= WS_EX_CONTROLPARENT;
 	return TRUE;
 }
 
@@ -41,20 +56,74 @@ int MainWindow::OnCreate(LPCREATESTRUCT cs)
 
 BOOL MainWindow::OnCreateClient(LPCREATESTRUCT cs, CCreateContext *ctx)
 {
+	if (!CFrameWnd::OnCreateClient(cs, ctx)) return false;
+
 	doc = (Document*)ctx->m_pCurrentDoc;
+
+	MainForm *v = (MainForm*)GetDlgItem(AFX_IDW_PANE_FIRST);
+	splitter = &v->splitter;
+	mainView = (MainView*)splitter->GetPane(0, 1);
+	sideView = (SideView*)splitter->GetPane(0, 0);
+
+	return TRUE;
+}
+
+void MainWindow::Focus(CWnd *who)
+{
+	if (!who) return;
+	MainForm *v = (MainForm*)GetDlgItem(AFX_IDW_PANE_FIRST);
+	::SendMessageW(*v, WM_NEXTDLGCTL, (WPARAM)(HWND)*who, TRUE);
+}
+
+int MainForm::OnCreate(LPCREATESTRUCT cs)
+{
 	DS0;
 	int w = cs->cx, w0 = DS(230), min_w = DS(160);
 
 	if (!(
 		splitter.CreateStatic(this, 1, 2) &&
-		splitter.CreateView(0, 1, RUNTIME_CLASS(MainView), CSize(w-w0, 0), ctx) &&
-		splitter.CreateView(0, 0, RUNTIME_CLASS(SideView), CSize(w0, 0),   ctx)
-	)) return FALSE;
+		splitter.CreateView(0, 1, RUNTIME_CLASS(MainView), CSize(w - w0, cs->cy), NULL) &&
+		splitter.CreateView(0, 0, RUNTIME_CLASS(SideView), CSize(w0, cs->cy), NULL)
+		)) return FALSE;
 
 	splitter.SetColumnInfo(0, w0, min_w); // set min width
-
-	mainView = (MainView*)splitter.GetPane(0, 1);
-	sideView = (SideView*)splitter.GetPane(0, 0);
+	splitter.ShowWindow(SW_SHOW);
+	ShowWindow(SW_SHOW);
 
 	return TRUE;
+}
+
+void MainForm::OnSize(UINT type, int w, int h)
+{
+	CFormView::OnSize(type, w, h);
+	splitter.MoveWindow(0, 0, w, h);
+}
+
+BOOL MainForm::PreCreateWindow(CREATESTRUCT &cs)
+{
+	if (!CFormView::PreCreateWindow(cs)) return FALSE;
+
+	cs.style &= ~WS_BORDER;
+	cs.style |= WS_CHILD;
+	cs.dwExStyle |= WS_EX_CONTROLPARENT | WS_EX_TRANSPARENT;
+	return TRUE;
+}
+
+void MainForm::OnInitialUpdate()
+{
+	CFormView::OnInitialUpdate();
+	auto *mainView = (MainView*)splitter.GetPane(0, 1);
+	auto *sideView = (SideView*)splitter.GetPane(0, 0);
+	mainView->Update();
+	sideView->UpdateAll();
+}
+
+BOOL MainWindow::OnEraseBkgnd(CDC *dc)
+{
+	return false;
+}
+
+BOOL MainForm::OnEraseBkgnd(CDC *dc)
+{
+	return false;
 }

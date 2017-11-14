@@ -6,6 +6,7 @@ class GraphView;
 class SideSectionGraphs : public SideSection
 {
 public:
+	~SideSectionGraphs();
 	CString headerString() override { return _T("Graphs"); }
 	CString wndClassName() override { return _T("SideSectionGraphs"); }
 	void Update(bool full) override;

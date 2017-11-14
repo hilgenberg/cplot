@@ -15,6 +15,17 @@ public:
 	cnum   GetComplex() const;   // these also set the mode to Complex
 	void   SetComplex(cnum z);
 
+	void OnUpdateEditCopy(CCmdUI *cmd) { int a, b; GetSel(a, b); cmd->Enable(a < b); }
+	void OnUpdateEditPaste(CCmdUI *cmd)
+	{
+		if (!OpenClipboard()) { cmd->Enable(false); return; }
+		cmd->Enable(GetClipboardData(CF_TEXT) != NULL);
+		CloseClipboard();
+	}
+	void OnEditCut() { Cut(); }
+	void OnEditCopy() { Copy(); }
+	void OnEditPaste() { Paste(); }
+
 private:
 	mutable bool    real;
 	mutable cnum    value;

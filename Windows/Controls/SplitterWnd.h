@@ -12,7 +12,6 @@ public:
 
 	BOOL OnEraseBkgnd(CDC *dc);
 	BOOL PreCreateWindow(CREATESTRUCT &cs);
-	void OnInvertTracker(const CRect &rect) override;
 
 private:
 	bool hidden;

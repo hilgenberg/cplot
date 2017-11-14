@@ -21,8 +21,26 @@ enum
 	ID_error
 };
 
-IMPLEMENT_DYNCREATE(MainView, CFormView)
-BEGIN_MESSAGE_MAP(MainView, CFormView)
+BEGIN_MESSAGE_MAP(BGStatic, CStatic)
+	ON_WM_ERASEBKGND()
+END_MESSAGE_MAP()
+BOOL BGStatic::Create(CWnd *parent, UINT ID, DWORD style)
+{
+	if (!CStatic::Create(_T(""), WS_CHILD | style, CRect(0, 0, 20, 20), parent, ID)) return false;
+	SetFont(&controlFont());
+	return true;
+}
+BOOL BGStatic::OnEraseBkgnd(CDC *dc)
+{
+	RECT bounds; GetClientRect(&bounds);
+	CBrush b(bg);
+	dc->FillRect(&bounds, &b);
+	return TRUE;
+}
+
+
+IMPLEMENT_DYNCREATE(MainView, CWnd)
+BEGIN_MESSAGE_MAP(MainView, CWnd)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
 	ON_WM_ERASEBKGND()
@@ -31,10 +49,6 @@ BEGIN_MESSAGE_MAP(MainView, CFormView)
 	ON_CBN_SELCHANGE(ID_coord, OnCoordChange)
 	ON_CBN_SELCHANGE(ID_mode, OnModeChange)
 END_MESSAGE_MAP()
-
-MainView::MainView() : CFormView(IDD_MAINVIEW)
-{
-}
 
 HBRUSH MainView::OnCtlColor(CDC *dc, CWnd *wnd, UINT ctrl)
 {
@@ -45,23 +59,24 @@ HBRUSH MainView::OnCtlColor(CDC *dc, CWnd *wnd, UINT ctrl)
 		int y = (int)(0.21*r + 0.72*g + 0.07*b);
 		bool light = (y > 160);
 		dc->SetTextColor(GREY(light ? 0 : 255));
-		//dc->SetBkMode(MFC_TRANSPARENT);
-		dc->SetBkColor(bg);
+		dc->SetBkMode(MFC_TRANSPARENT);
 		return (HBRUSH)GetStockObject(NULL_BRUSH);
 	}
-	return CFormView::OnCtlColor(dc, wnd, ctrl);
+	return CWnd::OnCtlColor(dc, wnd, ctrl);
 }
 BOOL MainView::PreCreateWindow(CREATESTRUCT &cs)
 {
-	if (!CFormView::PreCreateWindow(cs)) return FALSE;
+	if (!CWnd::PreCreateWindow(cs)) return FALSE;
 
-	cs.style |= WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
+	cs.style &= ~WS_BORDER;
+	cs.style |= WS_CHILD | WS_CLIPCHILDREN;
+	cs.dwExStyle |= WS_EX_CONTROLPARENT;
 	return TRUE;
 }
 
 int MainView::OnCreate(LPCREATESTRUCT cs)
 {
-	if (CFormView::OnCreate(cs) < 0) return -1;
+	if (CWnd::OnCreate(cs) < 0) return -1;
 	EnableScrollBarCtrl(SB_BOTH, FALSE);
 
 	START_CREATE;
@@ -87,19 +102,17 @@ int MainView::OnCreate(LPCREATESTRUCT cs)
 
 	POPUP(mode);
 
-	#define FS(i, s)   CREATEI(fs[i-1], ID_fs##i, _T(s), rlabelStyle)
-	#define FN(i)      CREATEI( f[i-1], ID_f ##i,          editStyle)
-	FS(1, "x ="); FN(1);
-	FS(2, "y ="); FN(2);
-	FS(3, "z ="); FN(3);
-	#undef FS
+	#define FN(i) CREATEI( f[i-1], ID_f ##i, editStyle)
+	fs[0].Create(this, ID_fs1, SS_RIGHT | SS_WORDELLIPSIS); FN(1);
+	fs[1].Create(this, ID_fs2, SS_RIGHT | SS_WORDELLIPSIS); FN(2);
+	fs[2].Create(this, ID_fs3, SS_RIGHT | SS_WORDELLIPSIS); FN(3);
 	#undef FN
 	
 	f[0].OnChange = [this] { OnChangeF1(); };
 	f[1].OnChange = [this] { OnChangeF2(); };
 	f[2].OnChange = [this] { OnChangeF3(); };
 
-	LLABEL(error, "");
+	error.Create(this, ID_error, SS_WORDELLIPSIS);
 
 	plotView.Create(whatever, this, ID_plotView);
 
@@ -108,8 +121,8 @@ int MainView::OnCreate(LPCREATESTRUCT cs)
 
 void MainView::Update()
 {
-	CRect bounds; GetClientRect(bounds);
-	if (bounds.Width() < 2 || !m_pDocument) return;
+	CRect bounds; GetWindowRect(bounds);
+	if (bounds.Width() < 2) return;
 	Document &doc = GetDocument();
 	DS0;
 
@@ -216,6 +229,8 @@ void MainView::Update()
 			CString label = Convert(comp[i]); label.Append(_T(" ="));
 			fs[i].SetWindowText(label);
 			f[i].SetWindowText(Convert(graph->fn(i + 1)));
+			fs[i].bg = plotView.GetBgColor();
+			fs[i].Invalidate();
 			y += h_row;
 		}
 	}
@@ -258,19 +273,22 @@ void MainView::Update()
 		}
 		else
 		{
+			error.bg = plotView.GetBgColor();
 			MOVE(error, xmm, x1, y, h_label, h_label);
 			y += h_row + SPC;
 		}
 	}
 
-	plotView.ShowWindow(SW_SHOW);
 	plotView.MoveWindow(0, y, W, bounds.Height() - y, 0);
+	plotView.ShowWindow(SW_SHOW);
+
+	RedrawHeader();
 }
 
 void MainView::OnInitialUpdate()
 {
+	SetClassLongPtr(*this, GCLP_HBRBACKGROUND, (LONG_PTR)GetStockObject(BLACK_BRUSH));
 	Update();
-	CFormView::OnInitialUpdate();
 }
 
 CRect MainView::headerRect() const
@@ -283,21 +301,31 @@ CRect MainView::headerRect() const
 
 void MainView::RedrawHeader()
 {
+	auto c = plotView.GetBgColor();
+	for (int i = 0; i < 3; ++i)
+	{
+		fs[i].bg = c;
+		fs[i].Invalidate();
+	}
+	error.bg = c;
+	error.Invalidate();
+	domain.Invalidate();
+	coord.Invalidate();
+	mode.Invalidate();
 	InvalidateRect(headerRect());
 }
 
 BOOL MainView::OnEraseBkgnd(CDC *dc)
 {
 	CRect r = headerRect();
-	COLORREF bgc = plotView.GetBgColor();
-	CBrush bg(bgc);
-	dc->FillRect(&r, &bg);
+	CBrush bg(plotView.GetBgColor());
+	dc->FillRect(r, &bg);
 	return TRUE;
 }
 
 void MainView::OnSize(UINT type, int w, int h)
 {
-	CFormView::OnSize(type, w, h);
+	CWnd::OnSize(type, w, h);
 	EnableScrollBarCtrl(SB_BOTH, FALSE);
 	Update();
 	plotView.Invalidate();

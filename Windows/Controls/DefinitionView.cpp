@@ -32,7 +32,8 @@ DefinitionView::DefinitionView(SideSectionDefs &parent, UserFunction &f)
 
 BOOL DefinitionView::PreCreateWindow(CREATESTRUCT &cs)
 {
-	cs.style |= WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
+	cs.style |= WS_CHILD;
+	cs.dwExStyle |= WS_EX_CONTROLPARENT | WS_EX_TRANSPARENT;
 	return CWnd::PreCreateWindow(cs);
 }
 
@@ -48,6 +49,7 @@ BOOL DefinitionView::Create(const RECT &rect, CWnd *parent, UINT ID)
 		wndcls.hCursor = theApp.LoadStandardCursor(IDC_ARROW);
 		wndcls.lpszMenuName = NULL;
 		wndcls.lpszClassName = _T("DefinitionView");
+		wndcls.hbrBackground = NULL;
 		if (!AfxRegisterClass(&wndcls)) throw std::runtime_error("AfxRegisterClass(DefinitionView) failed");
 		init = true;
 	}

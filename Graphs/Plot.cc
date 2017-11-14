@@ -225,115 +225,122 @@ void Plot::draw(GL_RM &rm, int n_threads, bool accum_ok, bool for_animation) con
 	}
 	
 	rm.start_drawing(translate(options.aa_mode, accum_ok));
-	
-	GL_CHECK;
+	try {
 
-	glDisable(GL_DITHER);
-	glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-	glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
-	glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-	glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-	glEnable(GL_COLOR_MATERIAL);
-
-	if ((axis.type() == Axis::Box || axis.type() == Axis::Sphere) && options.fog > 1e-4)
-	{
-		glEnable(GL_FOG);
-		glFogi(GL_FOG_MODE, GL_EXP2);
-		glFogfv(GL_FOG_COLOR, axis.options.background_color.v);
-		glFogf(GL_FOG_DENSITY, (float)options.fog);
-	}
-	else
-	{
-		glDisable(GL_FOG);
-	}
-
-	GL_CHECK;
-
-	for (bool first = true; rm.draw_subframe(camera); first = false)
-	{
 		GL_CHECK;
 
-		axis.options.background_color.set_clear();
-		glClearDepth(1.0);
-		glDepthMask(GL_TRUE);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glDisable(GL_DITHER);
+		glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+		glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
+		glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+		glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+		glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+		glEnable(GL_COLOR_MATERIAL);
 
-		if (options.aa_mode == AA_Lines)
+		if ((axis.type() == Axis::Box || axis.type() == Axis::Sphere) && options.fog > 1e-4)
 		{
-			glEnable(GL_LINE_SMOOTH);
-			glEnable(GL_POINT_SMOOTH);
-			glHint (GL_LINE_SMOOTH_HINT, GL_NICEST);
-			glHint (GL_POINT_SMOOTH_HINT, GL_NICEST);
+			glEnable(GL_FOG);
+			glFogi(GL_FOG_MODE, GL_EXP2);
+			glFogfv(GL_FOG_COLOR, axis.options.background_color.v);
+			glFogf(GL_FOG_DENSITY, (float)options.fog);
 		}
 		else
 		{
-			glDisable(GL_LINE_SMOOTH);
-			glDisable(GL_POINT_SMOOTH);
+			glDisable(GL_FOG);
 		}
-		
-		switch (axis.type())
+
+		GL_CHECK;
+
+		for (bool first = true; rm.draw_subframe(camera); first = false)
 		{
-			case Axis::Rect:
+			GL_CHECK;
+
+			axis.options.background_color.set_clear();
+			glClearDepth(1.0);
+			glDepthMask(GL_TRUE);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			if (options.aa_mode == AA_Lines)
 			{
-				axis.options.light.setup(false);
-				
-				glDisable(GL_DEPTH_TEST);
-				for (GL_Graph *gl : image_graphs) gl->draw(rm);
-				
-				glEnable(GL_DEPTH_TEST); // so area graphs can self-clip
-				for (GL_Graph *gl : area_graphs)
-				{
-					glClear(GL_DEPTH_BUFFER_BIT);
-					gl->draw(rm);
-				}
-				glDisable(GL_DEPTH_TEST);
-
-				if (!axis.options.hidden) gl_axis.draw(*this);
-
-				for (GL_Graph *gl :  line_graphs) gl->draw(rm);
-				
-				break;
+				glEnable(GL_LINE_SMOOTH);
+				glEnable(GL_POINT_SMOOTH);
+				glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
+				glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
 			}
-			
-			case Axis::Box:
-			case Axis::Sphere:
+			else
 			{
-				glEnable(GL_DEPTH_TEST);
-				axis.options.light.setup(true);
-				
-				bool depth_sort = false;
-				if (first) settings.get("depthSorting", depth_sort);
-				
-				P3f view = camera.view_vector();
-				if (!options.clip.locked()) options.clip.normal(view);
-				options.clip.set(axis);
-
-				for (GL_Graph *gl : all_graphs)
-				{
-					if (depth_sort) gl->depth_sort(view);
-					gl->draw(rm);
-				}
-
-				options.clip.unset();
-				
-				if (!axis.options.hidden)
-				{
-					gl_axis.draw(*this);
-					options.clip.draw(axis);
-				}
-
-				break;
+				glDisable(GL_LINE_SMOOTH);
+				glDisable(GL_POINT_SMOOTH);
 			}
-				
-			case Axis::Invalid:
+
+			switch (axis.type())
 			{
-				break;
+				case Axis::Rect:
+				{
+					axis.options.light.setup(false);
+
+					glDisable(GL_DEPTH_TEST);
+					for (GL_Graph *gl : image_graphs) gl->draw(rm);
+
+					glEnable(GL_DEPTH_TEST); // so area graphs can self-clip
+					for (GL_Graph *gl : area_graphs)
+					{
+						glClear(GL_DEPTH_BUFFER_BIT);
+						gl->draw(rm);
+					}
+					glDisable(GL_DEPTH_TEST);
+
+					if (!axis.options.hidden) gl_axis.draw(*this);
+
+					for (GL_Graph *gl : line_graphs) gl->draw(rm);
+
+					break;
+				}
+
+				case Axis::Box:
+				case Axis::Sphere:
+				{
+					glEnable(GL_DEPTH_TEST);
+					axis.options.light.setup(true);
+
+					bool depth_sort = false;
+					if (first) settings.get("depthSorting", depth_sort);
+
+					P3f view = camera.view_vector();
+					if (!options.clip.locked()) options.clip.normal(view);
+					options.clip.set(axis);
+
+					for (GL_Graph *gl : all_graphs)
+					{
+						if (depth_sort) gl->depth_sort(view);
+						gl->draw(rm);
+					}
+
+					options.clip.unset();
+
+					if (!axis.options.hidden)
+					{
+						gl_axis.draw(*this);
+						options.clip.draw(axis);
+					}
+
+					break;
+				}
+
+				case Axis::Invalid:
+				{
+					break;
+				}
 			}
 		}
+
+		GL_CHECK;
 	}
-	
-	GL_CHECK;
+	catch (...)
+	{
+		rm.end_drawing();
+		throw;
+	}
 	rm.end_drawing();
 	GL_CHECK;
 

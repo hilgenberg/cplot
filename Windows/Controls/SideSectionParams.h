@@ -7,6 +7,7 @@ class ParameterView;
 class SideSectionParams : public SideSection
 {
 public:
+	~SideSectionParams();
 	CString headerString() override { return _T("Parameters"); }
 	CString wndClassName() override { return _T("SideSectionParams"); }
 	void Update(bool full) override;

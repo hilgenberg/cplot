@@ -16,6 +16,7 @@ public:
 	int    OnCreate(LPCREATESTRUCT cs);
 	void   OnSize(UINT type, int w, int h);
 	void   OnInitialUpdate();
+	BOOL   OnEraseBkgnd(CDC *dc);
 
 	int  height(int w) const;
 	void Update(bool full);
@@ -27,6 +28,7 @@ public:
 	void Animate(double t);
 
 private:
+	friend class SideSectionParams;
 	SideSectionParams &parent;
 	IDCarrier::OID p_id;
 

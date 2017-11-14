@@ -28,12 +28,6 @@ LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
 // Dialog
 //
 
-IDD_SIDEVIEW DIALOGEX 0, 0, 185, 202
-STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
-FONT 8, "MS Shell Dlg", 400, 0, 0x0
-BEGIN
-END
-
 IDD_MAINVIEW DIALOGEX 0, 0, 185, 93
 STYLE DS_SETFONT | DS_FIXEDSYS | WS_CHILD
 FONT 8, "MS Shell Dlg", 400, 0, 0x0
@@ -49,14 +43,6 @@ END
 #ifdef APSTUDIO_INVOKED
 GUIDELINES DESIGNINFO
 BEGIN
-    IDD_SIDEVIEW, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 178
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 195
-    END
-
     IDD_MAINVIEW, DIALOG
     BEGIN
         LEFTMARGIN, 7
@@ -73,15 +59,22 @@ END
 // AFX_DIALOG_LAYOUT
 //
 
-IDD_SIDEVIEW AFX_DIALOG_LAYOUT
-BEGIN
-    0
-END
-
 IDD_MAINVIEW AFX_DIALOG_LAYOUT
 BEGIN
     0
 END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "CPlot.ico"
+
+IDR_CPlotTYPE           ICON                    "CPlotDoc.ico"
 
 #endif    // Neutral resources
 /////////////////////////////////////////////////////////////////////////////
@@ -93,94 +86,6 @@ END
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_DEU)
 LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
 #pragma code_page(1252)
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Dialog
-//
-
-IDD_PARAMETER DIALOGEX 0, 0, 235, 118
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Parameter"
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
-BEGIN
-    EDITTEXT        IDC_PARAM_NAME,55,7,98,14,ES_AUTOHSCROLL
-    RTEXT           "Real Range:",IDC_STATIC,9,36,42,8
-    EDITTEXT        IDC_PARAM_RMIN,55,34,40,14,ES_AUTOHSCROLL
-    LTEXT           "to",IDC_STATIC,100,36,8,8
-    EDITTEXT        IDC_PARAM_RMAX,113,34,40,14,ES_AUTOHSCROLL
-    RTEXT           "Imag Range:",IDC_STATIC,9,54,42,8
-    EDITTEXT        IDC_PARAM_IMIN,55,52,40,14,ES_AUTOHSCROLL
-    LTEXT           "to",IDC_STATIC,100,54,8,8
-    EDITTEXT        IDC_PARAM_IMAX,113,52,40,14,ES_AUTOHSCROLL
-    RTEXT           "Abs Max:",IDC_STATIC,9,72,42,8
-    EDITTEXT        IDC_PARAM_ABSMAX,55,70,40,14,ES_AUTOHSCROLL
-    CONTROL         "Real",IDC_PARAM_T_REAL,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,169,8,30,10
-    CONTROL         "Complex",IDC_PARAM_T_COMPLEX,"Button",BS_AUTORADIOBUTTON,169,19,43,10
-    CONTROL         "Integer",IDC_PARAM_T_INT,"Button",BS_AUTORADIOBUTTON,169,30,40,10
-    CONTROL         "Angle",IDC_PARAM_T_ANGLE,"Button",BS_AUTORADIOBUTTON,169,41,34,10
-    CONTROL         "Unit Complex",IDC_PARAM_T_CANGLE,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,169,52,58,10
-    CONTROL         "Radians",IDC_PARAM_RADIANS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,170,73,41,10
-    DEFPUSHBUTTON   "OK",IDOK,32,97,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,94,97,50,14
-    PUSHBUTTON      "Delete",IDDELETE,156,97,50,14
-    RTEXT           "Name:",IDC_STATIC,9,9,42,8
-END
-
-IDD_DEFINITION DIALOGEX 0, 0, 235, 118
-STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
-CAPTION "Definition"
-FONT 8, "MS Shell Dlg", 400, 0, 0x1
-BEGIN
-    EDITTEXT        IDC_DEF_FORMULA,7,7,221,84,ES_AUTOHSCROLL
-    DEFPUSHBUTTON   "OK",IDOK,32,97,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,94,97,50,14
-    PUSHBUTTON      "Delete",IDDELETE,156,97,50,14
-END
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// DESIGNINFO
-//
-
-#ifdef APSTUDIO_INVOKED
-GUIDELINES DESIGNINFO
-BEGIN
-    IDD_PARAMETER, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 228
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 111
-    END
-
-    IDD_DEFINITION, DIALOG
-    BEGIN
-        LEFTMARGIN, 7
-        RIGHTMARGIN, 228
-        TOPMARGIN, 7
-        BOTTOMMARGIN, 111
-    END
-END
-#endif    // APSTUDIO_INVOKED
-
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// AFX_DIALOG_LAYOUT
-//
-
-IDD_PARAMETER AFX_DIALOG_LAYOUT
-BEGIN
-    0
-END
-
-IDD_DEFINITION AFX_DIALOG_LAYOUT
-BEGIN
-    0
-END
-
 
 #ifdef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
@@ -238,6 +143,45 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // Dialog
 //
 
+IDD_PARAMETER DIALOGEX 0, 0, 235, 118
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Parameter"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_PARAM_NAME,55,7,98,14,ES_AUTOHSCROLL
+    RTEXT           "Real Range:",IDC_STATIC,9,36,42,8
+    EDITTEXT        IDC_PARAM_RMIN,55,34,40,14,ES_AUTOHSCROLL
+    LTEXT           "to",IDC_STATIC,100,36,8,8
+    EDITTEXT        IDC_PARAM_RMAX,113,34,40,14,ES_AUTOHSCROLL
+    RTEXT           "Imag Range:",IDC_STATIC,9,54,42,8
+    EDITTEXT        IDC_PARAM_IMIN,55,52,40,14,ES_AUTOHSCROLL
+    LTEXT           "to",IDC_STATIC,100,54,8,8
+    EDITTEXT        IDC_PARAM_IMAX,113,52,40,14,ES_AUTOHSCROLL
+    RTEXT           "Abs Max:",IDC_STATIC,9,72,42,8
+    EDITTEXT        IDC_PARAM_ABSMAX,55,70,40,14,ES_AUTOHSCROLL
+    CONTROL         "Real",IDC_PARAM_T_REAL,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,169,8,30,10
+    CONTROL         "Complex",IDC_PARAM_T_COMPLEX,"Button",BS_AUTORADIOBUTTON,169,19,43,10
+    CONTROL         "Integer",IDC_PARAM_T_INT,"Button",BS_AUTORADIOBUTTON,169,30,40,10
+    CONTROL         "Angle",IDC_PARAM_T_ANGLE,"Button",BS_AUTORADIOBUTTON,169,41,34,10
+    CONTROL         "Unit Complex",IDC_PARAM_T_CANGLE,"Button",BS_AUTORADIOBUTTON | WS_TABSTOP,169,52,58,10
+    CONTROL         "Radians",IDC_PARAM_RADIANS,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,170,73,41,10
+    DEFPUSHBUTTON   "OK",IDOK,32,97,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,94,97,50,14
+    PUSHBUTTON      "Delete",IDDELETE,156,97,50,14
+    RTEXT           "Name:",IDC_STATIC,9,9,42,8
+END
+
+IDD_DEFINITION DIALOGEX 0, 0, 235, 118
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Definition"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_DEF_FORMULA,7,7,221,84,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,32,97,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,94,97,50,14
+    PUSHBUTTON      "Delete",IDDELETE,156,97,50,14
+END
+
 IDD_ABOUTBOX DIALOGEX 0, 0, 170, 62
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "About CPlot"
@@ -258,6 +202,22 @@ END
 #ifdef APSTUDIO_INVOKED
 GUIDELINES DESIGNINFO
 BEGIN
+    IDD_PARAMETER, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 228
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 111
+    END
+
+    IDD_DEFINITION, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 228
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 111
+    END
+
     IDD_ABOUTBOX, DIALOG
     BEGIN
         LEFTMARGIN, 7
@@ -274,22 +234,20 @@ END
 // AFX_DIALOG_LAYOUT
 //
 
-IDD_ABOUTBOX AFX_DIALOG_LAYOUT
+IDD_PARAMETER AFX_DIALOG_LAYOUT
 BEGIN
     0
 END
 
+IDD_DEFINITION AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
 
-/////////////////////////////////////////////////////////////////////////////
-//
-// Icon
-//
-
-// Icon with lowest ID value placed first to ensure application icon
-// remains consistent on all systems.
-IDR_MAINFRAME           ICON                    "CPlot.ico"
-
-IDR_CPlotTYPE           ICON                    "CPlotDoc.ico"
+IDD_ABOUTBOX AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
 
 
 /////////////////////////////////////////////////////////////////////////////

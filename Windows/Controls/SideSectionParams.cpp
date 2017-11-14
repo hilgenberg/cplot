@@ -16,6 +16,11 @@ enum
 	ID_header = 2000
 };
 
+SideSectionParams::~SideSectionParams()
+{
+	for (auto *d : params) delete d;
+}
+
 void SideSectionParams::OnEdit(Parameter *p)
 {
 	ParameterController pc(*this, p);

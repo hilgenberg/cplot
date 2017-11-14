@@ -18,15 +18,10 @@ BOOL SplitterWnd::PreCreateWindow(CREATESTRUCT &cs)
 	if (!CSplitterWnd::PreCreateWindow(cs)) return FALSE;
 
 	cs.style &= ~WS_BORDER;
-	cs.style |= WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
+	cs.style |= WS_CHILD;
+	cs.dwExStyle |= WS_EX_CONTROLPARENT | WS_EX_TRANSPARENT;
+
 	return TRUE;
-}
-void SplitterWnd::OnInvertTracker(const CRect &rect)
-{
-	// work around an assertion
-	ModifyStyle(WS_CLIPCHILDREN, 0);
-	CSplitterWnd::OnInvertTracker(rect);
-	ModifyStyle(0, WS_CLIPCHILDREN);
 }
 
 BOOL SplitterWnd::OnEraseBkgnd(CDC *dc)

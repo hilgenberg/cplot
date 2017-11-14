@@ -62,7 +62,7 @@ BOOL CPlotApp::InitInstance()
 		IDR_MAINFRAME,
 		RUNTIME_CLASS(Document),
 		RUNTIME_CLASS(MainWindow),
-		RUNTIME_CLASS(MainView));
+		RUNTIME_CLASS(MainForm));
 	if (!dt) return FALSE;
 	AddDocTemplate(dt);
 

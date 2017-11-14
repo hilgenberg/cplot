@@ -23,7 +23,7 @@ union BoxState
 	uint32_t all;
 };
 
-class SideView : public CFormView
+class SideView : public CScrollView
 {
 public:
 	SideView();
@@ -53,6 +53,7 @@ public:
 	void OnSize(UINT type, int w, int h);
 	void OnInitialUpdate();
 	BOOL OnMouseWheel(UINT flags, short dz, CPoint p);
+	void OnDraw(CDC *dc) override;
 
 private:
 	int  active_anims;

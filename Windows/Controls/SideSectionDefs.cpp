@@ -16,6 +16,11 @@ enum
 	ID_header = 2000
 };
 
+SideSectionDefs::~SideSectionDefs()
+{
+	for (auto *d : defs) delete d;
+}
+
 void SideSectionDefs::OnEdit(UserFunction *f)
 {
 	DefinitionController pc(*this, f);

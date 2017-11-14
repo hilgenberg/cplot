@@ -7,6 +7,7 @@ class UserFunction;
 class SideSectionDefs : public SideSection
 {
 public:
+	~SideSectionDefs();
 	CString headerString() override { return _T("Definitions"); }
 	CString wndClassName() override { return _T("SideSectionDefs"); }
 	void Update(bool full) override;

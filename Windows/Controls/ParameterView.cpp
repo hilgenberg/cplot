@@ -27,6 +27,7 @@ IMPLEMENT_DYNAMIC(ParameterView, CWnd)
 BEGIN_MESSAGE_MAP(ParameterView, CWnd)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
+	ON_WM_ERASEBKGND()
 	ON_BN_CLICKED(ID_edit,  OnEdit)
 	ON_BN_CLICKED(ID_plus,  OnPlus)
 	ON_BN_CLICKED(ID_minus, OnMinus)
@@ -40,8 +41,14 @@ ParameterView::ParameterView(SideSectionParams &parent, Parameter &param)
 
 BOOL ParameterView::PreCreateWindow(CREATESTRUCT &cs)
 {
-	cs.style |= WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
+	cs.style |= WS_CHILD;
+	cs.dwExStyle |= WS_EX_CONTROLPARENT | WS_EX_TRANSPARENT;
 	return CWnd::PreCreateWindow(cs);
+}
+
+BOOL ParameterView::OnEraseBkgnd(CDC *dc)
+{
+	return false;
 }
 
 BOOL ParameterView::Create(const RECT &rect, CWnd *parent, UINT ID)
@@ -55,6 +62,7 @@ BOOL ParameterView::Create(const RECT &rect, CWnd *parent, UINT ID)
 		wndcls.hInstance = AfxGetInstanceHandle();
 		wndcls.hCursor = theApp.LoadStandardCursor(IDC_ARROW);
 		wndcls.lpszMenuName = NULL;
+		wndcls.hbrBackground = NULL;
 		wndcls.lpszClassName = _T("ParamView");
 		if (!AfxRegisterClass(&wndcls)) throw std::runtime_error("AfxRegisterClass(ParamView) failed");
 		init = true;
@@ -128,14 +136,14 @@ void ParameterView::Update(bool full)
 	MOVE(edit, x1 - dw, x1, y, h_button, h_row);
 	y += h_row;
 
-	MOVE(eq, x0, x0+wq, y, h_label, h_row);
-	MOVE(value, x0+wq+SPC, x1 - SPC - dw, y, h_edit, h_row);
+	MOVE(eq, x0, x0 + wq, y, h_label, h_row);
+	MOVE(value, x0 + wq + SPC, x1 - SPC - dw, y, h_edit, h_row);
 
 	if (p->type() == ParameterType::Integer)
 	{
 		HIDE(delta);
 		MOVE(minus, x1 - dw, x1 - (dw + SPC) / 2, y, h_button, h_row);
-		MOVE(plus,  x1 - (dw - SPC)/2, x1, y, h_button, h_row);
+		MOVE(plus, x1 - (dw - SPC) / 2, x1, y, h_button, h_row);
 	}
 	else
 	{

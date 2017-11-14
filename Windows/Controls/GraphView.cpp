@@ -34,7 +34,8 @@ GraphView::GraphView(SideSectionGraphs &parent, Graph &g)
 
 BOOL GraphView::PreCreateWindow(CREATESTRUCT &cs)
 {
-	cs.style |= WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
+	cs.style |= WS_CHILD;
+	cs.dwExStyle |= WS_EX_CONTROLPARENT | WS_EX_TRANSPARENT;
 	return CWnd::PreCreateWindow(cs);
 }
 
@@ -50,6 +51,7 @@ BOOL GraphView::Create(const RECT &rect, CWnd *parent, UINT ID)
 		wndcls.hCursor = theApp.LoadStandardCursor(IDC_ARROW);
 		wndcls.lpszMenuName = NULL;
 		wndcls.lpszClassName = _T("GraphView");
+		wndcls.hbrBackground = NULL;
 		if (!AfxRegisterClass(&wndcls)) throw std::runtime_error("AfxRegisterClass(GraphView) failed");
 		init = true;
 	}

@@ -17,8 +17,8 @@ enum
 	ID_axis
 };
 
-IMPLEMENT_DYNCREATE(SideView, CFormView)
-BEGIN_MESSAGE_MAP(SideView, CFormView)
+IMPLEMENT_DYNCREATE(SideView, CScrollView)
+BEGIN_MESSAGE_MAP(SideView, CScrollView)
 	ON_WM_CREATE()
 	ON_WM_ERASEBKGND()
 	ON_WM_SIZE()
@@ -26,8 +26,7 @@ BEGIN_MESSAGE_MAP(SideView, CFormView)
 END_MESSAGE_MAP()
 
 SideView::SideView()
-: CFormView(IDD_SIDEVIEW)
-, active_anims(0)
+: active_anims(0)
 , update_w(-1)
 {
 }
@@ -55,13 +54,14 @@ Document &SideView::document() const
 
 BOOL SideView::PreCreateWindow(CREATESTRUCT& cs)
 {
-	if (!CFormView::PreCreateWindow(cs)) return FALSE;
+	if (!CScrollView::PreCreateWindow(cs)) return FALSE;
 
 	cs.dwExStyle |= WS_EX_CLIENTEDGE;
 	cs.style &= ~WS_BORDER;
 	cs.style &= ~WS_HSCROLL;
-	//cs.style |= WS_TABSTOP| WS_GROUP;
-	cs.style |= WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_CHILD;
+	cs.style |= WS_TABSTOP| WS_GROUP;
+	cs.style |= WS_CHILD;
+	cs.dwExStyle |= WS_EX_CONTROLPARENT;// | WS_EX_TRANSPARENT;
 
 	cs.lpszClass = AfxRegisterWndClass(CS_DBLCLKS,
 		::LoadCursor(NULL, IDC_ARROW), reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1), NULL);
@@ -71,7 +71,7 @@ BOOL SideView::PreCreateWindow(CREATESTRUCT& cs)
 
 void SideView::OnInitialUpdate()
 {
-	CFormView::OnInitialUpdate();
+	CScrollView::OnInitialUpdate();
 	UpdateAll();
 }
 
@@ -83,9 +83,13 @@ BOOL SideView::OnEraseBkgnd(CDC *dc)
 	return TRUE;
 }
 
+void SideView::OnDraw(CDC *dc)
+{
+}
+
 void SideView::OnSize(UINT type, int w, int h)
 {
-	CFormView::OnSize(type, w, h);
+	CScrollView::OnSize(type, w, h);
 
 	if (w != update_w)
 	{
@@ -138,7 +142,7 @@ void SideView::SetBoxState(BoxState b)
 
 int SideView::OnCreate(LPCREATESTRUCT cs)
 {
-	if (CFormView::OnCreate(cs) < 0) return -1;
+	if (CScrollView::OnCreate(cs) < 0) return -1;
 
 	EnableScrollBarCtrl(SB_HORZ, FALSE);
 
@@ -153,32 +157,11 @@ int SideView::OnCreate(LPCREATESTRUCT cs)
 
 void SideView::UpdateAll()
 {
-	CRect bounds; GetClientRect(bounds);
-	if (bounds.Width() < 2) return;
-	const int W = bounds.Width();
-
-	params.Width(W);
-	params.Update(true);
-
-	defs.Width(W);
-	defs.Update(true);
-
-	graphs.Width(W);
-	graphs.Update(true);
-
-	settings.Width(W);
-	settings.Update(true);
-
-	axis.Width(W);
-	axis.Update(true);
-
-	Update(false);
+	Update(true);
 }
 
 void SideView::Update(bool full)
 {
-	if (full) { UpdateAll(); return; }
-
 	CRect bounds; GetClientRect(bounds);
 	if (bounds.Width() < 2) return;
 
@@ -187,10 +170,24 @@ void SideView::Update(bool full)
 	int y = y0;
 	update_w = W;
 
+	params.Width(W);
+	params.Update(full);
 	params.Position(y);
+
+	defs.Width(W);
+	defs.Update(full);
 	defs.Position(y);
+
+	graphs.Width(W);
+	graphs.Update(full);
 	graphs.Position(y);
+
+	settings.Width(W);
+	settings.Update(full);
 	settings.Position(y);
+
+	axis.Width(W);
+	axis.Update(full);
 	axis.Position(y);
 
 	DS0;
@@ -198,7 +195,7 @@ void SideView::Update(bool full)
 	EnableScrollBarCtrl(SB_HORZ, FALSE);
 	SetScrollSizes(MM_TEXT, CSize(W, y - y0), CSize(W, bounds.Height()), CSize(h_row, h_row));
 
-	GetParent()->Invalidate(false);
+	Invalidate();
 }
 
 //---------------------------------------------------------------------------------------------

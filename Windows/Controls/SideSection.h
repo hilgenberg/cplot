@@ -10,8 +10,6 @@ class Document;
 class SideSection : public CWnd
 {
 public:
-	SideSection();
-	virtual ~SideSection() {}
 	virtual BOOL Create(SideView *parent, UINT ID);
 
 	MainWindow *window() const { return (MainWindow*)GetParentFrame(); }
@@ -28,7 +26,7 @@ public:
 	{
 		CRect r; GetWindowRect(r);
 		r.MoveToXY(0, y);
-		MoveWindow(r, true);
+		MoveWindow(r, false);
 		y += r.Height();
 	}
 	void Width(int w)

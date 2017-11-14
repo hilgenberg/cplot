@@ -7,7 +7,6 @@ BEGIN_MESSAGE_MAP(TextureControl, CWnd)
 	ON_WM_PAINT()
 	ON_WM_RBUTTONUP()
 	ON_COMMAND_RANGE(1000, 1000+IP_UNITS, OnContextItem)
-	ON_WM_ERASEBKGND()
 END_MESSAGE_MAP()
 
 TextureControl::TextureControl()
@@ -120,11 +119,6 @@ void TextureControl::SetImage(GL_Image *im_, bool force)
 
 	bmp.CreateBitmap(w, h, 1, 32, (BYTE *)buf.data());
 	Invalidate();
-}
-
-BOOL TextureControl::OnEraseBkgnd(CDC *dc)
-{
-	return FALSE;
 }
 
 void TextureControl::OnPaint()
