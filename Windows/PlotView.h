@@ -41,8 +41,6 @@ public:
 	void OnSysKeyUp  (UINT c, UINT rep, UINT flags);
 	UINT OnGetDlgCode();
 
-	enum AnimType { Linear, Saw, PingPong, Sine };
-
 private:
 	void reshape();
 	void zoom(double dy, int flags);
@@ -83,15 +81,6 @@ private:
 
 	bool nums[10]; // keys to change params 0..9 (being '1',..'9','0') held down?
 	short nums_on; // how many of them?
-
-	struct ParameterAnimation
-	{
-		double dt, t0;
-		cnum v0, v1;
-		AnimType type;
-		int reps; // -1 for forever
-	};
-	std::map<IDCarrier::OID, ParameterAnimation> panims;
 
 	typedef UINT KeySym;
 	std::map<KeySym, double> ikeys; // pressed key -> inertia

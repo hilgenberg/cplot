@@ -175,9 +175,7 @@ BOOL PlotView::OnEraseBkgnd(CDC *dc)
 
 bool PlotView::animating()
 {
-	bool anim = (document().plot.axis_type() == Axis::Invalid ||
-		arrows.all ||
-		!panims.empty() ||
+	bool anim = (document().plot.axis_type() == Axis::Invalid || arrows.all || 
 		((MainWindow*)GetParentFrame())->GetSideView().Animating());
 
 	if (anim)

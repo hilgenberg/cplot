@@ -92,6 +92,38 @@ public:
 	bool angle_in_radians() const{ assert(radians || m_type != ComplexAngle); return radians; }
 	void angle_in_radians(bool f){ if (radians != f){ radians = f; } }
 
+	struct Animation: public Serializable
+	{
+		enum Type
+		{
+			Linear,   // v0 --> v0 + (v1-v0) --> v0 + 2(v1-v0) --> ...
+			Saw,      // v0 --> v1, v0 --> v1, ...
+			PingPong, // v0 --> v1 --> v0 --> v1 --> ...
+			Sine      // PingPong with smooth reverses
+		};
+		Type type;
+
+		double t0;     // reference time, value(t0) == v0
+		double T;      // when is value(t0 + T) == v1 for the first time?
+		cnum   v0, v1; // reference values (min,max f.e. or 0, 2pi)
+		cnum   v00;    // value to reset to when animation stops
+		bool   repeat; // don't stop at v1?
+		mutable bool running;
+
+		Animation() : T(UNDEFINED) , v0(UNDEFINED), v1(UNDEFINED), repeat(true) {}
+
+		cnum operator()(double t) const;
+		operator bool() const { return running; }
+		bool match(); // try to find t0' with value(t0) == v00
+
+		virtual void save(Serializer   &s) const;
+		virtual void load(Deserializer &s);
+	};
+	Animation anim;
+	bool anim_start();  // returns false if anim contains garbage
+	void anim_stop();
+	bool animate(double t); // returns true if value changed (can be false for int params)
+
 #ifdef DEBUG
 	virtual void dump(std::ostream &o) const{ o << "Parameter " << name(); }
 #endif

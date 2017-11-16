@@ -35,6 +35,13 @@ const DWORD buttonStyle  = WS_CHILD | BS_PUSHBUTTON | WS_TABSTOP;
 #define DATA(s)       currentPopup->SetItemData(currentIdx-1, (DWORD_PTR)s)
 #define EDIT(c)       CREATE(c, editStyle)
 
+#define BUTTONLABEL(c)  CREATE(c, _T(""), WS_CHILD | BS_PUSHBUTTON | WS_TABSTOP);\
+	c.m_nFlatStyle = CMFCButton::BUTTONSTYLE_NOBORDERS;\
+	c.m_nAlignStyle = CMFCButton::ALIGN_LEFT;\
+	c.m_bDrawFocus = false
+
+
+
 #ifdef WIN10
 #define DS0 const UINT dpi = ::GetDpiForWindow(GetSafeHwnd())
 #else

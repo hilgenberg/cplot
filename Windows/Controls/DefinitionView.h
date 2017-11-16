@@ -25,8 +25,7 @@ private:
 	SideSectionDefs &parent;
 	IDCarrier::OID f_id;
 
-	CStatic     def;
-	CButton     edit;
+	CMFCButton def;
 
 	DECLARE_DYNAMIC(DefinitionView)
 	DECLARE_MESSAGE_MAP()

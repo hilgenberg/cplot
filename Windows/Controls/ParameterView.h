@@ -25,6 +25,7 @@ public:
 	void OnEdit();
 	void OnPlus();
 	void OnMinus();
+	void OnAnimate();
 	void Animate(double t);
 
 private:
@@ -32,10 +33,11 @@ private:
 	SideSectionParams &parent;
 	IDCarrier::OID p_id;
 
-	CStatic     name, eq;
+	CMFCButton  name;
+	CStatic     eq;
 	NumericEdit value;
 	DeltaSlider delta;
-	CButton     edit;
+	CButton     anim;
 	CButton     plus, minus; // for integer params
 
 	DECLARE_DYNAMIC(ParameterView)

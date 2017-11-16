@@ -1,5 +1,6 @@
 #include "Parameter.h"
 #include "Expression.h"
+#include "../../Utility/System.h"
 
 void Parameter::save(Serializer &s) const
 {
@@ -242,3 +243,139 @@ bool Parameter::value_ok(const cnum &val) const
 	assert(false); throw std::logic_error("Can't happen");
 }
 
+//--- Animation ---------------------------------------------------------------------------
+
+cnum Parameter::Animation::operator()(double t) const
+{
+	double dt = (t - t0) / T, r;
+	if (!repeat && dt > 1.0) { running = false; dt = 1.0; }
+	switch (type)
+	{
+		case Saw:      if (repeat) dt = modf(dt, &r); break;
+		case Linear:   break;
+		case PingPong: dt = modf(dt / 2.0, &r) * 2.0; if (dt > 1.0) dt = 2.0 - dt; break;
+		case Sine:     dt = (1.0 - cos(M_PI*dt)) / 2.0; break;
+	}
+	return v0 + dt * (v1 - v0);
+}
+
+void Parameter::Animation::save(Serializer &s) const
+{
+	if (s.version() < FILE_VERSION_1_11) return;
+	s.double_(T);
+	s.cnum_(v0);
+	s.cnum_(v1);
+	s.bool_(repeat);
+}
+void Parameter::Animation::load(Deserializer &s)
+{
+	if (s.version() < FILE_VERSION_1_11)
+	{
+		T = UNDEFINED;
+		v0 = v1 = UNDEFINED;
+		repeat = true;
+		return;
+	}
+
+	s.double_(T);
+	s.cnum_(v0);
+	s.cnum_(v1);
+	s.bool_(repeat);
+}
+
+bool Parameter::Animation::match()
+{
+	cnum cdt = (v00 - v0) / (v1 - v0);
+	if (!::is_real(cdt)) return false;
+	double dt = cdt.real();
+
+	if (type != Linear)
+	{
+		if (dt <      -EPSILON) return false;
+		if (dt > 1.0 + EPSILON) return false;
+		if (dt < 0.0) dt = 0.0;
+		if (dt > 1.0) dt = 1.0;
+	}
+
+	if (type == Sine)
+	{
+		dt = acos(1.0 - dt*2.0) / M_PI;
+		assert(defined(dt));
+	}
+
+	t0 -= dt * T;
+	return true;
+}
+
+bool Parameter::anim_start()
+{
+	if (anim.running) return false;
+
+	switch (type())
+	{
+		case ComplexAngle: anim.v0 = 0.0; anim.v1 = 2.0*M_PI; anim.T = 2.0; anim.type = Animation::Saw; break;
+		case Angle: anim.v0 = 0.0; anim.v1 = radians ? 2.0*M_PI : 360.0; anim.T = 2.0; anim.type = Animation::Saw; break;
+		case Integer:
+			anim.v0 = defined(m_min) ? m_min : 0.0;
+			anim.v1 = defined(m_max) ? m_max : 1.0;
+			anim.T  = 1.0;
+			anim.type = (defined(m_min) && defined(m_max)) ? Animation::PingPong : Animation::Linear;
+			break;
+		case Real:
+		case Complex:
+			anim.v0 = defined(m_min) ? m_min : 0.0;
+			anim.v1 = defined(m_max) ? m_max : 1.0;
+			anim.T = 1.0;
+			anim.type = (defined(m_min) && defined(m_max)) ? Animation::Sine : Animation::Linear;
+			break;
+	}
+	anim.repeat = true;// (defined(m_min) && defined(m_max));
+
+	if (!defined(anim.v0) || !defined(anim.v1)) return false;
+	// at least one of the reference points should be in range
+	if (!value_ok(anim.v0) && !value_ok(anim.v1)) return false;
+	if (eq(anim.v0, anim.v1)) switch (type())
+	{
+		case Angle:        anim.v1 += radians ? 2.0*M_PI : 360.0; break;
+		case ComplexAngle: anim.v1 += 2.0*M_PI; break;
+		default:           value(anim.v0); return false;
+	}
+
+	if (!defined(anim.T) || fabs(anim.T < 0.001)) return false;
+
+	if (anim.T < 0.0)
+	{
+		anim.T *= -1.0;
+		std::swap(anim.v0, anim.v1);
+	}
+
+	anim.v00 = value();
+	anim.running = true;
+	anim.t0 = now();
+	if (anim.repeat) anim.match();
+	return true;
+}
+
+void Parameter::anim_stop()
+{
+	if (anim.running)
+	{
+		// reset to original value iff user hit the stop button
+		value(anim.v00);
+		anim.running = false;
+	}
+}
+
+bool Parameter::animate(double t)
+{
+	cnum v0 = value();
+	if (type() == ComplexAngle)
+	{
+		rvalue(anim(t).real());
+	}
+	else
+	{
+		value(anim(t));
+	}
+	return value() != v0;
+}

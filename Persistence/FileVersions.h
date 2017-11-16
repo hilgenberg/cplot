@@ -12,6 +12,7 @@
 #define FILE_VERSION_1_8  0x00010008U
 #define FILE_VERSION_1_9  0x00010009U
 #define FILE_VERSION_1_10 0x0001000AU
+#define FILE_VERSION_1_11 0x0001000BU
 #define CURRENT_VERSION  FILE_VERSION_1_10
 
 inline const char *version_string(unsigned v)

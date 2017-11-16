@@ -14,15 +14,14 @@
 
 enum
 {
-	ID_def = 2000,
-	ID_edit
+	ID_def = 2000
 };
 
 IMPLEMENT_DYNAMIC(DefinitionView, CWnd)
 BEGIN_MESSAGE_MAP(DefinitionView, CWnd)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
-	ON_BN_CLICKED(ID_edit, OnEdit)
+	ON_BN_CLICKED(ID_def, OnEdit)
 END_MESSAGE_MAP()
 
 DefinitionView::DefinitionView(SideSectionDefs &parent, UserFunction &f)
@@ -63,10 +62,8 @@ int DefinitionView::OnCreate(LPCREATESTRUCT cs)
 	EnableScrollBarCtrl(SB_BOTH, FALSE);
 
 	START_CREATE;
+	BUTTONLABEL(def);
 
-	LLABEL(def, "p"); // proper text is set in Update()
-	BUTTON(edit, "...");
-	edit.SetButtonStyle(BS_VCENTER | BS_CENTER | BS_FLAT, 0);
 	return 0;
 }
 
@@ -95,10 +92,9 @@ void DefinitionView::Update(bool full)
 	const int dw = DS(20); // edit width
 	int y = 0; // y for next control
 
-	const int h_label = DS(14), h_button = DS(20), h_row = DS(22);
+	const int h_button = DS(20), h_row = DS(22);
 
-	MOVE(def, x0, x1 - SPC - dw, y, h_label, h_row);
-	MOVE(edit, x1 - dw, x1, y, h_button, h_row);
+	MOVE(def, x0, x1, y, h_button, h_button);
 }
 
 void DefinitionView::OnInitialUpdate()

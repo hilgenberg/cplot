@@ -65,13 +65,7 @@ int GraphView::OnCreate(LPCREATESTRUCT cs)
 	EnableScrollBarCtrl(SB_BOTH, FALSE);
 
 	START_CREATE;
-
-	desc.Create(_T(""), WS_CHILD | BS_PUSHBUTTON, whatever, this, ID_desc);
-	desc.SetFont(&controlFont());
-	desc.m_nFlatStyle = CMFCButton::BUTTONSTYLE_NOBORDERS;
-	desc.m_bDrawFocus = false;
-	desc.m_nAlignStyle = CMFCButton::ALIGN_LEFT;
-	
+	BUTTONLABEL(desc);
 	CHECK(visible, "");
 	return 0;
 }

@@ -1,4 +1,4 @@
-#include "../stdafx.h"
+﻿#include "../stdafx.h"
 #include "ParameterView.h"
 #include "../Document.h"
 #include "../res/resource.h"
@@ -18,7 +18,7 @@ enum
 	ID_eq,
 	ID_value,
 	ID_delta,
-	ID_edit,
+	ID_anim,
 	ID_plus,
 	ID_minus
 };
@@ -28,10 +28,10 @@ BEGIN_MESSAGE_MAP(ParameterView, CWnd)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
 	ON_WM_ERASEBKGND()
-	ON_BN_CLICKED(ID_edit,  OnEdit)
+	ON_BN_CLICKED(ID_name, OnEdit)
 	ON_BN_CLICKED(ID_plus,  OnPlus)
 	ON_BN_CLICKED(ID_minus, OnMinus)
-	//ON_LBN_DBLCLK(ID_name, OnEdit)
+	ON_BN_CLICKED(ID_anim,  OnAnimate)
 END_MESSAGE_MAP()
 
 ParameterView::ParameterView(SideSectionParams &parent, Parameter &param)
@@ -77,12 +77,11 @@ int ParameterView::OnCreate(LPCREATESTRUCT cs)
 	EnableScrollBarCtrl(SB_BOTH, FALSE);
 
 	START_CREATE;
-
-	LLABEL(name, "p"); // proper name is set in Update()
+	BUTTONLABEL(name);
 	LABEL(eq, "=");
 	EDIT(value); value.OnChange = [this]() { OnValueChange(); };
 	CREATE(delta, deltaStyle); delta.stateChange = [this](bool a) { parent.parent().AnimStateChanged(a); };
-	BUTTON(edit, "..."); edit.SetButtonStyle(BS_VCENTER | BS_CENTER | BS_FLAT, 0);
+	BUTTON(anim, "anim"); anim.SetButtonStyle(BS_VCENTER | BS_CENTER | BS_FLAT, 0);
 	BUTTON(plus,  "+"); plus. SetButtonStyle(BS_VCENTER | BS_CENTER | BS_FLAT, 0);
 	BUTTON(minus, "-"); minus.SetButtonStyle(BS_VCENTER | BS_CENTER | BS_FLAT, 0);
 	return 0;
@@ -116,6 +115,19 @@ void ParameterView::Update(bool full)
 		value.SetComplex(p->value());
 	}
 
+	if (p->anim)
+	{
+		anim.SetWindowText(_T("■"));
+		plus.EnableWindow(false);
+		minus.EnableWindow(false);
+		delta.EnableWindow(false);
+	}
+	else
+	{
+		anim.SetWindowText(_T("►"));
+		delta.EnableWindow(true);
+	}
+
 	if (!full) return;
 
 	CRect bounds; GetClientRect(bounds);
@@ -132,8 +144,8 @@ void ParameterView::Update(bool full)
 
 	const int h_label = DS(14), h_edit = DS(20), h_delta = DS(20), h_button = DS(20), h_row = DS(22);
 
-	MOVE(name, x0 + wq + SPC + DS(2), x1 - SPC - dw, y, h_label, h_row);
-	MOVE(edit, x1 - dw, x1, y, h_button, h_row);
+	MOVE(name, x0 + wq + SPC + DS(2), x1 - SPC - dw, y, h_button, h_row);
+	MOVE(anim, x1 - dw, x1, y, h_button, h_row);
 	y += h_row;
 
 	MOVE(eq, x0, x0 + wq, y, h_label, h_row);
@@ -184,25 +196,61 @@ void ParameterView::OnValueChange()
 void ParameterView::OnEdit()
 {
 	Parameter *p = parameter(); if (!p) return;
+	if (p->anim)
+	{
+		p->anim_stop();
+		parent.parent().AnimStateChanged(false);
+		Update(false);
+	}
 	parent.OnEdit(p);
+}
+
+void ParameterView::OnAnimate()
+{
+	Parameter *p = parameter(); if (!p) return;
+	if (p->anim)
+	{
+		p->anim_stop();
+		parent.parent().AnimStateChanged(false);
+	}
+	else if (p->anim_start())
+	{
+		parent.parent().AnimStateChanged(true);
+	}
+	Update(false);
 }
 
 void ParameterView::Animate(double t)
 {
-	double dx = delta.evolve(t);
-	if (!dx) return;
+	double dx = delta.evolve(t); // always do this for slideback
 
 	Parameter *p = parameter(); if (!p) return;
-
-	dx *= 0.1;
-	switch (p->type())
+	
+	if (p->anim)
 	{
-		case Real: p->rvalue(p->rvalue() + dx); break;
-		case Complex: p->value(p->value() + dx); break;
-		case Angle:p->rvalue(p->rvalue() + dx); break;
-		case ComplexAngle:p->rvalue(p->rvalue() + dx); break;
-		case Integer: assert(false); return;
+		bool changed = p->animate(t);
+		if (!p->anim)
+		{
+			parent.parent().AnimStateChanged(false);
+			Update(false);
+		}
+		if (!changed) return;
 	}
+	else
+	{
+		if (!dx) return;
+
+		dx *= 0.1;
+		switch (p->type())
+		{
+			case Real: p->rvalue(p->rvalue() + dx); break;
+			case Complex: p->value(p->value() + dx); break;
+			case Angle:p->rvalue(p->rvalue() + dx); break;
+			case ComplexAngle:p->rvalue(p->rvalue() + dx); break;
+			case Integer: assert(false); return;
+		}
+	}
+
 	if (p->is_real())
 	{
 		value.SetDouble(p->rvalue());
