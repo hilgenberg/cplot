@@ -16,6 +16,9 @@ public:
 	void OnViewProperties();
 	void OnUpdateViewProperties(CCmdUI *mi);
 
+private:
+	ULONG_PTR gdiplusToken;
+
 	DECLARE_MESSAGE_MAP()
 };
 

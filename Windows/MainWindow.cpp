@@ -33,7 +33,7 @@ BOOL MainWindow::OnCmdMsg(UINT id, int code, void *extra, AFX_CMDHANDLERINFO *ha
 		if (v->OnCmdMsg(id, code, extra, handler))
 			return true;
 		CWnd *w = v->GetFocus();
-		if (w && w->OnCmdMsg(id, code, extra, handler))
+		if (w && w != this && w->OnCmdMsg(id, code, extra, handler))
 			return true;
 	}
 	
@@ -56,9 +56,8 @@ int MainWindow::OnCreate(LPCREATESTRUCT cs)
 
 BOOL MainWindow::OnCreateClient(LPCREATESTRUCT cs, CCreateContext *ctx)
 {
-	if (!CFrameWnd::OnCreateClient(cs, ctx)) return false;
-
 	doc = (Document*)ctx->m_pCurrentDoc;
+	if (!CFrameWnd::OnCreateClient(cs, ctx)) return false;
 
 	MainForm *v = (MainForm*)GetDlgItem(AFX_IDW_PANE_FIRST);
 	splitter = &v->splitter;

@@ -222,8 +222,9 @@ void GL_Axis::draw2D() const
 		glEnd();
 		
 		// draw labels
-		
+		#ifndef _WINDOWS
 		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+		#endif
 		
 		GL_Font font(axis.options.label_font);
 		font.color = caxis;

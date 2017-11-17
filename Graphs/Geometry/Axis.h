@@ -12,8 +12,14 @@
 struct AxisOptions : public Serializable
 {
 	AxisOptions()
-	: axis_color(0.25f, 0.5f, 0.85f), background_color(1.0f, 0.0f), label_font("Lucida Grande", 9.0),
-	  hidden(false), axis_grid(AG_Cartesian)
+	: axis_color(0.25f, 0.5f, 0.85f)
+	, background_color(1.0f, 0.0f)
+	#ifdef _WINDOWS
+	, label_font("Lucida Console", 9.0)
+	#else
+	, label_font("Lucida Grande", 9.0)
+	#endif
+	, hidden(false), axis_grid(AG_Cartesian)
 	{ }
 	
 	virtual void save(Serializer   &s) const;

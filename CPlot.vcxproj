@@ -371,6 +371,7 @@
     <ClInclude Include="Windows\Util\DropHandler.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Graphs\OpenGL\GL_String.cc" />
     <ClCompile Include="Windows\Controls\DefinitionView.cpp" />
     <ClCompile Include="Windows\Controls\GraphView.cpp" />
     <ClCompile Include="Windows\Controls\SideSection.cpp" />
@@ -464,7 +465,6 @@
     <ClCompile Include="Graphs\OpenGL\GL_Mask.cc" />
     <ClCompile Include="Graphs\OpenGL\GL_Mesh.cc" />
     <ClCompile Include="Graphs\OpenGL\GL_RM.cc" />
-    <ClCompile Include="Graphs\OpenGL\GL_String.cpp" />
     <ClCompile Include="Graphs\OpenGL\GL_StringCache.cc" />
     <ClCompile Include="Graphs\OpenGL\GL_Util.cc" />
     <ClCompile Include="Graphs\Plot.cc" />

@@ -31,6 +31,6 @@ public:
 private:
 	GL_Context context; // context that contains the texture
 	GLuint     texName;
-	int        tex_w, tex_h;     // size of the texture
+	GLfloat    tex_w, tex_h;     // size of the texture
 	float      frame_w, frame_h; // size of the string
 };

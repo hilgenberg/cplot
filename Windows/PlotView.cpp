@@ -63,7 +63,10 @@ PlotView::~PlotView()
 
 Document &PlotView::document() const
 {
-	return *((MainWindow*)GetParentFrame())->doc;
+	MainWindow *w = (MainWindow*)GetParentFrame();
+	assert(w);
+	assert(w->doc);
+	return *w->doc;
 }
 
 UINT PlotView::OnGetDlgCode()

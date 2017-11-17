@@ -692,9 +692,6 @@
     <ClCompile Include="Graphs\Threading\ThreadMap.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Graphs\OpenGL\GL_String.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Windows\Conversions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -741,6 +738,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Windows\Util\DropHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphs\OpenGL\GL_String.cc">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -30,6 +30,10 @@ CPlotApp::CPlotApp()
 
 BOOL CPlotApp::InitInstance()
 {
+	Gdiplus::GdiplusStartupInput input;
+	if (GdiplusStartup(&gdiplusToken, &input, NULL) != 0)
+		return false;
+
 	INITCOMMONCONTROLSEX InitCtrls;
 	InitCtrls.dwSize = sizeof(InitCtrls);
 	InitCtrls.dwICC = ICC_WIN95_CLASSES;
@@ -82,6 +86,7 @@ BOOL CPlotApp::InitInstance()
 int CPlotApp::ExitInstance()
 {
 	AfxOleTerm(FALSE);
+	Gdiplus::GdiplusShutdown(gdiplusToken);
 
 	return CWinAppEx::ExitInstance();
 }

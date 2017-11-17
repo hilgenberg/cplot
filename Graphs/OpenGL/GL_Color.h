@@ -3,6 +3,9 @@
 #include <ostream>
 #include <string>
 #include <map>
+#ifdef _WINDOWS
+#include <GdiPlus.h>
+#endif
 
 struct GL_Color : public Serializable
 {
@@ -25,6 +28,12 @@ struct GL_Color : public Serializable
 	
 	#ifdef _WINDOWS
 	operator COLORREF() const { return RGB(int(r*255.0f), int(g*255.0f), int(b*255.0f)); }
+	
+	Gdiplus::Color convert() const
+	{
+		return Gdiplus::Color(int(a*255.0f), int(r*255.0f), int(g*255.0f), int(b*255.0f));
+	}
+	
 	GL_Color &operator= (COLORREF c)
 	{
 		r = GetRValue(c) / 255.0f;
