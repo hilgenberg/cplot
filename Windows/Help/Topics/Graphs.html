@@ -1,0 +1,152 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<title>Graph Types</title>
+		<link href="../help.css" rel="stylesheet" media="all" type="text/css" />
+	</head>
+	
+	<body>
+		<h1>Overview of Graph Types</h1>
+		<p>At the top of every plot window there are three popup buttons that set the type of the currently selected
+		graph. Firstly the preimage and image spaces (which maps to a non-empty cell in the table below), then the
+		coordinate system and thirdly the visualization/projection mode, which is described below.</p>
+		<table>
+			<tr>
+				<th class="origin" colspan="2"></th><th colspan="4">To</th>
+			</tr>
+			<tr>
+				<th class="origin" colspan="2"></th><td>ℂ</td><td>ℝ</td><td>ℝ²</td><td>ℝ³</td>
+			</tr>
+			<tr>
+				<th rowspan="6">F<br/>r<br/>o<br/>m</th><td>ℂ</td>
+				<td style="max-width:15em">Re, Im, Abs, Phase, Image, Riemann-Image, Color, Riemann-Color, Histogram</td><td>-</td><td>-</td><td>-</td>
+			</tr>
+			<tr>
+				<td>ℝ</td>
+				<td>-</td><td>Graph</td><td>Parametric</td><td>Parametric</td>
+			</tr>
+			<tr>
+				<td>ℝ²</td>
+				<td>-</td><td>Graph, Implicit</td><td>Image, Vectorfield, Color</td><td>Parametric</td>
+			</tr>
+			<tr>
+				<td>ℝ³</td>
+				<td>-</td><td>Implicit</td><td>-</td><td>Vectorfield</td>
+			</tr>
+			<tr>
+				<td>S¹</td>
+				<td>-</td><td>-</td><td>Parametric</td><td>Parametric</td>
+			</tr>
+			<tr>
+				<td>S¹&nbsp;×&nbsp;S¹</td>
+				<td>-</td><td>-</td><td>-</td><td>Parametric</td>
+			</tr>
+		</table>
+		
+		<p>Contour plots can be done by plotting sin(πf) in implicit mode (which draws contours on all integers).</p>
+		
+		<h2>Coordinates</h2>
+		<p>On ℝ² we have cartesian (x and y) and polar coordinates (r and angle φ, which is counterclockwise from the positive real axis).
+		On ℝ³ we have cartesian (x,y,z), spherical (r, φ, θ) and cylindrical coordinates (r, φ, z).</p>
+		<p>CPlot follows these conventions: In spherical coordinates φ is the counterclockwise angle between the point
+		projected into the XY-plane and the positive real axis, θ is the angle between the Z-axis and the line from 0
+		to the point in question (when θ = π/2, r and φ are the same as polar in ℝ²).</p>
+		<p>For cylindrical coordinates: r is the distance from the point to the Z-axis, φ the angle between the point
+		projected into the XY-plane and the positive real axis, and z the z-coordinate of the point. For z=0, this is
+		the same as polar again.</p>
+		<div class="figures">
+		<div class="figure" style="width:17em"><img width="200" src="../Media/Spherical.png" alt=""/><p>Spherical coordinates</p></div>
+		</div>
+		
+		<h2>Real-Valued Functions</h2>
+		<p>CPlot draws the two most common real graph types: Line graphs for functions ℝ&nbsp;→&nbsp;ℝ and surface graphs for ℝ²&nbsp;→&nbsp;ℝ.
+		To draw these, select ℝ&nbsp;→&nbsp;ℝ or ℝ²&nbsp;→&nbsp;ℝ from the first dropdown box.</p>
+		<p>Variable names on ℝ²: x, y, r&nbsp;=&nbsp;√(x²+y²), phi&nbsp;=&nbsp;arg(x+iy).</p>
+		<p>Variable names on ℝ: x, y&nbsp;=&nbsp;0, r&nbsp;=&nbsp;|x|, t&nbsp;=&nbsp;x.</p>
+		<p>For consistency with the other modes there is also u&nbsp;=&nbsp;x, v&nbsp;=&nbsp;y, z&nbsp;=&nbsp;x on ℝ (for switching between real and complex types), z&nbsp;=&nbsp;0 on ℝ² (for switching between ℝ, ℝ² and ℝ³). All of these automatic variables can be overridden by parameters and zero-ary functions with the same name (for all graph types).</p>
+		<div class="figures">
+		<div class="figure"><img src="../Media/Graph1.png" alt=""/><p>ℝ → ℝ</p></div>
+		<div class="figure"><img src="../Media/Graph2.png" alt=""/><p>ℝ² → ℝ</p></div>
+		</div>
+		
+		<p>On ℝ² and ℝ³ CPlot can draw the zero set {x ∈ ℝⁿ | f(x) = 0}, also known as isosurface, level set or implicit function graph.</p>
+		<p>Variable names on ℝ³ are: x, y, z, r&nbsp;=&nbsp;√(x²+y²+z²), phi, theta (spherical coordinates) and again u&nbsp;=&nbsp;x, v&nbsp;=&nbsp;y.</p>
+		<p>In the points display mode, this draws points where f(x,y,z)&nbsp;≤&nbsp;0.</p>
+		<div class="figures">
+		<div class="figure"><img src="../Media/Implicit.png" alt=""/><p>x⁴+y⁴+z⁴ - (x²+y²+z²) = -0.42</p></div>
+		<div class="figure"><img src="../Media/Implicit2d.png" alt=""/><p>x⁴+y⁴ - (x²+y²) = -0.28</p></div>
+		</div>
+		
+		<h2>Complex Functions</h2>
+		<p>The graph of a complex function can either be projected from the 4-dimensional space ℂ² down into ℂ&nbsp;×&nbsp;ℝ, which is what
+		the Real Part, Imaginary Part, Absolute Value and Phase modes do, or we only plot the image, on ℂ, on the Riemann sphere or by color coding.</p>
+		<p>Variable names: z, x&nbsp;=&nbsp;re(z), y&nbsp;=&nbsp;im(z), r&nbsp;=&nbsp;abs(z), phi&nbsp;=&nbsp;arg(z) and the synonyms u&nbsp;=&nbsp;x, v&nbsp;=&nbsp;y.</p>
+		<div class="figures">
+		<div class="figure"><img src="../Media/Complex1.png" alt=""/><p>Imaginary part of Γ(z)</p></div>
+		<div class="figure"><img src="../Media/Complex2.png" alt=""/><p>Riemann image of the pole of 1/z²</p></div>
+		<div class="figure"><img src="../Media/ImageMode.png" alt=""/><p>Image mode for exp(z), using texture</p></div>
+		<div class="figure"><img src="../Media/Histogram.png" alt=""/><p>Riemann-Histogram for z+2</p></div>
+		</div>
+
+		<p>Histograms take some number (controlled by the quality setting) of random points, map them to f(z) and approximate the resulting probability distribution by splitting ℂ into bins (size controlled by the grid setting) and counting how many values get mapped into each bin. The volume of each bar then shows the approximate probability density at that point. In <a href="Settings.html">points</a> mode it just plots the mapped points,  so the density of the points in some area is related to the volume of the matching histogram bar. Three source distributions are available:</p>
+		<ol>
+			<li>The uniform distribution on the Riemann sphere, which can be useful for figuring out how some function operates on the sphere.</li>
+			<li>The uniform distribution on a disc around 0 with an arbitrary radius. The center can be shifted by plotting f(z+center).</li>
+			<li>The complex normal distribution with µ=0 and arbitrary σ.</li>
+		</ol>
+
+		<p>The color modes assign a color value to every point in the complex plane and draw the point at z with the color at f(z). There are four ways of assigning the color:</p>
+		<ol>
+			<li>Tiled mode scales the current texture proportionally so that its width covers [0,1] and tiles the plane with copies of the scaled texture (the corners of four copies meet at 0). This shows how fast the function changes (the smaller the image, the faster f changes), where it takes the values n + iℝ and ℝ + i n h<sub>texture</sub>/w<sub>texture</sub> (where the seams are), where it does and does not flip the orientation, and conformality is somewhat visible.</li>
+			<li>Centered scales the texture proportionally so that its width covers [-1,1] and the center maps to 0. Points outside the texture will become transparent.</li>
+			<li>Riemann mode takes the largest centered disc in the texture, scales it onto the unit disc, maps that onto the Riemann sphere so that 0 becomes the north pole, the entire outside boundary becomes infinity and the circle with radius 1/2 becomes the image of S¹ (π times radius becomes the spherical distance from the north pole). This shows how often f takes every value (number of copies of that texture part) and f(z) is directly visible in the image (depending very much on the texture). There are two specialized builtin textures for this mode: Phase and Units (in the context menu of the texture control).</li>
+			<li>Spherical (a.k.a. equirectangular or direct polar) is similar to Riemann but uses the texture's x and y coordinates as spherical coordinates. This maps the entire top border to 0, the bottom border to complex infinity, the left and right borders to [-∞, 0], and the center of the texure to +1.</li>
+		</ol>
+		<p>The difference between the image and color modes is that image mode draws points at f(z) with the color at z, while color mode draws points at z with the color at f(z).</p>
+		<div class="figures">
+		<div class="figure"><img src="../Media/Color_Tiled.png" alt=""/><p>Color mode with tiled texture</p></div>
+		<div class="figure"><img src="../Media/Color_Riemann.png" alt=""/><p>The same function with phase texture in Riemann mode</p></div>
+		</div>
+		
+		<h2>Parametric Functions</h2>
+		<p>These are the images of functions from {ℝ, S¹, ℝ² or S¹&nbsp;×&nbsp;S¹} to {ℝ² or ℝ³}. All preceding plot modes are special cases of these.
+		In the S¹ modes, the variables x and y will have values in [0,&nbsp;2π], where f(0) and f(2π) will be glued together. In the other modes they can
+		be set to any interval (on the left of the window, under "Axis").</p>
+		<p>Variable names: x and y a.k.a. u and v. r, phi and z as for graphs. y will be 0 on ℝ and S¹. For functions on ℝ or S¹ there is also t as synonym
+		for x as long as t is not used as a parameter or function name.</p>
+		<div class="figures">
+		<div class="figure"><img src="../Media/Parametric1.png" alt="" style="border:2px solid #ccc"/><p>Logarithmic spiral</p></div>
+		<div class="figure"><img src="../Media/Parametric2.png" alt=""/><p>"Spherical Product" from the gallery</p></div>
+		</div>
+		
+		<h2>Vector Fields</h2>
+		<p>Functions from ℝ²&nbsp;→&nbsp;ℝ² or ℝ³&nbsp;→&nbsp;ℝ³ can be plotted as vector fields, which have four scaling modes:</p>
+		<ol>
+			<li><em>Unscaled</em>: Draws the vectors in the axis scale.</li>
+			<li><em>Normalized</em>: Scales it so that the largest visible vector has about the same length as the grid width.</li>
+			<li><em>Direction Only</em>: Draws all vectors with the same length, again about grid width long.</li>
+			<li><em>Connected</em>: Draws connected field lines. It scales the vectors like <em>Normalized</em> does.</li>
+		</ol>
+		<p>Variable names: x, y, z. Also u, v, r (&nbsp;=&nbsp;√(x²+y²+z²) on ℝ³), phi, theta (on ℝ³) and z&nbsp;=&nbsp;0 on ℝ² as usual.</p>
+		<p>&nbsp;</p>
+		<div class="figures">
+		<div class="figure"><img src="../Media/Vectorfield1.png" alt=""/><p>2D vector field</p></div>
+		<div class="figure"><img src="../Media/Vectorfield2.png" alt=""/><p>3D vector field</p></div>
+		<div class="figure"><img src="../Media/GammaPhaseField.png" alt=""/><p>Phase of Gamma(z) as vector field</p></div>
+		</div>
+
+		<h1>Plotting More Than One Function</h1>
+		<p>There are three axis types: 2D, 3D and the Riemann sphere. Combining 2D and 3D yields a 3D plot where the 2D graphs are embedded in the XY-plane,
+		except for ℝ&nbsp;→&nbsp;ℝ graphs, which get embedded in XZ. For different embeddings, parametric modes like ℝ&nbsp;→&nbsp;ℝ³ can be used.</p>
+		<p>Combining the sphere mode with anything else gives an error ("Axis type mismatch").</p>
+		<p>Graphs can be added and removed with the +/- buttons of the "Graphs" box in the left hand side of the window. The list entries work like radio
+		buttons in that exactly one of them is always selected (written in bold), which is the current graph whose definition and settings can be
+		modified.</p>
+		<p>Graphs can be hidden and unhidden with the checkboxes in the graphs list.</p>
+		<div class="figures">
+		<div class="figure"><img src="../Media/MultiLine.png" alt=""/><p>sin and cos</p></div>
+		<div class="figure"><img src="../Media/MultiArea.png" alt=""/><p>Real parts of complex sin and cos</p></div>
+		</div>
+	</body>
+</html>

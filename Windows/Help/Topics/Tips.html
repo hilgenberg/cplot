@@ -1,0 +1,25 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<title>Tips and Tricks</title>
+		<link href="../help.css" rel="stylesheet" media="all" type="text/css" />
+	</head>
+	<body>
+		<h2>Tips and Tricks</h2>
+		<ul>
+			<li>Almost all text fields parse formulas (which can include user-defined parameters and definitions).</li>
+			<li>Setting unused textures to any of the builtin textures saves smaller files (saves only a 4-byte ID, not the image data).</li>
+			<li>The highest quality setting is almost always overkill (it draws up to 1,000,000 triangles) and should be avoided if you want smooth
+			parameter animation.</li>
+			<li>Complex values in real plot modes are considered undefined. If imprecisions yield imaginary parts in functions that
+			should be real, plotting re(f) instead can help.</li>
+			<li>Adding a real parameter t and plotting cblend(z, f(z), t) makes t animate between the identity and f. This can be helpful in understanding
+			how f works. Especially in image mode.</li>
+			<li>To visualize a set of the form {(x,y)&nbsp;with&nbsp;f(x,y)&nbsp;>&nbsp;0} plot "f(x,y)&nbsp;>&nbsp;0" in ℝ²&nbsp;→&nbsp;ℝ graph mode.
+			More complex logical formulas can be mapped like this: For two logical values (0/1 for false/true) p and q, pq is "p and q", 1-p is "not p"
+			and 1-(1-p)(1-q) = p+q-pq is "p or q". This last one can also be written as mix(1, p, q) = q∙1 + (1-q)∙p = p+q-pq.</li>
+			<li>Real textures tend to look a lot better than the builtins. The gallery files use the builtins mainly to keep the file size down.</li>
+		</ul>
+	</body>
+</html>

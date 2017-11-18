@@ -1,0 +1,40 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<title>Preferences</title>
+		<link href="../help.css" rel="stylesheet" media="all" type="text/css" />
+	</head>
+	<body>
+		<h1>Preferences<a name="Preferences"></a></h1>
+		
+		<h2>Default Colors, Functions, Definitions, etc.</h2>
+		<p>Use File&nbsp;>&nbsp;Save&nbsp;As&nbsp;Default to set the plot that will be created by File&nbsp;>&nbsp;New. Any settings, definitions
+		and parameters are then reused from that file.</p>
+		
+		<h2>Dynamic Quality</h2>
+		<p>Normally CPlot reduces the quality of graphs as much as needed to guarantee a minimum framerate of 40 FPS. Unless this setting is
+		disabled. The downside of this being enabled is that the transient frames can be very ugly when the graph takes longer to compute.</p>
+		
+		<h2>Depth Sorting</h2>
+		<p>Most transparency modes (Multiply is the exception) require back-to-front (as defined by the current viewpoint)
+		sorted drawing to look right. This setting enables that sorting, which makes everything look much nicer, but it
+		can drop the framerate quite a bit because the sorting must be done on every redraw.</p>
+		
+		<h2>Number of Threads</h2>
+		<p>For surface graph computation. The default is to use one thread per core.</p>
+		
+		<h2>User Gallery</h2>
+		<p>Any directory containing .cplot files can be added to the Gallery menu.
+		If "Keep default gallery" is checked, the files will be inserted before the builtin gallery,
+		if unchecked, the builtin gallery will be completely replaced. Aliases are followed and folders
+		get turned into submenus.</p>
+		
+		<h2>Custom Icons</h2>
+		<p>If enabled, saved .cplot files automatically get a custom Finder icon that is an image of the contained graphs.</p>
+
+		<h2>Accumulation Buffer Antialiasing</h2>
+		<p>When enabled, there will be two new items in the "Antialiasing" popup button in the settings box: "4&nbsp;x&nbsp;Accum" and "8&nbsp;x&nbsp;Accum". These work like the regular "4&nbsp;x&nbsp;FSAA" and "8&nbsp;x&nbsp;FSAA" (i.e. they do 4x/8x fullscreen antialiasing) but they use OpenGL's accumulation buffer, which is deprecated in current versions. So this may or may not work on your graphics card&nbsp;/&nbsp;driver (you may see garbage pixels after resizing the window - in that case it does not work). However, if it does work, it will probably be a little faster than the other modes, which use FBOs. If you don't use these modes, it is better to disable this setting, because it makes every window allocate an accumulation buffer, which uses quite a bit of memory.</p>
+		<p>Changing this setting only affects newly created windows.</p>
+	</body>
+</html>

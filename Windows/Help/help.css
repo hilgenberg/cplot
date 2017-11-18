@@ -1,0 +1,103 @@
+
+body {
+	background: white;
+	font: 14px "Lucida Grande", "Lucida Sans Unicode", Verdana, Lucida, Helvetica, sans-serif;
+	margin: 30px;
+	//max-width: 60em;
+	//margin: auto;
+}
+p {
+	max-width: 50em;
+	margin: auto;
+}
+ul,ol {
+	max-width: 50em;
+	margin: auto;
+}
+table {
+	border: 0;
+	margin: 30px auto;
+	border-collapse:collapse;
+}
+td {
+	vertical-align:top;
+	border:1px solid #ccc;
+	padding: 8px 16px;
+}
+th {
+	border:1px solid #ccc;
+	padding: 4px 8px;
+	font-weight: bold;
+	margin: 30px;
+}
+th.origin
+{
+	border:0;
+	
+}
+.key {
+	font: 14px "Courier", fixed;
+	border:1px solid #ccc;
+	padding:1px 5px;
+}
+
+div.figures
+{
+	text-align: center;
+}
+div.figure
+{
+	display: inline-block;
+	padding: 0;
+	width:   35em;
+	margin:  2em 1em;
+}
+div.figure img
+{
+	display:    block;
+	margin:     auto auto 0 auto;
+	text-align: center;
+}
+div.figure p
+{
+	width:      100%;
+	text-align: center;
+	color:      #999;
+	margin-top: 1em;
+}
+.right
+{
+	float:right;
+	margin-left:2em;
+}
+
+h1 {
+	padding-bottom: 30px;
+	font-size: 26;
+	text-align: center;
+}
+
+h2 {
+	padding: 30px auto 15px;
+	font-size: 16;
+	text-align: center;
+}
+
+h3 {
+	padding: 30px auto 15px;
+	font-size: 14;
+	text-align: center;
+}
+
+a {
+	color: #3f7dd5;
+	text-decoration: none;
+}
+a:hover {
+	text-decoration: underline;
+}
+
+li {
+	margin-bottom: 6px;
+	margin-top: 6px;
+}

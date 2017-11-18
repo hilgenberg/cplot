@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<title>Release Notes</title>
+		<link href="../help.css" rel="stylesheet" media="all" type="text/css" />
+		<style type="text/css">
+			span.date { color:#ccc; font-size:60%; font-weight:normal; margin-left:1em; float:right; }
+			span.date:before { content:"released " }
+		</style>
+	</head>
+	
+	<body>
+		<h1>Release Notes<a name="ReleaseNotes"></a></h1>
+		
+		<h2>Version 1.10 <span class="date">2015-...</span></h2>
+		<ul class="menu">
+			<li>Derivatives and Taylor series (Edit menu &gt; Show&nbsp;Derivatives...)
+			<li>Overloading of functions (f(), f(x), f(x,y), and parameter f in the same namespace)</li>
+			<li>Fixes an infinite loop in the parser</li>
+			<li>Brackets and braces can be used for grouping and function calls</li>
+			<li>Fixes a bug where parameters override variables in user-defined functions</li>
+			<li>Adds binary functions and operators (and, or, xor, bit, ieee_m, ieee_e)</li>
+			<li>Adds clamp functions</li>
+			<li>Hexagon and triangle masks now stay centered as the grid changes<li>
+			<li>Menu item to display the parsing tree for the current graph (in the Edit menu)<li>
+		</ul>
+		
+		<h2>Version 1.9 <span class="date">2015-03-19</span></h2>
+		<ul class="menu">
+			<li>Equal area binning in Riemann histograms</li>
+			<li>Complex plane histograms</li>
+			<li>Improvements in the OpenGL code</li>
+			<li>Fixes reflection texture being upside-down</li>
+		</ul>
+		
+		<h2>Version 1.8 <span class="date">2015-03-14</span></h2>
+		<ul class="menu">
+			<li>New graph type: Riemann histogram</li>
+			<li>Faster computation of complex expressions</li>
+			<li>Gallery browser</li>
+			<li>Delayed loading of gallery menu for faster startup</li>
+			<li>Improved event handling for smoother animation</li>
+			<li>Documents remember collapsed state of the settings boxes</li>
+			<li>Implicit graphs on R<sup>2</sup> work again</li>
+		</ul>
+		
+		<h2>Version 1.7 <span class="date">2015-03-06</span></h2>
+		<ul class="menu">
+			<li>Graphs can be hidden by command-clicking items in the graphs list</li>
+			<li>Improved handling of multiple graphs per plot and their transparencies</li>
+			<li>Faster depth-sorting</li>
+			<li>Parameter hotkeys (pressing 1..0 + arrow keys changes parameter 1..10)</li>
+			<li>More precise arrow keys</li>
+			<li>Images can be dragged between the texture views</li>
+			<li>Dragging of input range fixed</li>
+			<li>Apply button in the definitions dialog</li>
+			<li>Custom alpha masks</li>
+			<li>Better compression of textures in .cplot files</li>
+		</ul>
+		
+		<h2>Version 1.6 <span class="date">2015-02-26</span></h2>
+		<ul class="menu">
+			<li>Color mode graphs on the Riemann sphere</li>
+			<li>Two new texturing modes for color graphs: Centered and Spherical</li>
+			<li>All texturing modes now also on R<sup>2</sup>&nbsp;&rarr;&nbsp;R<sup>2</sup> color mode</li>
+			<li>More fluid trackpad scrolling</li>
+			<li>Option to automatically check for updates</li>
+			<li>Faster drawing of textures and alpha masks</li>
+			<li>Display problems with antialiasing and textures fixed</li>
+			<li>Cleaner settings box (more inactive settings controls hidden, inactive texture controls dimmed)</li>
+			<li>Movie export sorts the parameter list alphabetically and remembers the loop mode</li>
+			<li>Fan mask updated</li>
+		</ul>
+
+		<h2>Version 1.5 <span class="date">2015-02-12</span></h2>
+		<ul class="menu">
+			<li>Movie export (MP4)</li>
+			<li>Image export (TIFF, PNG, JPG, JPG 2000, BMP)</li>
+			<li>Custom transparency modes</li>
+			<li>Subtractive transparency mode updated</li>
+			<li>Glass transparency mode added</li>
+			<li>Transparency mode button enabled for color mode graphs</li>
+			<li>Fixes handling of multiple constraints on complex parameters</li>
+			<li>Fixes description text clipping in preferences dialog</li>
+			<li>Fixes resize behaviour of error message field on main window</li>
+			<li>Adds File&nbsp;&gt;&nbsp;Duplicate menu item</li>
+		</ul>
+
+		<h2>Version 1.4 <span class="date">2015-01-31</span></h2>
+		<ul class="menu">
+			<li>Adds color modes for complex functions and R<sup>2</sup>&nbsp;&rarr;&nbsp;R<sup>2</sup></li>
+			<li>Program is now more responsive during high-quality/low-framerate animations</li>
+			<li>Adds phase and units textures</li>
+			<li>Adds hexagon mask</li>
+			<li>Minimum grid size lowered to a single tile (for alpha masks)</li>
+			<li>Fixed a crash from copying textures when adding new graphs</li>
+			<li>Fixed transparency of the axis tick marks on 2d axes</li>
+		</ul>
+		
+		<h2>Version 1.3.2 <span class="date">2015-01-22</span></h2>
+		<ul class="menu">
+			<li>Fixes an error that prevented document windows from opening on Yosemite</li>
+			<li>Adds preference to disable writing of custom icons for .cplot files</li>
+		</ul>
+		
+		<h2>Version 1.3.1 <span class="date">2013-11-11</span></h2>
+		<p>Bugfixes for OS&nbsp;X Mavericks:</p>
+		<ul class="menu">
+			<li>Gallery menu being empty</li>
+			<li>More robust OpenGL initialization</li>
+			<li>Wrong resize behaviour of reset custom clipping plane button fixed</li>
+		</ul>
+
+		<h2>Version 1.3 <span class="date">2013-11-08</span></h2>
+		<ul>
+			<li>Depth sorting (enabled in preferences)</li>
+			<li>Adds |z| syntax for abs(z)</li>
+			<li>Custom clipping plane</li>
+			<li>Implicit line graphs</li>
+			<li>New automatic variables: phi, theta</li>
+			<li>More random-functions</li>
+			<li>random redefined as real and zero-ary (was unary)</li>
+			<li>Quality setting works in point mode</li>
+			<li>Handle empty plots better</li>
+			<li>Better parsing of zero-ary functions</li>
+			<li>Enable/disable grid settings popup as needed</li>
+			<li>Handle Antialiasing=Off setting better</li>
+			<li>Fowler angle function</li>
+			<li>Improved undo</li>
+		</ul>
+		
+		<h2>Version 1.2 <span class="date">2013-11-01</span></h2>
+		<ul>
+			<li>Multithreaded line graph computation</li>
+			<li>Discontinuity detection</li>
+			<li>Create new graphs as copies of the current graph</li>
+			<li>Bessel functions: J, Y, I, K</li>
+			<li>Airy functions: Ai, Bi, Ai', Bi'</li>
+			<li>Exponential integrals: Ei, En</li>
+			<li>Modulo operator (x % y) updated</li>
+			<li>Hide the texture, grid and mask settings for line graphs and vector fields</li>
+			<li>Show error message if a user gallery file could not be opened, instead of silently failing</li>
+		</ul>
+		
+		<h2>Version 1.1 <span class="date">2013-10-27</span></h2>
+		<ul>
+			<li>Bugfixes and speed improvements for vector fields in connected mode</li>
+			<li>Added "const" function for physical constants</li>
+			<li><a href="Preferences.html">User gallery</a></li>
+			<li><a href="Functions.html#Numbers">Unicode exponents</a></li>
+			<li>Changed a&nbsp;&lt;&nbsp;b to be undefined, if a or b is not real</li>
+			<li>Added modulo operator (x % y)</li>
+			<li>Added min, max, absmin/max, realmin/max, imagmin/max</li>
+			<li>Removed rimin/max (use min/max(rez, imz) instead)</li>
+			<li>Fixed a bug where textfields did not parse parameters (a+1 = NAN f.e.)</li>
+		</ul>
+
+		<h2>Version 1.0 <span class="date">2013-10-20</span></h2>
+		<p>Initial release.</p>
+
+		<h2>Known Issues<a name = "Issues"></a></h2>
+		<p>Movie export does not set the created file to loop if needed.</p>
+		<p>Depth sorting does not sort between different graphs, so certain transparency modes still break when plotting more than one graph with transparency.</p>
+		<p>Also there are transparency settings which look good in the graph view but when they are copied, they have alpha values of zero everywhere, which
+		makes them invisible in Preview.app for instance. Taking a screenshot of the window (⇧⌘4, Space) works better in that case.</p>
+		<p>Discontinuity detection for implicit surfaces is rather bad.</p>
+		<p>Computation of the viewing angles in the axis box is not quite right (especially for psi&nbsp;=&nbsp;0).</p>
+	</body>
+</html>

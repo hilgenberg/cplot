@@ -1,0 +1,34 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<link href="../help.css" rel="stylesheet" media="all" type="text/css" />
+		<title>Parameters</title>
+	</head>
+	<body>
+		<h2>Parameter Types<a name="Parameters"></a></h2>
+		<p>CPlot supports these types of parameters:</p>
+		<ul>
+			<li>Integer, optionally with a lower and/or upper limit</li>
+			<li>Real, optionally with a lower and/or upper limit</li>
+			<li>Complex, can have limits on the real and/or imaginary parts, or a maximum on the absolute value</li>
+			<li>Angles are either real or complex:
+				<ul>
+					<li>Real radians: [0, 2π]</li>
+					<li>Real degrees: [0, 360] (use like sin(a°) in a function that uses radians).</li>
+					<li>Complex: {exp(it) for t in [0, 2π]}</li>
+				</ul>
+				The difference to real/complex is the fixed range and that they display a rotary knob instead of a slider to modifiy their value.
+			</li>
+		</ul>
+		
+		<h2>Defining and Changing Parameters</h2>
+		<p>To create: Use the + button in the Parameters box.</p>
+		<p>To edit: Click on the name. At the bottom of the dialog is also a delete button.</p>
+		<p>To set the parameter's value, use either the sliders or enter any value into the matching text field. The text field will parse any
+		entered formula but the parameter stores only the current value, so if a parameter is set to sin(a), it will not update when the value of a changes.
+		Computed parameters can be defined as <a href="Functions.html">custom functions</a> with no arguments.</p>
+		<p>In the creation/editing dialog, Min/Max define the valid range for re(parameter), iMin/iMax are for the range of im(parameter) and rMax is for
+		abs(parameter).</p>
+	</body>
+</html>

@@ -1,0 +1,119 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<link href="../help.css" rel="stylesheet" media="all" type="text/css" />
+		<title>Controls</title>
+	</head>
+	<body>
+		<h1>Controls<a name="Controls"></a></h1>
+		
+		<p>The view of a plot is controlled by three components:</p>
+		<ol>
+			<li>The axis range, which defines the coordinate system for the plotted points. It consists of two or three intervals, 
+			depending on whether the plot is 2D or 3D.</li>
+			<li>3D plots have camera settings for zoom and rotation. Zoom defines the distance from viewer to center of the axis.
+			Rotation is defined by three angles (internally it uses unit quaternions but this variation of Euler angles is more intuitive):
+				<ul>
+					<li>θ is the rotation around the Y axis, which points into the screen.</li>
+					<li>ψ is the elevation - the rotation around the X axis.</li>
+					<li>φ is the rotation around the Z axis.</li>
+				</ul>
+			</li>
+			<li>The preimage range. For graph style plots and vector fields this is locked to the axis range, but for parametric plots it is independent
+			of the axis range. For S¹ and S¹&nbsp;×&nbsp;S¹ this is always [0,2π) and [0,2π)&nbsp;×&nbsp;[0,2π).</li>
+		</ol>
+		<p>To set all of these precisely there are text fields in the "Axis" box in the inspector pane on the right of the plot window. Caveat: If you change
+		their value to a precise value (say input range to π), hitting enter will set the right value, but unfocusing the textfield sets the value again, this time to
+		the currently displayed rounded value (3.14 or such). Skip hitting enter in that case.</p>
+		<p>Graphically they can be changed via mouse or keyboard. The different
+		gestures for each device are listed below.</p>
+		
+		<h2>2D plots</h2>
+		<table>
+			<tr>
+				<th class="origin"></th><th>Axis Range</th><th>Axis Center</th>
+			</tr>
+			<tr>
+				<th>Mouse</th><td>scroll wheel</td><td>left click &amp; drag</td>
+			</tr>
+			<tr>
+				<th>Keyboard</th><td>⇧ + arrows<br/>+/- keys</td><td>←↑↓→</td>
+			</tr>
+		</table>
+		
+		<h2>Camera for 3D Plots</h2>
+		<p>There are two types of zooming:</p>
+		<ol>
+			<li>Changing the distance between camera and axis center. Done mostly by up/down motions.</li>
+			<li>Scaling the axis range. Done mostly by left/right motions (see next section).</li>
+		</ol>
+		<table>
+			<tr>
+				<th class="origin"></th><th>Zoom</th><th>Rotation</th>
+			</tr>
+			<tr>
+				<th>Mouse</th><td>scroll wheel</td><td>left click &amp; drag</td>
+			</tr>
+			<tr>
+				<th>Keyboard</th><td>⇧ + ↑/↓<br/>+/- keys</td><td>←↑↓→</td>
+			</tr>
+		</table>
+		
+		<h2>Axis Range and Center for 3D Plots</h2>
+		<table>
+			<tr>
+				<th class="origin"></th><th>Axis Range</th><th>Axis Center</th>
+			</tr>
+			<tr>
+				<th>Mouse</th><td>TODO</td><td>right button drag</td>
+			</tr>
+			<tr>
+				<th>Keyboard</th><td>⇧ + ←/→</td><td>TODO</td>
+			</tr>
+		</table>
+		
+		<h2>Preimage Range and Center</h2>
+		<p>This has an effect only for image modes and parametric plots on ℝ and ℝ² (parametrics on S¹ and S¹ × S¹ always use the full range).</p>
+		<table>
+			<tr>
+				<th class="origin"></th><th>Range</th><th>Center</th>
+			</tr>
+			<tr>
+				<th>Mouse</th><td>TODO</td><td>wheel button drag</td>
+			</tr>
+			<tr>
+				<th>Keyboard</th><td>TODO</td><td>TODO</td>
+			</tr>
+		</table>
+		
+		<h2>Other Hotkeys</h2>
+		<p>These work when the plot view has focus:</p>
+		<ul>
+			<li><span class="key">a</span> toggle axis drawing</li>
+			<li><span class="key">c</span> toggle clipping</li>
+			<li><span class="key">C</span> toggle custom clipping plane</li>
+			<li><span class="key">l</span> toggle ccp locking</li>
+			<li><span class="key">L</span> reset ccp to view</li>
+			<li><span class="key">d</span> toggle discontinuity detection</li>
+			<li><span class="key">g</span> toggle grid</li>
+			<!--li><span class="key">v</span>/<span class="key">V</span> cycle through the vector field scaling modes</li-->
+			<!--li><span class="key">t</span>/<span class="key">T</span> cycle through texturing modes</li-->
+
+			<li><span class="key">u</span>/<span class="key">U</span> view from the top/bottom (towards -Z/+Z)</li>
+			<li><span class="key">f</span>/<span class="key">F</span> view from the front/back (towards +Y/-Y)</li>
+			<li><span class="key">r</span>/<span class="key">R</span> view from the right/left (towards -X/+X)</li>
+
+			<li><span class="key">z</span> set axis center to zero</li>
+			<li><span class="key">e</span> make X,Y,Z axis ranges equal (to the maximum of the three)</li>
+
+			<!--li><span class="key">^L</span> switch focus to the function text field</li>
+			<li><span class="key">^G</span> switch focus to the graph view</li>
+			
+			<li><span class="key">1</span>..<span class="key">0</span> + arrow keys change parameters 1..10</li>
+
+			<!-- ⌃⌥⇧⌘ -->
+		</ul>
+		
+	</body>
+</html>

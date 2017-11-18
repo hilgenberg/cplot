@@ -1,0 +1,270 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<title>Functions</title>
+	<link href="../help.css" rel="stylesheet" media="all" type="text/css" />
+	<style type="text/css">
+		.x {
+			display: inline-block;
+			border: 1px solid #ccc;
+			padding: 2px;
+		}
+	</style>
+</head>
+
+<body>
+	<h2>Builtin Functions</h2>
+	<h3>Constants</h3>
+	<table>
+		<tr><td>pi, π</td><td>Smallest positive zero of sin(x).</td></tr>
+		<tr><td>e</td><td>Euler's number</td></tr>
+		<tr><td>eulergamma</td><td>Euler-Mascheroni constant</td></tr>
+		<tr><td>i</td><td>Imaginary unit: i² = -1, i = (0,1) in the canonical ℂ ≅ ℝ² identification</td></tr>
+		<tr><td>°</td><td>π/180, so 360° = 360∙° = 2π</td></tr>
+		<tr><td>NAN</td><td>Undefined value. f(NAN) = NAN.</td></tr>
+		<tr>
+			<td>const</td>
+			<td>
+				Physical constants. Use either const(name) or const_name with any of these:<br />
+				<table>
+					<tr><th>Name</th><th>Value</th><th>Unit</th><th>Description</th></tr>
+					<tr><td>Avogadro</td><td>6.022…e23</td><td>mol⁻¹</td><td>particles per mole</td></tr>
+					<tr><td>c0, c</td><td>2.997…e8</td><td>m s⁻¹</td><td>speed of light</td></tr>
+					<tr><td>G</td><td>6.673…e-11</td><td>kg⁻¹ m³ s⁻²</td><td>gravitation constant</td></tr>
+					<tr><td>h</td><td>6.626…e-34</td><td>J s</td><td>Planck's constant</td></tr>
+					<tr><td>ℏ, hbar</td><td>1.054…e-34</td><td>J s</td><td>const_h / 2π</td></tr>
+					<tr><td>µ0</td><td>1.256…</td><td>N A⁻²</td><td>magnetic constant</td></tr>
+					<tr><td>eps0</td><td>8.854…e-12</td><td>F m⁻¹</td><td>electric constant</td></tr>
+					<tr><td>alpha</td><td>7.297…e-3</td><td></td><td>fine-structure constant</td></tr>
+					<tr><td>e</td><td>1.602…e-19</td><td>A s</td><td>elementary charge</td></tr>
+					<tr><td>lP</td><td>1.616…e-35</td><td>m</td><td>Planck length</td></tr>
+					<tr><td>mP</td><td>2.176…e-8</td><td>kg</td><td>Planck mass</td></tr>
+					<tr><td>tP</td><td>5.391…e-44</td><td>s</td><td>Planck time</td></tr>
+					<tr><td>qP</td><td>1.875…e-18</td><td>A s</td><td>Planck charge</td></tr>
+					<tr><td>TP</td><td>1.416…e32</td><td>K</td><td>Planck temperature</td></tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+
+	<h3>Operators</h3>
+	<table>
+		<tr><td>+</td><td>Addition</td></tr>
+		<tr><td>-</td><td>Negation/Subtraction</td></tr>
+		<tr><td>*</td><td>Multiplication</td></tr>
+		<tr><td>/</td><td>Division</td></tr>
+		<tr><td>%</td><td>Modulus. Only defined for real numbers: a % b = a - b*floor(a/b). The result is always between 0 and b.</td></tr>
+		<tr><td>^, **</td><td>Exponentiation, see also spow</td></tr>
+		<tr><td>~</td><td>Complex conjugation: ~(a+ib) = a-ib, no effect on real numbers.</td></tr>
+		<tr><td>!</td><td>Factorial (postfix), see also gamma</td></tr>
+		<tr><td>¹ .. ⁹</td><td>Powers (postfix)</td></tr>
+		<tr><td>&lt;, &gt;</td><td>Comparison. Only defined for real numbers: a > b := 1 if a > b, else 0</td></tr>
+		<tr><td>|•|</td><td>Absolute value.</td></tr>
+	</table>
+
+	<h3>Functions</h3>
+	<table>
+		<tr><th colspan="2">Simple & Polynomials</th></tr>
+		<tr><td>re</td><td>Real part: re(a+ib) = a</td></tr>
+		<tr><td>im</td><td>Imaginary part: im(a+ib) = b</td></tr>
+		<tr><td>abs</td><td>Magnitude/absolute value. Can also be written as |z|.</td></tr>
+		<tr><td>absq</td><td>Squared magnitude: absq(z) := abs(z)^2 (but faster).</td></tr>
+		<tr><td>arg</td><td>Argument function, arg(z) is the angle between the positive real axis and the connection line from 0 to z. In the range [-π,π).<br/>arg(x, y) := arg(x+iy).</td></tr>
+		<tr><td>sgn</td><td>Sign function: sgn(z) = z / |z| or 0 if z = 0</td></tr>
+		<tr><td>conj</td><td>Complex conjugation, same as ~z.</td></tr>
+		<tr><td>complex</td><td>complex(x,y) = x+iy.</td></tr>
+		<tr><td>hypot</td><td>hypot(z,w) = sqrt(z²+w²)</td></tr>
+		<tr><td>sqr</td><td>sqr(z) = z²</td></tr>
+		<tr><td>√, sqrt</td><td>Square root, branch cut along the negative real axis.</td></tr>
+		<tr><td>clamp</td><td>clamp(x) restricts the argument to [0,1], meaning clamp(x) = max(0, min(1, x)).<br/>
+			clamp(x, a, b) restricts x to [min(a,b), max(a,b)].<br/>
+			clamp(z, a, b) = clamp(re z, re a, re b) + i clamp(im z, im a, im b) for complex z, a, b.<br/>
+			clamp(z) = clamp(z, 0, 1+i) = clamp(re z) + i clamp(im z).<br/>
+			Invariant under permutation: clamp(a,b,c) = clamp(b,c,a) = clamp(c,b,a) = ...<br/>
+			clamp(∞,x,y) = max(x,y), clamp(-∞,x,y) = min(x,y)<br/>
+			clamp(x,x,y) = x, a ≤ b ≤ c ⇒ clamp(a,b,c) = b
+		</td></tr>
+		<tr><td>det</td><td>det(a+ib, c+id) = ad-bc</td></tr>
+		<tr><td>sp</td><td>sp(a+ib, c+id) = ac+bd</td></tr>
+		<tr><td>swap</td><td>swap(a+ib) = b+ia</td></tr>
+		<tr><td>mida</td><td>Arithmetic mean: mida(z,w) = (z+w)/2</td></tr>
+		<tr><td>midg</td><td>Geometric mean: midg(z,w) = √(z*w)</td></tr>
+		<tr><td>midh</td><td>Harmonic mean: midh(z,w) = 2zw / (z+w)</td></tr>
+
+		<tr><th colspan="2">Min/Max Variations</th></tr>
+		<tr><td>min, max</td><td>Minimum/Maximum. Only defined for real numbers: min(a,b) := a if a &lt; b, else b</td></tr>
+		<tr><td>absmin, absmax</td><td>Returns the number with the smaller/larger absolute value: absmin(z, w) := z if |z| &lt; |w|, else w</td></tr>
+		<tr><td>realmin, realmax</td><td>Returns the number with the smaller/larger real part</td></tr>
+		<tr><td>imagmin, imagmax</td><td>Returns the number with the smaller/larger imaginary part</td></tr>
+
+		<tr><th colspan="2">Exponential</th></tr>
+		<tr><td>exp</td><td>e^z (but exp(z) is a little faster and slightly more precise)</td></tr>
+		<tr><td>ln, log</td><td>Natural logarithm. Inverse of exp with branch cut along the negative real axis.</td></tr>
+		<tr><td>log2</td><td>Binary logarithm: log2(z) = log(z) / log(2)</td></tr>
+		<tr><td>log10</td><td>Decadic logarithm: log10(z) = log(z) / log(10)</td></tr>
+		<tr><td>spow</td><td>spow(x,y) = |x|^y * sgn(x)</td></tr>
+
+		<tr><th colspan="2">Trigonometric</th></tr>
+		<tr><td>sin, cos</td><td>Sine and Cosine</td></tr>
+		<tr><td>tan</td><td>Tangent function: tan(z) = sin(z) / cos(z)</td></tr>
+		<tr><td>sec</td><td>Secant: sec(z) = 1 / cos(z)</td></tr>
+		<tr><td>csc</td><td>Cosecant: csc(z) = 1 / sin(z)</td></tr>
+		<tr><td>cot</td><td>Cotangent: cot(z) = 1 / tan(z) = cos(z) / sin(z)</td></tr>
+		<tr><td>sinh</td><td>Hyperbolic sine</td></tr>
+		<tr><td>cosh</td><td>Hyperbolic cosine</td></tr>
+		<tr><td>tanh</td><td>Hyperbolic tangent: tanh(z) = sinh(z) / cosh(z)</td></tr>
+		<tr><td>sech</td><td>Hyperbolic secant: sech(z) = 1 / cosh(z)</td></tr>
+		<tr><td>csch</td><td>Hyperbolic cosecant: csch(z) = 1 / sinh(z)</td></tr>
+		<tr><td>coth</td><td>Hyperbolic cotangent: coth(z) = 1 / tanh(z) = cosh(z) / sinh(z)</td></tr>
+		<tr><td>arcsin, arccos</td><td>Inverse of sin and cos.</td></tr>
+		<tr><td>arctan</td><td>Inverse of tan(z)</td></tr>
+		<tr><td>arcsec</td><td>Inverse of sec(z), arcsec(z) = arccos(1/z)</td></tr>
+		<tr><td>arccsc</td><td>Inverse of csc(z), arccsc(z) = arcsin(1/z)</td></tr>
+		<tr><td>arccot</td><td>Inverse of cot(z), arccot(z) = arctan(1/z)</td></tr>
+		<tr><td>arsinh, arcosh, artanh, arsech, arcsch, arcoth</td><td>Inverse hyperbolic functions</td></tr>
+
+		<tr><th colspan="2">Gamma</th></tr>
+		<tr><td>gamma, Γ</td><td>Gamma function</td></tr>
+		<tr><td>factorial</td><td>factorial(z) = z! = gamma(z+1)</td></tr>
+		<tr><td>beta</td><td>Beta function: beta(a,b) = Γ(a)Γ(b) / Γ(a+b)</td></tr>
+		<tr><td>bico</td><td>Binomial coefficient: bico(n,k) = n! / k!(n-k)! = 1 / (n+1)beta(n-k+1,k+1)</td></tr>
+		<tr><td>digamma</td><td>Logarithmic derivative of the Gamma function: digamma(z) = (lnΓ)'(z) = Γ'(z) / Γ(z)</td></tr>
+		<tr><td>trigamma</td><td>Second logarithmic derivative of the Gamma function: trigamma(z) = (lnΓ)''(z)</td></tr>
+
+		<tr><th colspan="2">Special Functions</th></tr>
+		<tr><td>wp</td><td>Weierstraß' elliptic P-function. Doubly periodic with periods 2 and 2i, i.e. wp(z+2n+2im) = wp(z) for all integer n,m.</td></tr>
+		<tr><td>J(n,x)</td><td>Bessel function of the first kind, implemented only for real n and x.</td></tr>
+		<tr><td>Y(n,x)</td><td>Bessel function of the second kind, implemented only for real n and x.</td></tr>
+		<tr><td>I(n,x)</td><td>Hyperbolic Bessel function of the first kind, implemented only for real n and x.</td></tr>
+		<tr><td>K(n,x)</td><td>Hyperbolic Bessel function of the second kind, implemented only for real n and x.</td></tr>
+		<tr><td>Ai(x)</td><td>Airy function of the first kind, implemented only for real x.</td></tr>
+		<tr><td>Bi(x)</td><td>Airy function of the second kind, implemented only for real x.</td></tr>
+		<tr><td>Ai'(x)</td><td>Derivative of Ai, implemented only for real x.</td></tr>
+		<tr><td>Bi'(x)</td><td>Derivative of Bi, implemented only for real x.</td></tr>
+		<tr><td>Ei(x)</td><td>Exponential integral, implemented only for real x.</td></tr>
+		<tr><td>En(n,x)</td><td>Exponential integral, implemented only for real x and integer n ≥ 0.</td></tr>
+
+		<tr><th colspan="2">Probability &amp; Random</th></tr>
+		<tr><td>normal(z)</td><td>Probability density function of the normal distribution with µ=0 and σ=1</td></tr>
+		<tr><td>erf</td><td>Error function</td></tr>
+		<tr><td>erfc</td><td>Complementary error function: erfc(z) = 1 - erf(z)</td></tr>
+		<tr><td>random, rnd</td><td>Generates uniformly distributed random variates in [-1,1].</td></tr>
+		<tr><td>riemann_random, rrnd</td><td>Generates complex numbers that are uniformly distributed on the Riemann sphere.</td></tr>
+		<tr><td>disk_random, drnd</td><td>Generates complex numbers that are uniformly distributed on the unit disk {z: |z| &lt; 1}.</td></tr>
+		<tr><td>normal_random, nrnd</td><td>Generates normal variates (µ=0, σ=1).</td></tr>
+		<tr><td>normal_z_random, nzrnd</td><td>Generates normally distributed complex numbers (i.e. real and imaginary parts are independent and normally distributed). Same as nrnd + i nrnd.</td></tr>
+
+		<tr><th colspan="2">Rounding</th></tr>
+		<tr><td>round</td><td>round(z) rounds the real and imaginary parts of z to the nearest integer.</td></tr>
+		<tr><td>floor</td><td>floor(z) rounds the real and imaginary parts of z down (i.e. towards -∞).</td></tr>
+		<tr><td>ceil</td><td>ceil(z) rounds the real and imaginary parts of z up (i.e. towards +∞).</td></tr>
+
+		<tr><th colspan="2">Binary</th></tr>
+		<tr><td>bit(x,k)</td><td>Return k'th bit of x. 
+			For negative x, this uses floating point two's complement, i.e. bit(-x,k) = 1-bit(x,k) for all x and k.
+			The zero has two representations: all bits zero (+0) or all bits one (-0).
+			For complex numbers: bit(x+iy, n) = bit(x,n) + i bit(y,n) and only defined for integer n.</td></tr>
+		<tr><td>and</td><td>Binary "and". Some properties:<br/>
+		x and y = y and x<br/>
+		x and y = -(-x or -y)<br/>
+		x and +0 = +0<br/>
+		(x and -0 = x if the parser would not simplify -0 to 0)</td></tr>
+		<tr><td>or</td><td>Binary "or". Some properties:<br/>
+		x or y = y or x<br/>
+		x or y = -(-x and -y)<br/>
+		x or +0 = x<br/>
+		(x or -0 = -0 but -0 can not be entered)</td></tr>
+		<tr><td>xor</td><td>Binary "xor". Some properties:<br/>
+		x xor y = y xor x<br/>
+		-x xor -y = x xor y<br/>
+		-x xor y = -(x xor y)<br/>
+		x xor +0 = x<br/>
+		(x xor -0 = -x but again, -0 can not be entered)</td></tr>
+		<tr><td>ieee_m</td><td>Mantissa of an IEEE 754 double precision floating point number. Includes the leading 1. Properties:<br/>
+		|x| = ieee_m(x) * 2 ^ ieee_e(x)<br/>
+		ieee_m(-x) = ieee_m(x)<br/>
+		ieee_m(2x) = ieee_m(x)</td></tr>
+		<tr><td>ieee_e</td><td>Exponent of an IEEE 754 double precision floating point number. Bias is already subtracted, so ieee_e(1) = 0, not 1023.</td></tr>
+
+		<tr><th colspan="2">Misc</th></tr>
+		<tr><td>blend</td><td>Blends two functions, which can be useful for the image modes ("Image" and "Riemann"). Let
+			s = max(0, min(1, t)), then blend(z,w,t) = s w + (1-s) z, which gives blend(z,w,0) = z and blend(z,w,1) = w.
+			If t is complex, its imaginary part is ignored.</td></tr>
+		<tr><td>cblend</td><td>Similar to blend, but uses s = (1 + cos(pi t))/2, which gives cblend(z,w,2k) = z and cblend(z,w,2k+1) = w.
+		Tends to look better in animation. If t is complex, its imaginary part is ignored.</td></tr>
+		<tr><td>mix</td><td>mix(z,w,t) = (1-t)z + tw. Unlike blend and cblend, does not ignore t's imaginary part.</td></tr>
+		<tr><td>fowler</td><td>Returns the Fowler angle of a complex number. Result is in the range [0,8).</td></tr>
+		<tr><td>julia</td><td>julia(z,c) = 1 if z is in the Julia set for c (the numbers for which the iteration z → z²+c stays finite), otherwise closer to 0, depending on how quickly it diverges.</td></tr>
+		<tr><td>mandel</td><td>mandel(c) = 1 if c is in the Mandelbrot set (the numbers for which the iteration 0 → z → z²+c stays finite), otherwise closer to 0, depending on how quickly it diverges.</td></tr>
+	</table>
+
+	<h2>Expression Syntax<a name="Functions"></a></h2>
+	<p>
+		The precise rules are below but the short version is this: Parantheses are optional unless a function has more than one argument
+		(<span class="x">sin(x)</span> and <span class="x">sinx</span> are the same).
+		Multiplication is implicit, so <span class="x">x*y</span> and <span class="x">xy</span> are the same.
+		Whitespace is for grouping, so <span class="x">(x+y)*(z+w)</span> can be written as <span class="x">x+y&nbsp;*&nbsp;z+w</span> and
+		<span class="x">sin(x+y)</span> as <span class="x">sin&nbsp;x+y</span>. Numbers are not localized, the decimal separator is always
+		a dot, never a comma because the comma separates multiple arguments. Writing <span class="x">|z|</span> for abs(z) is ok.
+	</p>
+
+	<h2>Names</h2>
+	<p>Names of functions, variables and parameters cannot contain spaces, commas, bars ('|'), control characters, parantheses, brackets, braces, unicode exponents or start with a digit. But other than that, the full unicode range is valid and there is no limit on the length.</p>
+	
+	<h2>Defining Functions</h2>
+	<p>To create: Use the + button in the Definitions box. <img class="right" src="../Media/Definitions.png" alt="" /></p>
+	<p>To edit: Click on the definition, which will bring up an editor dialog. At the bottom of the dialog is also a delete button.</p>
+	<p>Functions can not be recursive and can not use the plotting variables without declaring them as parameters. For example
+		<span class="x">f = x*y</span> is an error because x and y are unknown when the function is parsed. This must be written as
+		<span class="x">f(x,y) = x*y</span>. Parameters and other functions can be used though.</p>
+
+	<h2>Expression Syntax II</h2>
+	<p>The parser does backtracking, so functions can be overloaded (different functions with the same name for different numbers
+	of arguments). When an expression is split into separate tokens, longer matches are always tried first if there are several
+	possibilities. For example, even if there are parameters a and c, arcsin is never read as a*r*c*sin.</p>
+
+	<h3>Numbers<a name="Numbers"></a></h3>
+	<p>
+		Can be decimal like <span class="x">0.1234</span> or <span class="x">-12.34e-5</span>, or (probably not too useful here) binary
+		<span class="x">0b110.001101e1101</span> (the exponent is binary too), or hexadecimal: <span class="x">0xA8B.CD53q-7F</span>
+		(since e is already a digit, we use q as exponent marker).
+	</p>
+	<p>The imaginary unit is called <span class="x">i</span>.</p>
+	<p>Unicode superscripts are read as power operators. For example <span class="x">x⁻⁴⁺⁵ⁱ</span> is equal to x^(-4+5i).</p>
+
+	<h3>Operators and precedence</h3>
+	<table>
+		<tr><th>Operators<br />ordered&nbsp;by<br />precedence</th><th>Meaning</th><th>Associativity</th><th>Examples</th></tr>
+		<tr><th>•! •²…•⁹</th><td>Postfix operators</td><td>-</td><td>x^3!&nbsp;=&nbsp;x^(3!)&nbsp;=&nbsp;x^6</td></tr>
+		<tr><th></th><td>Function call</td><td>-</td><td>sinx^2&nbsp;=&nbsp;(sinx)^2</td></tr>
+		<tr><th>-• ~•</th><td>Prefix operators</td><td>-</td><td>~x^2&nbsp;=&nbsp;(~x)^2</td></tr>
+		<tr><th></th><td>Implicit Multiplication</td><td>left</td><td>ab^cd&nbsp;=&nbsp;(ab)^(cd), abc&nbsp;=&nbsp;(ab)c, sinxy&nbsp;=&nbsp;(sinx)*y</td></tr>
+		<tr><th>^ **</th><td>Exponentiation</td><td>right</td><td>a^b^c&nbsp;=&nbsp;a^(b^c)</td></tr>
+		<tr><th>* / %</th><td>Multiplication, Division, Modulo</td><td>left</td><td>a/b/c&nbsp;=&nbsp;(a/b)/c&nbsp;=&nbsp;a/(bc), a*b^c*d&nbsp;=&nbsp;a*(b^c)*d</td></tr>
+		<tr><th>+ -</th><td>Addition, Subtraction</td><td>left</td><td>a-b-c&nbsp;=&nbsp;(a-b)-c&nbsp;=&nbsp;a-(b+c)</td></tr>
+		<tr><th>and or xor</th><td>Binary AND, OR, XOR</td><td>left</td><td>-(a and b) = -a or -b, a xor b = -a xor -b</td></tr>
+		<tr><th>&lt; &gt;</th><td>Comparison</td><td>-</td><td>The value is 1 for true or 0 for false.<br />(a&nbsp;&lt;&nbsp;b)&nbsp;*&nbsp;(b&nbsp;&lt;&nbsp;c) is a&nbsp;&lt;&nbsp;b&nbsp;&lt;&nbsp;c<br />Ice cube tray-style plots for sets can be done like this:<br /><span class="x">sin xx - sin yy > 0</span>.</td></tr>
+		<tr><th>⌴</th><td>Whitespace</td><td>-</td><td>see below</td></tr>
+	</table>
+	<h3>Parantheses and whitespace</h3>
+	<p>
+		Whitespace works like this: Any block of tokens (without mismatched parantheses) that is surrounded by
+		whitespace (beginning and end of the expression count as whitespace) and can be put inside parantheses without
+		creating syntax errors will be put in parantheses and then whitespace is removed.
+	</p>
+	<p>
+		For example:<br />
+		<span class="x">x*y⌴^⌴x*y</span> becomes <span class="x">(x*y)^(x*y)</span>,<br />
+		<span class="x">x+y⌴sin⌴x</span> becomes <span class="x">(x+y)sin(x)</span>,<br />
+		<span class="x">x*⌴x+y⌴*⌴x</span> becomes <span class="x">(x*(x+y))*(x)</span>, which is <span class="x">x*(x+y)*x</span>,<br />
+		<span class="x">x⌴*x+y⌴x</span> becomes <span class="x">((x)*x+y)(x)</span>, which is <span class="x">(x*x+y)*x</span>.
+	</p>
+	<p>Parantheses work as usual for grouping subexpressions. Brackets and braces can be used as well and they must match: <span class="x">{sin[x]+cos[x]+1}</span> is ok, but <span class="x">{x+y)</span> is a syntax error.</p>
+	<p>
+		Bars are the usual alternative syntax for the absolute value. When there are ambiguities, the parser will
+		try bars as closing bars first. For example: <span class="x">|x|y|x|</span> is <span class="x">abs(x) y abs(x)</span>
+		and not abs(x absy x).
+	</p>
+</body>
+</html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		<title>Plot Settings</title>
+		<link href="../help.css" rel="stylesheet" media="all" type="text/css" />
+	</head>
+	
+	<body>
+		<h1>Plot Settings<a name = "Settings"></a></h1>
+		<p>There are two groups of settings: Visual (how things are drawn) and computational (level of detail) settings. All of these can be adjusted from the settings box on the right side of every plot window.</p>
+		
+		<h2>Visual Settings</h2>
+		<p>Display modes:</p>
+		<div class="figures">
+		<div class="figure"><img src="../Media/DM_Points.png" style="border:2px solid #ccc" alt=""/><p>Points</p></div>
+		<div class="figure"><img src="../Media/DM_Wireframe.png" style="border:2px solid #ccc" alt=""/><p>Wireframe</p></div>
+		<div class="figure"><img src="../Media/DM_Hiddenline.png" style="border:2px solid #ccc" alt=""/><p>Hiddenline</p></div>
+		<div class="figure"><img src="../Media/DM_Flatshaded.png" style="border:2px solid #ccc" alt=""/><p>Flatshaded</p></div>
+		<div class="figure"><img src="../Media/DM_Smooth.png" style="border:2px solid #ccc" alt=""/><p>Smoothshaded</p></div>
+		</div>
+		
+		<p>Textures can be applied to any display mode that draws surfaces (everything but Points and Wireframe).
+		To set the texture images, either drag and drop an image onto the texture box or use its context menu to load one of the builtin textures. The builtins are some simple computed textures.</p>
+		<div class="figures">
+		<div class="figure"><img src="../Media/DS_Texture.png" style="border:2px solid #ccc" alt=""/><p>Texture</p></div>
+		</div>
+
+		<p>Another way of texturing are reflection textures, which can be applied to any display mode that has surface normals (Flatshaded and Smoothshaded).</p>
+		<div class="figures">
+		<div class="figure"><img src="../Media/DS_Reflection.png" style="border:2px solid #ccc" alt=""/><p>Reflection</p></div>
+		</div>
+		<p>The texturing modes can also be combined and both have a strength setting. For texturing this blends with the fill color and for reflection it sets the reflectiveness of the surface.</p>
+		<div class="figures">
+		<div class="figure"><img src="../Media/DS_CombinedTextures.png" style="border:2px solid #ccc" alt=""/><p>Texture + reflection + red fill color</p></div>
+		</div>
+
+		<p>Similar to reflection is shininess, which adds hilights to a surface:</p>
+		<div class="figures">
+		<div class="figure"><img src="../Media/DS_Shine_On.png" alt=""/><img src="../Media/DS_Shine_Off.png" alt=""/><p>Shininess On and Off</p></div>
+		</div>
+
+		<p>Colors that can be changed are: Fill, Grid, Axis and Background. Transparency of the background affects the copied image (as in ⌘C on the graph view) and icon of the saved file. Grid transparency blends the grid and fill colors. Fill transparency sets the transparency of the surface itself, which can make the inside structure of parametrics more visible. The way the surface transparency works can be set with the transparency mode (and the
+		<a href="Preferences.html">depth sorting preference</a>).</p>
+		<div class="figures">
+		<div class="figure"><img src="../Media/DS_Colors.png" alt=""/><p>Fill, grid and background colors</p></div>
+		<div class="figure"><img src="../Media/DS_Transparency.png" style="border:2px solid #ccc" alt=""/><p>Transparency, Multiply mode</p></div>
+		</div>
+
+		<p>Another way of looking inside of a surface are alpha masks. A mask is similar to a texture but it cuts away parts of the surface. And unlike textures, masks are scaled with the grid, so grid density also affects mask scaling. Masks have a density setting (the slider below), that adjusts how much they cut away or affects their scale in some way (this depends on the selected mask type). For most mask types the left and right sides are inverse to each other (the right side setting cuts away what the left side setting does not). For custom masks, which use greyscale images, this sets the grey level where it switches between opaque and transparent.</p>
+		<div class="figures">
+		<div class="figure"><img src="../Media/DS_Mask.png" style="border:2px solid #ccc" alt=""/><p>Alpha Mask</p></div>
+		</div>
+		
+		<p>Yet another way of looking inside a surface is the custom clipping plane. It has two modes: Locked and unlocked. In unlocked mode, the plane follows the viewpoint rotation and remains orthogonal to the viewing vector. Until it is switched to locked mode, where it keeps its orientation relative to the axis box. Its position can be adjusted with a slider.</p>
+		<div class="figures">
+		<div class="figure"><img src="../Media/DS_CustomClipping.png" alt=""/><p>Custom clipping plane</p></div>
+		</div>
+		
+		<p>Surfaces can be overlaid with a grid, which is the image of a rectangular grid on the preimage range (Grid mode "On") or the borders of every drawn triangle (Mode "Full Mesh"), which is useful for checking the quality settings (see below under "Computational Settings"). The grid can be scaled with the grid density slider (below the mode selector) and its line width can be adjusted. The Wireframe mode draws only the grid and the Points mode draws the grid points, so they are both controlled by the grid settings.</p>
+		<div class="figures">
+		<div class="figure"><img src="../Media/DS_Grid_On.png" style="border:2px solid #ccc" alt=""/><p>Grid</p></div>
+		</div>
+
+		<p>Fog can be added to give non-shaded plots (i.e. Points, Wireframe, Hiddenline) more depth.</p>
+		<div class="figures">
+		<div class="figure"><img src="../Media/DS_Fog_On.png" style="border:2px solid #ccc" alt=""/><p>With Fog</p></div>
+		<div class="figure"><img src="../Media/DS_Fog_Off.png" style="border:2px solid #ccc" alt=""/><p>Without Fog</p></div>
+		</div>
+		
+		<p>Finally there are some settings for the axis / coordinate system: In 2D whether to draw polar or rectangular grid or none at all. Whether or not to draw the axis, and if the graph should be clipped to the axis box in 3D.</p>
+		<div class="figures">
+		<div class="figure"><img src="../Media/DS_Polar_Grid.png" alt=""/><p>Butterfly curve with polar axis grid</p></div>
+		</div>
+
+		<h2>Computational Settings</h2>
+		<p>There are two settings that affect the level of detail in a plot: Quality and grid density.</p>
+		<p>Quality sets the maximum total number of faces in a surface plot or the number of line segments in a line plot. The more well-behaved a function is, the lower the quality setting can be. The highest setting is best for functions with poles or wildly oscillating ones, as well as for parametric plots that stretch their input range over a lot of space (for instance something like the butterfly curve above).</p>
+		<p>The grid density defines an initial subdivision of the input space that is further subdivided for higher quality settings. So the grid density restricts both the minimum quality and the possible quality increments.</p>
+		<p>Lastly, detection of discontinuities can be switched on, which tries to detect and remove jump discontinuities from the graph. For line graphs this uses two heuristics:</p>
+		<ol>
+			<li>If two neighbouring points are very far apart, it is probably a pole.</li>
+			<li>If the subdivision of a line segment produces very unequal segments, that is probably a jump
+				discontinuity. This one gets more accurate with higher quality settings.</li>
+		</ol>
+		<p>Surface plots and implicits use similar ideas, but since their computation is not recursive, the results are not as good as for line graphs.</p>
+		<div class="figures">
+		<div class="figure"><img src="../Media/DS_Disco_Off.png" style="border:2px solid #ccc" alt=""/><p>Not detecting discontinuities</p></div>
+		<div class="figure"><img src="../Media/DS_Disco_On.png" style="border:2px solid #ccc" alt=""/><p>Detecting discontinuities</p></div>
+		</div>
+	</body>
+</html>
