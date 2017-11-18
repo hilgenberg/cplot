@@ -80,18 +80,11 @@ int ParameterView::OnCreate(LPCREATESTRUCT cs)
 	BUTTONLABEL(name);
 	LABEL(eq, "=");
 	EDIT(value); value.OnChange = [this]() { OnValueChange(); };
-	CREATE(delta, deltaStyle); delta.stateChange = [this](bool a) { parent.parent().AnimStateChanged(a); };
+	DELTA0(delta); delta.stateChange = [this](bool a) { parent.parent().AnimStateChanged(a); };
 	BUTTON(anim, "anim"); anim.SetButtonStyle(BS_VCENTER | BS_CENTER | BS_FLAT, 0);
 	BUTTON(plus,  "+"); plus. SetButtonStyle(BS_VCENTER | BS_CENTER | BS_FLAT, 0);
 	BUTTON(minus, "-"); minus.SetButtonStyle(BS_VCENTER | BS_CENTER | BS_FLAT, 0);
 	return 0;
-}
-
-int ParameterView::height(int w) const
-{
-	Parameter *p = parameter(); if (!p) return 0;
-	DS0;
-	return DS(2*22);
 }
 
 void ParameterView::Update(bool full)
@@ -129,39 +122,23 @@ void ParameterView::Update(bool full)
 	}
 
 	if (!full) return;
-
 	CRect bounds; GetClientRect(bounds);
 	if (bounds.Width() < 2 || !p) return;
-	DS0;
-	const int W = bounds.Width();
-	const int SPC = DS(5); // amount of spacing
-	const int w1 = DS(40); // label width
-	const int x0 = SPC;  // row x start / amount of space on the left
-	const int x1 = W - SPC;
-	const int wq = DS(8);
-	const int dw = DS(60); // delta width
-	int y = 0; // y for next control
 
-	const int h_label = DS(14), h_edit = DS(20), h_delta = DS(20), h_button = DS(20), h_row = DS(22);
+	Layout layout(*this, 0, 22);
+	SET(6, -1, 30, 30);
+	USE(NULL, &name, &anim, &anim);
 
-	MOVE(name, x0 + wq + SPC + DS(2), x1 - SPC - dw, y, h_button, h_row);
-	MOVE(anim, x1 - dw, x1, y, h_button, h_row);
-	y += h_row;
-
-	MOVE(eq, x0, x0 + wq, y, h_label, h_row);
-	MOVE(value, x0 + wq + SPC, x1 - SPC - dw, y, h_edit, h_row);
-
+	SET( 8, -1, 30, 30);
 	if (p->type() == ParameterType::Integer)
 	{
+		USE(&eq, &value, &minus, &plus);
 		HIDE(delta);
-		MOVE(minus, x1 - dw, x1 - (dw + SPC) / 2, y, h_button, h_row);
-		MOVE(plus, x1 - (dw - SPC) / 2, x1, y, h_button, h_row);
 	}
 	else
 	{
-		MOVE(delta, x1 - dw, x1, y, h_delta, h_row);
-		HIDE(plus);
-		HIDE(minus);
+		USE(&eq, &value, &delta, &delta);
+		HIDE(plus); HIDE(minus);
 	}
 }
 

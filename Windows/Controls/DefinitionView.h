@@ -17,7 +17,6 @@ public:
 	void   OnSize(UINT type, int w, int h);
 	void   OnInitialUpdate();
 
-	int  height(int w) const;
 	void Update(bool full);
 	void OnEdit();
 

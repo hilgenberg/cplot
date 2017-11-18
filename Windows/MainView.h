@@ -8,7 +8,7 @@ class Document;
 class BGStatic: public CStatic
 {
 public:
-	BOOL Create(CWnd *parent, UINT ID, DWORD style);
+	BOOL Create(CWnd *parent, int h, UINT ID, DWORD style);
 	BOOL   OnEraseBkgnd(CDC *dc);
 	COLORREF bg; // background color
 	DECLARE_MESSAGE_MAP()

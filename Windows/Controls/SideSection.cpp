@@ -99,7 +99,7 @@ int SideSection::OnCreate(LPCREATESTRUCT cs)
 	if (CWnd::OnCreate(cs) < 0) return -1;
 
 	START_CREATE;
-	CREATE(header, headerString(), sectionStyle);
+	CREATE(header, 20, headerString(), sectionStyle);
 	header.SetCheck(TRUE);
 	header.SetOwner(this);
 	header.ShowWindow(SW_SHOW);
@@ -110,7 +110,5 @@ int SideSection::OnCreate(LPCREATESTRUCT cs)
 void SideSection::Update(bool full)
 {
 	if (!full) return;
-	CRect bounds; GetWindowRect(bounds);
-	DS0;
-	header.MoveWindow(0, 0, bounds.Width(), DS(20));
+	Layout layout(*this, 0, 20, 0); SET(-1); USE(&header);
 }

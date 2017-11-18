@@ -18,7 +18,6 @@ public:
 	void   OnInitialUpdate();
 	BOOL   OnEraseBkgnd(CDC *dc);
 
-	int  height(int w) const;
 	void Update(bool full);
 	
 	void OnValueChange();

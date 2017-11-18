@@ -289,7 +289,6 @@ void SideSectionAxis::Update(bool full)
 	//----------------------------------------------------------------------------------
 	CRect bounds; GetWindowRect(bounds);
 	if (bounds.Width() < 2) return;
-	DS0;
 
 	const bool sel = g != NULL;
 	const bool vf = g && g->isVectorField();
@@ -299,16 +298,8 @@ void SideSectionAxis::Update(bool full)
 	const bool twoD = plot.axis_type() == Axis::Rect;
 	const bool points = g && g->options.shading_mode == Shading_Points;
 
-	const int W = bounds.Width();
-	const int SPC = DS(5); // amount of spacing
-	const int y0 = DS(22);
-	int       y = y0;// y for next control
-	const int x0 = SPC;  // row x start / amount of space on the left
-
-	const int h_section = DS(20), h_label = DS(14), h_combo = DS(21), h_check = DS(20),
-		h_edit = DS(20), h_color = DS(20), h_slider = DS(20), h_delta = h_slider,
-		w_slider = h_slider, h_button = h_check, h_row = DS(24);
-
+	Layout layout(*this, 22);
+	SET(20, -1, -1, -1)
 	if (!header.GetCheck())
 	{
 		HIDE(centerLabel); HIDE(rangeLabel);
@@ -327,28 +318,15 @@ void SideSectionAxis::Update(bool full)
 	}
 	else
 	{
-		const int w1 = DS(20); // label width
-		int d = (W - 2 * (w1 + 2 * SPC) - 2 * SPC) / 3;
-		const int x1 = x0 + w1 + SPC, x2 = x1 + d + SPC, x3 = x2 + d + SPC, x4 = x3 + d + SPC, xe = W - SPC;
 		const bool in3d = (plot.axis_type() != Axis::Rect);
 
-		MOVE(centerLabel, x1, x2 - SPC, y, h_label, h_row);
-		MOVE(rangeLabel, x2, x3 - SPC, y, h_label, h_row);
-		y += h_row - DS(5);
+		USEH(20, NULL, &centerLabel, &rangeLabel, NULL);
 
-		MOVE(xLabel, x0, x1 - SPC, y, h_label, h_row);
-		MOVE(xCenter, x1, x2 - SPC, y, h_edit, h_row);
-		MOVE(xRange, x2, x3 - SPC, y, h_edit, h_row);
-		MOVE(xDelta, x3, xe, y, h_delta, h_row);
-		y += h_row;
+		USE(&xLabel, &xCenter, &xRange, &xDelta);
 		xCenter.SetDouble(ax.center(0));
 		xRange.SetDouble(ax.range(0)*2.0);
 
-		MOVE(yLabel, x0, x1 - SPC, y, h_label, h_row);
-		MOVE(yCenter, x1, x2 - SPC, y, h_edit, h_row);
-		MOVE(yRange, x2, x3 - SPC, y, h_edit, h_row);
-		MOVE(yDelta, x3, xe, y, h_delta, h_row);
-		y += h_row;
+		USE(&yLabel, &yCenter, &yRange, &yDelta);
 		yCenter.SetDouble(ax.center(1));
 		yRange.SetDouble(ax.range(1)*2.0);
 		yRange.EnableWindow(in3d);
@@ -362,16 +340,11 @@ void SideSectionAxis::Update(bool full)
 		}
 		else
 		{
-			MOVE(zLabel, x0, x1 - SPC, y, h_label, h_row);
-			MOVE(zCenter, x1, x2 - SPC, y, h_edit, h_row);
-			MOVE(zRange, x2, x3 - SPC, y, h_edit, h_row);
-			MOVE(zDelta, x3, xe, y, h_delta, h_row);
-			y += h_row;
+			USE(&zLabel, &zCenter, &zRange, &zDelta);
 			zCenter.SetDouble(ax.center(2));
 			zRange.SetDouble(ax.range(2)*2.0);
 		}
-		MOVE(xyzDelta, x1, x3 - SPC, y, h_delta, h_row);
-		y += h_row;
+		USE(NULL, &xyzDelta, &xyzDelta, NULL);
 
 		const int nin = g ? g->inRangeDimension() : -1;
 
@@ -384,11 +357,7 @@ void SideSectionAxis::Update(bool full)
 		}
 		else
 		{
-			MOVE(uLabel, x0, x1 - SPC, y, h_label, h_row);
-			MOVE(uCenter, x1, x2 - SPC, y, h_edit, h_row);
-			MOVE(uRange, x2, x3 - SPC, y, h_edit, h_row);
-			MOVE(uDelta, x3, xe, y, h_delta, h_row);
-			y += h_row;
+			USE(&uLabel, &uCenter, &uRange, &uDelta);
 			uCenter.SetDouble(ax.in_center(0));
 			uRange.SetDouble(ax.in_range(0)*2.0);
 		}
@@ -401,11 +370,7 @@ void SideSectionAxis::Update(bool full)
 		}
 		else
 		{
-			MOVE(vLabel, x0, x1 - SPC, y, h_label, h_row);
-			MOVE(vCenter, x1, x2 - SPC, y, h_edit, h_row);
-			MOVE(vRange, x2, x3 - SPC, y, h_edit, h_row);
-			MOVE(vDelta, x3, xe, y, h_delta, h_row);
-			y += h_row;
+			USE(&vLabel, &vCenter, &vRange, &vDelta);
 			vCenter.SetDouble(ax.in_center(1));
 			vRange.SetDouble(ax.in_range(1)*2.0);
 		}
@@ -415,11 +380,11 @@ void SideSectionAxis::Update(bool full)
 		}
 		else
 		{
-			MOVE(uvDelta, x1, x3 - SPC, y, h_delta, h_row);
-			y += h_row;
-			y += 2 * SPC;
+			USE(NULL, &uvDelta, &uvDelta, NULL);
+			layout.skip(2);
 		}
 
+		SET(-1, -1, -1);
 		if (!in3d)
 		{
 			HIDE(phiLabel); HIDE(psiLabel); HIDE(thetaLabel);
@@ -430,39 +395,22 @@ void SideSectionAxis::Update(bool full)
 		}
 		else
 		{
-			MOVE(phiLabel, x1, x2 - SPC, y, h_label, h_row);
-			MOVE(psiLabel, x2, x3 - SPC, y, h_label, h_row);
-			MOVE(thetaLabel, x3, x4 - SPC, y, h_label, h_row);
-			y += h_row;
-			MOVE(phi, x1, x2 - SPC, y, h_edit, h_row);
-			MOVE(psi, x2, x3 - SPC, y, h_edit, h_row);
-			MOVE(theta, x3, x4 - SPC, y, h_edit, h_row);
-			y += h_row;
-			MOVE(phiDelta, x1, x2 - SPC, y, h_delta, h_row);
-			MOVE(psiDelta, x2, x3 - SPC, y, h_delta, h_row);
-			MOVE(thetaDelta, x3, x4 - SPC, y, h_delta, h_row);
-			y += h_row;
+			USE(&phiLabel, &psiLabel, &thetaLabel);
+			USE(&phi, &psi, &theta);
+			USE(&phiDelta, &psiDelta, &thetaDelta);
 			phi.SetDouble(cam.phi());
 			psi.SetDouble(cam.psi());
 			theta.SetDouble(cam.theta());
 
-			MOVE(distLabel, x1, x2 - SPC, y, h_label, h_row);
-			MOVE(dist, x2, x3 - SPC, y, h_edit, h_row);
-			MOVE(distDelta, x3, x4 - SPC, y, h_delta, h_row);
-			y += h_row + 2 * SPC;
+			USE(&distLabel, &dist, &distDelta);
+			layout.skip(2);
 			dist.SetDouble(1.0 / cam.zoom());
 
-			d = (W - 2 * (2 * SPC) - 2 * SPC) / 3;
-			const int t0 = 2 * SPC, t1 = t0 + d + SPC, t2 = t1 + d + SPC, t3 = W - 2 * SPC;
-
-			MOVE(center, t0, t1 - SPC, y, h_button, h_row);
-			MOVE(top, t1, t2 - SPC, y, h_button, h_row);
-			MOVE(front, t2, t3 - SPC, y, h_button, h_row);
-			y += h_row;
+			USE(&center, &top, &front);
 		}
 
-		y += SPC;
+		layout.skip();
 	}
 
-	if (full) MoveWindow(0, 0, W, y);
+	if (full) MoveWindow(0, 0, layout.W, layout.y);
 }

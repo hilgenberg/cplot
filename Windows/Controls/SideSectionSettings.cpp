@@ -490,8 +490,8 @@ int SideSectionSettings::OnCreate(LPCREATESTRUCT cs)
 
 	LABEL(textureLabel, "Texture");
 	LABEL(reflectionLabel, "Reflection");
-	CREATE(texture, WS_CHILD);
-	CREATE(reflection, WS_CHILD);
+	CREATE(texture, 20, WS_CHILD);
+	CREATE(reflection, 20, WS_CHILD);
 	texture.OnChange = [this]() { OnChangeTexture(0); };
 	reflection.OnChange = [this]() { OnChangeTexture(1); };
 	VSLIDER(textureStrength, SLIDER_MAX);
@@ -559,7 +559,6 @@ void SideSectionSettings::Update(bool full)
 	const Graph *g = GetGraph();
 	const Axis   &ax = plot.axis;
 	const Camera &cam = plot.camera;
-	DS0;
 
 	const bool sel = g != NULL;
 	const bool vf = g && g->isVectorField();
@@ -569,15 +568,9 @@ void SideSectionSettings::Update(bool full)
 	const bool twoD = plot.axis_type() == Axis::Rect;
 	const bool points = g && g->options.shading_mode == Shading_Points;
 
-	const int W = bounds.Width();
-	const int SPC = DS(5); // amount of spacing
-	const int y0 = DS(22);
-	int       y = y0;// y for next control
-	const int x0 = SPC;  // row x start / amount of space on the left
-
-	const int h_section = DS(20), h_label = DS(14), h_combo = DS(21), h_check = DS(20),
-		h_edit = DS(20), h_color = DS(20), h_slider = DS(20), h_delta = h_slider,
-		w_slider = h_slider, h_button = h_check, h_row = DS(24);
+	Layout layout(*this, 22);
+	const int w1 = 80; // label width
+	SET(w1, -1);
 
 	const COLORREF OFF_COLOR = GREY(127);
 
@@ -618,22 +611,16 @@ void SideSectionSettings::Update(bool full)
 	}
 	else
 	{
-		const int w1 = DS(80); // label width
-		const int x1 = W - SPC;
-		const int xm = x0 + w1, xmm = xm + SPC;
-
 		if (vf || (color && g->mode() != GM_RiemannColor))
 		{
 			HIDE(qualityLabel); HIDE(quality);
 		}
 		else
 		{
-			MOVE(qualityLabel, x0, xm, y, h_label, h_row);
-			MOVE(quality, xmm, x1, y, h_slider, h_row);
+			USE(&qualityLabel, &quality);
 			qualityLabel.EnableWindow(sel);
 			quality.EnableWindow(sel);
 			quality.SetPos(sel ? (int)(SLIDER_MAX * g->options.quality) : 0);
-			y += h_row;
 		}
 
 		if (vf || color || histo || points)
@@ -642,12 +629,10 @@ void SideSectionSettings::Update(bool full)
 		}
 		else
 		{
-			MOVE(discoLabel, x0, xm, y, h_label, h_row);
-			MOVE(disco, xmm, x1, y, h_check, h_row);
+			USE(&discoLabel, &disco);
 			discoLabel.EnableWindow(sel);
 			disco.EnableWindow(sel);
 			disco.SetCheck(sel && g->options.disco ? BST_CHECKED : BST_UNCHECKED);
-			y += h_row;
 		}
 
 		if (line || color)
@@ -656,23 +641,19 @@ void SideSectionSettings::Update(bool full)
 		}
 		else if (vf)
 		{
+			USE(&displayModeLabel, &vfMode);
 			HIDE(displayMode);
-			MOVE(displayModeLabel, x0, xm, y, h_label, h_row);
-			MOVE(vfMode, xmm, x1, y, h_combo, h_row);
 			displayModeLabel.EnableWindow(true);
 			vfMode.EnableWindow(true);
 			vfMode.SetCurSel(find(vfMode, g->options.vf_mode));
-			y += h_row;
 		}
 		else
 		{
+			USE(&displayModeLabel, &displayMode);
 			HIDE(vfMode);
-			MOVE(displayModeLabel, x0, xm, y, h_label, h_row);
-			MOVE(displayMode, xmm, x1, y, h_combo, h_row);
 			displayModeLabel.EnableWindow(sel);
 			displayMode.EnableWindow(sel);
 			displayMode.SetCurSel(sel ? find(displayMode, g->options.shading_mode) : -1);
-			y += h_row;
 		}
 
 		if (!g || !histo)
@@ -682,9 +663,7 @@ void SideSectionSettings::Update(bool full)
 		}
 		else
 		{
-			MOVE(histoModeLabel, x0, xm, y, h_label, h_row);
-			MOVE(histoMode, xmm, x1, y, h_combo, h_row);
-			y += h_row;
+			USE(&histoModeLabel, &histoMode);
 			histoMode.SetCurSel(find(histoMode, g->options.hist_mode));
 
 			if (g->options.hist_mode == HM_Riemann)
@@ -693,11 +672,9 @@ void SideSectionSettings::Update(bool full)
 			}
 			else
 			{
-				MOVE(histoScaleLabel, x0, xm, y, h_label, h_row);
-				int d = (x1 - xmm - SPC) / 2;
-				MOVE(histoScale, xmm, xmm + d, y, h_edit, h_row);
-				MOVE(histoScaleSlider, xmm + d + SPC, x1, y, h_slider, h_row);
-				y += h_row;
+				SET(w1, -1, -1);
+				USE(&histoScaleLabel, &histoScale, &histoScaleSlider);
+				SET(w1, -1);
 
 				// 0 <-> 0, 1/2 <-> 1, 1 <-> M
 				// =>  f(x) = (exp(2xln(M-1))-1) / M-2
@@ -716,10 +693,8 @@ void SideSectionSettings::Update(bool full)
 		}
 		else
 		{
-			MOVE(aaModeLabel, x0, xm, y, h_label, h_row);
-			MOVE(aaMode, xmm, x1, y, h_combo, h_row);
+			USE(&aaModeLabel, &aaMode);
 			aaMode.SetCurSel(find(aaMode, plot.options.aa_mode));
-			y += h_row;
 		}
 
 		if (vf || line || (g && !color && !g->hasFill()))
@@ -728,8 +703,7 @@ void SideSectionSettings::Update(bool full)
 		}
 		else
 		{
-			MOVE(transparencyModeLabel, x0, xm, y, h_label, h_row);
-			MOVE(transparencyMode, xmm, x1, y, h_combo, h_row);
+			USE(&transparencyModeLabel, &transparencyMode);
 			const bool on = sel && (color || g->hasFill());
 			transparencyModeLabel.EnableWindow(on);
 			transparencyMode.EnableWindow(on);
@@ -752,7 +726,6 @@ void SideSectionSettings::Update(bool full)
 					}
 				}
 			}
-			y += h_row;
 		}
 
 		if (twoD)
@@ -761,10 +734,8 @@ void SideSectionSettings::Update(bool full)
 		}
 		else
 		{
-			MOVE(fogLabel, x0, xm, y, h_label, h_row);
-			MOVE(fog, xmm, x1, y, h_slider, h_row);
+			USE(&fogLabel, &fog);
 			fog.SetPos((int)(SLIDER_MAX * plot.options.fog));
-			y += h_row;
 		}
 
 		if (vf || color)
@@ -773,15 +744,13 @@ void SideSectionSettings::Update(bool full)
 		}
 		else
 		{
-			MOVE(lineWidthLabel, x0, xm, y, h_label, h_row);
-			MOVE(lineWidth, xmm, x1, y, h_slider, h_row);
+			USE(&lineWidthLabel, &lineWidth);
 			const bool on = g && (line || g->options.shading_mode == Shading_Wireframe ||
 				g->options.shading_mode == Shading_Points || g->options.grid_style != Grid_Off);
 			lineWidthLabel.EnableWindow(on);
 			lineWidth.EnableWindow(on);
 			lineWidth.SetPos(on ? (int)(SLIDER_MAX * (g->usesLineColor() ? g->options.line_width : g->options.gridline_width)) : 0);
 			lineWidthLabel.SetWindowText((g && g->isArea() && g->usesShading() && g->options.shading_mode == Shading_Points) ? _T("Point Size:") : _T("Line Width:"));
-			y += h_row;
 		}
 
 		if (vf || color || line || twoD)
@@ -790,49 +759,38 @@ void SideSectionSettings::Update(bool full)
 		}
 		else
 		{
-			MOVE(shinynessLabel, x0, xm, y, h_label, h_row);
-			MOVE(shinyness, xmm, x1, y, h_slider, h_row);
+			USE(&shinynessLabel, &shinyness);
 			const bool on = g && g->hasNormals();
 			shinynessLabel.EnableWindow(on);
 			shinyness.EnableWindow(on);
 			shinyness.SetPos(on ? (int)(SLIDER_MAX * g->options.shinyness) : 0);
-			y += h_row;
 		}
 
-		int d = (W - w1 - 4 * SPC) / 2;
-		MOVE(bgLabel, x0, xm, y, h_label, h_row);
-		MOVE(bgColor, xmm, xmm + d, y, h_color, h_row);
-		MOVE(bgAlpha, xmm + d + SPC, x1, y, h_color, h_row);
+		SET(w1, -1, -1);
+		USE(&bgLabel, &bgColor, &bgAlpha);
 		bgColor.SetColor(ax.options.background_color);
 		bgAlpha.SetPos(ax.options.background_color.GetAlpha());
-		y += h_row;
-		MOVE(fillLabel, x0, xm, y, h_label, h_row);
-		MOVE(fillColor, xmm, xmm + d, y, h_color, h_row);
-		MOVE(fillAlpha, xmm + d + SPC, x1, y, h_color, h_row);
+		
+		USE(&fillLabel, &fillColor, &fillAlpha);
 		const bool hasFill = g && g->hasFill();
 		fillLabel.EnableWindow(hasFill);
 		fillColor.EnableWindow(hasFill);
 		fillAlpha.EnableWindow(hasFill);
 		fillColor.SetColor(hasFill ? (COLORREF)g->options.fill_color : OFF_COLOR);
 		fillAlpha.SetPos(hasFill ? g->options.fill_color.GetAlpha() : 0);
-		y += h_row;
-		MOVE(axisLabel, x0, xm, y, h_label, h_row);
-		MOVE(axisColor, xmm, xmm + d, y, h_color, h_row);
-		MOVE(axisAlpha, xmm + d + SPC, x1, y, h_color, h_row);
+		
+		USE(&axisLabel, &axisColor, &axisAlpha);
 		axisColor.SetColor(ax.options.axis_color);
 		axisAlpha.SetPos(ax.options.axis_color.GetAlpha());
-		y += h_row;
+
 		const bool hasGrid = g && !color;
-		MOVE(gridLabel, x0, xm, y, h_label, h_row);
-		MOVE(gridColor, xmm, xmm + d, y, h_color, h_row);
-		MOVE(gridAlpha, xmm + d + SPC, x1, y, h_color, h_row);
+		USE(&gridLabel, &gridColor, &gridAlpha);
 		gridLabel.EnableWindow(hasGrid);
 		gridColor.EnableWindow(hasGrid);
 		gridAlpha.EnableWindow(hasGrid);
 		gridLabel.SetWindowText(g && g->usesLineColor() ? _T("Line Color:") : _T("Grid Color"));
 		gridColor.SetColor(hasGrid ? (COLORREF)(g->usesLineColor() ? g->options.line_color : g->options.grid_color) : OFF_COLOR);
 		gridAlpha.SetPos(hasGrid ? (g->usesLineColor() ? g->options.line_color : g->options.grid_color).GetAlpha() : 0);
-		y += h_row;
 
 		if (vf || line || points)
 		{
@@ -848,19 +806,13 @@ void SideSectionSettings::Update(bool full)
 		{
 			const bool hasTex = g && (color || g->hasFill());
 			const bool hasRef = g && !color && !twoD && g->hasNormals();
-			const int dt = (W - 9 * SPC - 2 * w_slider) / 2;
-			const int t1 = x0 + 2 * SPC, t2 = t1 + dt, t3 = W - 3 * SPC - dt, t4 = t3 + dt;
 
-			MOVE(textureLabel, t1, t2, y, h_label, h_row);
-			MOVE(reflectionLabel, t3, t4, y, h_label, h_row);
-			gridLabel.EnableWindow(hasTex);
+			SET(0, -1, 20, 20, -1, 0);
+			USE(NULL, &textureLabel, NULL, NULL, &reflectionLabel, NULL);
+			textureLabel.EnableWindow(hasTex);
 			reflectionLabel.EnableWindow(hasRef);
-			y += h_row;
 
-			MOVE(texture, t1, t2, y, dt, dt);
-			MOVE(textureStrength, t2 + SPC, t2 + SPC + w_slider, y, dt, dt);
-			MOVE(reflectionStrength, t3 - SPC - w_slider, t3 - SPC, y, dt, dt);
-			MOVE(reflection, t3, t4, y, dt, dt);
+			USEH(layout[1], NULL, &texture, &textureStrength, &reflectionStrength, &reflection, NULL);
 			texture.EnableWindow(hasTex);
 			textureStrength.EnableWindow(hasTex);
 			reflection.EnableWindow(hasRef);
@@ -869,7 +821,6 @@ void SideSectionSettings::Update(bool full)
 			reflectionStrength.SetPos(SLIDER_MAX - (hasRef ? (int)(g->options.reflection_opacity*SLIDER_MAX) : 0));
 			texture.SetImage(hasTex ? const_cast<GL_Image*>(&g->options.texture) : NULL, full);
 			reflection.SetImage(hasRef ? const_cast<GL_Image*>(&g->options.reflection_texture) : NULL, full);
-			y += dt;
 
 			if (!color)
 			{
@@ -877,14 +828,12 @@ void SideSectionSettings::Update(bool full)
 			}
 			else
 			{
-				MOVE(textureMode, t1, t2, y, h_combo, h_row);
+				USE(NULL, &textureMode, NULL, NULL, NULL, NULL);
 				textureMode.SetCurSel(sel ? find(textureMode, g->options.texture_projection) : -1);
-				y += h_row;
 			}
 		}
 
-		const int dt = (W - 7 * SPC) / 2;
-		const int t1 = x0 + 2 * SPC, t2 = t1 + dt, t3 = t2 + SPC, t4 = t3 + dt;
+		SET(0, -1, -1, 0);
 
 		if (color || line)
 		{
@@ -894,30 +843,26 @@ void SideSectionSettings::Update(bool full)
 		}
 		else
 		{
-			y += 4 * SPC;
-			MOVE(gridModeLabel, t1, t2, y, h_label, h_label);
-			MOVE(meshModeLabel, t3, t4, y, h_label, h_label);
+			layout.skip(4);
+			DS0;
+			USEH(DS(20), NULL, &gridModeLabel, &meshModeLabel, NULL);
 			bool disableMeshLabel = true;
-			y += h_label;
 			if (vf || points)
 			{
 				HIDE(gridMode); HIDE(meshMode);
 			}
 			else
 			{
-				y += SPC;
-				MOVE(gridMode, t1, t2, y, h_combo, h_row);
-				MOVE(meshMode, t3, t4, y, h_combo, h_row);
+				layout.skip();
+				USE(NULL, &gridMode, &meshMode, NULL);
 				gridMode.EnableWindow(sel);
 				gridMode.SetCurSel(sel ? find(gridMode, g->options.grid_style) : -1);
 				bool on = g && !histo && g->hasFill();
 				meshMode.EnableWindow(on);
 				meshMode.SetCurSel(on ? find(meshMode, g->options.mask.style()) : -1);
 				if (on) disableMeshLabel = false;
-				y += h_row;
 			}
-			MOVE(gridDensity, t1, t2, y, h_combo, h_row);
-			MOVE(meshDensity, t3, t4, y, h_combo, h_row);
+			USE(NULL, &gridDensity, &meshDensity, NULL);
 			bool on = g && (!histo || !points);
 			gridDensity.EnableWindow(on);
 			gridDensity.SetPos(on ? int(SLIDER_MAX * g->options.grid_density) : 0);
@@ -926,21 +871,16 @@ void SideSectionSettings::Update(bool full)
 			meshDensity.SetPos(on ? int(SLIDER_MAX * g->options.mask.density()) : 0);
 			if (on) disableMeshLabel = false;
 			meshModeLabel.EnableWindow(!disableMeshLabel);
-			y += h_row;
 		}
 
-		MOVE(drawAxis, t1, t2, y, h_check, h_row);
-		MOVE(axisModeLabel, t3, t4, y, h_label, h_row);
-		y += h_row;
-		MOVE(clip, t1, t2, y, h_check, h_row);
-		MOVE(axisMode, t3, t4, y, h_combo, h_row);
+		USE(NULL, &drawAxis, &axisModeLabel, NULL);
+		USE(NULL, &clip, &axisMode, NULL);
 		drawAxis.SetCheck(!plot.axis.options.hidden);
 		axisModeLabel.EnableWindow(twoD);
 		axisMode.EnableWindow(twoD);
 		axisMode.SetCurSel(twoD ? find(axisMode, ax.options.axis_grid) : -1);
 		clip.EnableWindow(g && !histo && plot.axis_type() == Axis::Box && g->type() != R3_R && !plot.options.clip.on());
 		clip.SetCheck(g ? g->clipping() : false);
-		y += h_row;
 
 		if (twoD)
 		{
@@ -949,12 +889,8 @@ void SideSectionSettings::Update(bool full)
 		}
 		else
 		{
-			MOVE(clipCustom, t1, t2, y, h_check, h_row);
-			MOVE(clipLock, t3, t4, y, h_check, h_row);
-			y += h_row;
-			MOVE(clipDistance, t1, t2, y, h_slider, h_row);
-			MOVE(clipReset, t3, t4, y, h_button, h_row);
-			y += h_row;
+			USE(NULL, &clipCustom, &clipLock, NULL);
+			USE(NULL, &clipDistance, &clipReset, NULL);
 
 			clipCustom.SetCheck(plot.options.clip.on());
 			clipDistance.EnableWindow(plot.options.clip.on());
@@ -963,8 +899,8 @@ void SideSectionSettings::Update(bool full)
 			clipLock.EnableWindow(plot.options.clip.on());
 			clipLock.SetCheck(plot.options.clip.on() && plot.options.clip.locked());
 		}
-		y += SPC;
+		layout.skip();
 	}
 
-	if (full) MoveWindow(0, 0, W, y);
+	if (full) MoveWindow(0, 0, layout.W, layout.y);
 }

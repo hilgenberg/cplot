@@ -58,23 +58,10 @@ void SideSectionParams::Update(bool full)
 		{
 			q->Update(false);
 		}
-
 	}
-	
-	DS0;
 
-	const int W = bounds.Width();
-	const int SPC = DS(5); // amount of spacing
-	const int y0 = DS(22);
-	int       y = y0;// y for next control
-	const int x0 = SPC;  // row x start / amount of space on the left
+	Layout layout(*this, 22, 44); SET(-1);
 
-	const int h_section = DS(20), h_label = DS(14), h_combo = DS(21), h_check = DS(20),
-		h_edit = DS(20), h_color = DS(20), h_slider = DS(20), h_delta = h_slider,
-		w_slider = h_slider, h_button = h_check, h_row = DS(24);
-
-
-	//----------------------------------------------------------------------------------
 	if (!header.GetCheck())
 	{
 		for (auto *p : params) HIDE(*p);
@@ -101,7 +88,7 @@ void SideSectionParams::Update(bool full)
 			if (m.count(p)) continue;
 			ParameterView *q = new ParameterView(*this, *p);
 			m.insert(std::make_pair(p, q));
-			q->Create(CRect(0, 0, 20, 20), this, 2000 + (UINT)p->oid());
+			q->Create(CRect(0, 0, 20, 44), this, 2000 + (UINT)p->oid());
 		}
 		params.clear(); params.reserve(m.size());
 		for (auto i : m) params.push_back(i.second);
@@ -109,13 +96,11 @@ void SideSectionParams::Update(bool full)
 		// place the controls
 		for (auto *q : params)
 		{
-			int hq = q->height(W);
-			MOVE(*q, 0, W, y, hq, hq);
+			USE(q);
 			q->Update(true);
-			y += hq;
 		}
-		if (!params.empty()) y += SPC;
+		if (!params.empty()) layout.skip();
 	}
 
-	if (full) MoveWindow(0, 0, W, y);
+	if (full) MoveWindow(0, 0, layout.W, layout.y);
 }

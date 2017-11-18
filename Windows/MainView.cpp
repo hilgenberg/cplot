@@ -24,9 +24,10 @@ enum
 BEGIN_MESSAGE_MAP(BGStatic, CStatic)
 	ON_WM_ERASEBKGND()
 END_MESSAGE_MAP()
-BOOL BGStatic::Create(CWnd *parent, UINT ID, DWORD style)
+BOOL BGStatic::Create(CWnd *parent, int h, UINT ID, DWORD style)
 {
-	if (!CStatic::Create(_T(""), WS_CHILD | style, CRect(0, 0, 20, 20), parent, ID)) return false;
+	DS0;
+	if (!CStatic::Create(_T(""), WS_CHILD | style, CRect(0, 0, 20, DS(h)), parent, ID)) return false;
 	SetFont(&controlFont());
 	return true;
 }
@@ -102,19 +103,19 @@ int MainView::OnCreate(LPCREATESTRUCT cs)
 
 	POPUP(mode);
 
-	#define FN(i) CREATEI( f[i-1], ID_f ##i, editStyle)
-	fs[0].Create(this, ID_fs1, SS_RIGHT | SS_WORDELLIPSIS); FN(1);
-	fs[1].Create(this, ID_fs2, SS_RIGHT | SS_WORDELLIPSIS); FN(2);
-	fs[2].Create(this, ID_fs3, SS_RIGHT | SS_WORDELLIPSIS); FN(3);
+	#define FN(i) CREATEI( f[i-1], 20, ID_f ##i, editStyle)
+	fs[0].Create(this, 20, ID_fs1, SS_RIGHT | SS_WORDELLIPSIS); FN(1);
+	fs[1].Create(this, 20, ID_fs2, SS_RIGHT | SS_WORDELLIPSIS); FN(2);
+	fs[2].Create(this, 20, ID_fs3, SS_RIGHT | SS_WORDELLIPSIS); FN(3);
 	#undef FN
 	
 	f[0].OnChange = [this] { OnChangeF1(); };
 	f[1].OnChange = [this] { OnChangeF2(); };
 	f[2].OnChange = [this] { OnChangeF3(); };
 
-	error.Create(this, ID_error, SS_WORDELLIPSIS);
+	error.Create(this, 20, ID_error, SS_WORDELLIPSIS);
 
-	plotView.Create(whatever, this, ID_plotView);
+	plotView.Create(CRect(0,0,80,20), this, ID_plotView);
 
 	return 0;
 }
@@ -124,7 +125,6 @@ void MainView::Update()
 	CRect bounds; GetWindowRect(bounds);
 	if (bounds.Width() < 2) return;
 	Document &doc = GetDocument();
-	DS0;
 
 	const Plot &plot = doc.plot;
 	const Graph *graph = plot.current_graph();
@@ -132,16 +132,9 @@ void MainView::Update()
 	
 	doc.plot.axis.type(plot.axis_type());
 
-	const int W = bounds.Width();
-	const int SPC = DS(5); // amount of spacing
-	const int w1 = DS(40); // label width
-	int w2 = (W - SPC - w1 - 2 * SPC) / 3; if (w2 > DS(160)) w2 = DS(160); // domain width
-	const int x0 = SPC;  // row x start / amount of space on the left
-	const int x1 = W - SPC;
-	const int xm = x0 + w1, xmm = xm + SPC;
-	int y = SPC; // y for next control
-
-	const int h_label = DS(14), h_combo = DS(21), h_check = DS(20), h_edit = DS(20), h_row = DS(22);
+	DS0;
+	Layout layout(*this, 5, 22);
+	SET(40, -1, -1, -1); if (layout[1] > DS(160)) { SET(40, 160, 160, -1); }
 
 	//----------------------------------------------------------------------------------
 	if (!graph)
@@ -153,12 +146,10 @@ void MainView::Update()
 	}
 	else
 	{
+		USE(NULL, &domain, &coord, &mode);
 		domain.EnableWindow(sel);
 		coord.EnableWindow(sel);
 		mode.EnableWindow(sel);
-		MOVE(domain, xmm, xmm + w2, y, h_combo, h_row);
-		MOVE(coord, xmm + w2 + SPC, xmm + 2 * w2 + SPC, y, h_combo, h_row);
-		MOVE(mode, xmm + 2 * (w2 + SPC), x1, y, h_combo, h_row);
 
 		for (int i = 0, n = domain.GetCount(); i < n; ++i)
 		{
@@ -215,7 +206,7 @@ void MainView::Update()
 		}
 		mode.SetCurSel(i0);
 
-		y += h_row+DS(4);
+		layout.skip(1);
 	}
 
 	int nf = graph ? graph->n_components() : 0; assert(nf >= 0 && nf <= 3);
@@ -224,14 +215,12 @@ void MainView::Update()
 		auto comp = graph->components(); assert(nf == (int)comp.size());
 		for (int i = 0; i < nf; ++i)
 		{
-			MOVE(fs[i], x0, xm, y, h_label, h_row);
-			MOVE(f[i], xmm, x1, y, h_edit, h_row);
+			USE(&fs[i], &f[i], &f[i], &f[i]);
 			CString label = Convert(comp[i]); label.Append(_T(" ="));
 			fs[i].SetWindowText(label);
 			f[i].SetWindowText(Convert(graph->fn(i + 1)));
 			fs[i].bg = plotView.GetBgColor();
 			fs[i].Invalidate();
-			y += h_row;
 		}
 	}
 	for (int i = nf; i < 3; ++i)
@@ -239,7 +228,7 @@ void MainView::Update()
 		HIDE(f[i]);
 		HIDE(fs[i]);
 	}
-	y += SPC;
+	layout.skip();
 
 	// parsing errors
 	if (graph)
@@ -274,12 +263,12 @@ void MainView::Update()
 		else
 		{
 			error.bg = plotView.GetBgColor();
-			MOVE(error, xmm, x1, y, h_label, h_label);
-			y += h_row + SPC;
+			USE(NULL, &error, &error, &error);
+			layout.skip();
 		}
 	}
 
-	plotView.MoveWindow(0, y, W, bounds.Height() - y, 0);
+	plotView.MoveWindow(0, layout.y, layout.W, bounds.Height() - layout.y, 0);
 	plotView.ShowWindow(SW_SHOW);
 
 	RedrawHeader();

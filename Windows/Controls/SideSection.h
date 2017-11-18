@@ -34,6 +34,10 @@ public:
 		CRect r; GetWindowRect(r);
 		MoveWindow(CRect(r.left, r.top, r.left + w, r.bottom), false);
 	}
+	void Show()
+	{
+		header.SetCheck(true);
+	}
 
 	void Redraw(); // the graph, not this!
 	void Recalc(Plot &plot);

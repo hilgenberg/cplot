@@ -67,34 +67,17 @@ int DefinitionView::OnCreate(LPCREATESTRUCT cs)
 	return 0;
 }
 
-int DefinitionView::height(int w) const
-{
-	auto *f = function(); if (!f) return 0;
-	DS0;
-	return DS(22);
-}
-
 void DefinitionView::Update(bool full)
 {
 	CRect bounds; GetClientRect(bounds);
 	UserFunction *f = function();
 	if (!f) return;
-	DS0;
 	
 	def.SetWindowText(Convert(f->formula()));
 
 	if (!full) return;
 
-	const int W = bounds.Width();
-	const int SPC = DS(5); // amount of spacing
-	const int x0 = SPC;  // row x start / amount of space on the left
-	const int x1 = W - SPC;
-	const int dw = DS(20); // edit width
-	int y = 0; // y for next control
-
-	const int h_button = DS(20), h_row = DS(22);
-
-	MOVE(def, x0, x1, y, h_button, h_button);
+	Layout layout(*this, 0, 20); SET(-1); USE(&def);
 }
 
 void DefinitionView::OnInitialUpdate()

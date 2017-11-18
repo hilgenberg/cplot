@@ -43,9 +43,6 @@ int SideSectionDefs::OnCreate(LPCREATESTRUCT cs)
 void SideSectionDefs::Update(bool full)
 {
 	SideSection::Update(full);
-	CRect bounds; GetWindowRect(bounds);
-
-	const Plot &plot = GetPlot();
 	
 	if (!full)
 	{
@@ -53,22 +50,11 @@ void SideSectionDefs::Update(bool full)
 		{
 			q->Update(false);
 		}
-
 	}
 	
-	DS0;
+	Layout layout(*this, 22, 22); SET(-1);
+	const Plot &plot = GetPlot();
 
-	const int W = bounds.Width();
-	const int SPC = DS(5); // amount of spacing
-	const int y0 = DS(22);
-	int       y = y0;// y for next control
-	const int x0 = SPC;  // row x start / amount of space on the left
-
-	const int h_section = DS(20), h_label = DS(14), h_combo = DS(21), h_check = DS(20),
-		h_edit = DS(20), h_color = DS(20), h_slider = DS(20), h_delta = h_slider,
-		w_slider = h_slider, h_button = h_check, h_row = DS(24);
-
-	//----------------------------------------------------------------------------------
 	if (!header.GetCheck())
 	{
 		for (auto *d : defs) HIDE(*d);
@@ -95,7 +81,7 @@ void SideSectionDefs::Update(bool full)
 			if (m.count(f)) continue;
 			DefinitionView *q = new DefinitionView(*this, *f);
 			m.insert(std::make_pair(f, q));
-			q->Create(CRect(0, 0, 20, 20), this, 3000 + (UINT)f->oid());
+			q->Create(CRect(0, 0, 20, 22), this, 3000 + (UINT)f->oid());
 		}
 		defs.clear(); defs.reserve(m.size());
 		for (auto i : m) defs.push_back(i.second);
@@ -103,13 +89,11 @@ void SideSectionDefs::Update(bool full)
 		// place the controls
 		for (auto *q : defs)
 		{
-			int hq = q->height(W);
-			MOVE(*q, 0, W, y, hq, hq);
+			USE(q);
 			q->Update(true);
-			y += hq;
 		}
-		if (!defs.empty()) y += SPC;
+		if (!defs.empty()) layout.skip();
 	}
 
-	if (full) MoveWindow(0, 0, W, y);
+	if (full) MoveWindow(0, 0, layout.W, layout.y);
 }

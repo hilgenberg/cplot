@@ -70,12 +70,6 @@ int GraphView::OnCreate(LPCREATESTRUCT cs)
 	return 0;
 }
 
-int GraphView::height(int w) const
-{
-	DS0;
-	return DS(22);
-}
-
 void GraphView::OnVisible()
 {
 	Graph *g = graph(); if (!g) return;
@@ -102,7 +96,6 @@ void GraphView::Update(bool full)
 	CRect bounds; GetClientRect(bounds);
 	Graph *g = graph();
 	if (!g) return;
-	DS0;
 	
 	visible.SetCheck(!g->options.hidden);
 	desc.SetWindowText(Convert(g->description_line()));
@@ -112,17 +105,8 @@ void GraphView::Update(bool full)
 
 	if (!full) return;
 
-	const int W = bounds.Width();
-	const int SPC = DS(5); // amount of spacing
-	const int w1 = DS(20); // checkbox width
-	const int x0 = SPC;  // row x start / amount of space on the left
-	const int x1 = W - SPC;
-	int y = 0; // y for next control
-
-	const int h_label = DS(14), h_edit = DS(20), h_delta = DS(20), h_button = DS(20), h_row = DS(22);
-
-	MOVE(visible, x0, x0 + w1, y, h_button, h_row);
-	MOVE(desc, x0 + w1 + SPC, x1, y, h_label, h_row);
+	Layout layout(*this, 0, 22); SET(20, -1);
+	USE(&visible, &desc);
 }
 
 void GraphView::OnInitialUpdate()

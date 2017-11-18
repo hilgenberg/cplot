@@ -19,7 +19,6 @@ public:
 	void   OnVisible();
 	void   OnSelect();
 
-	int  height(int w) const;
 	void Update(bool full);
 	
 private:
