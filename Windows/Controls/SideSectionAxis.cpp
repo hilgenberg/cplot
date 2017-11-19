@@ -251,7 +251,7 @@ void SideSectionAxis::Update(bool full)
 
 	if (!full)
 	{
-		if (!header.GetCheck()) return;
+		if (!header.GetCheck() || plot.axis_type() == Axis::Invalid) return;
 
 		const bool in3d = (plot.axis_type() != Axis::Rect);
 
@@ -300,7 +300,7 @@ void SideSectionAxis::Update(bool full)
 
 	Layout layout(*this, 22);
 	SET(20, -1, -1, -1)
-	if (!header.GetCheck())
+	if (!header.GetCheck() || plot.axis_type() == Axis::Invalid)
 	{
 		HIDE(centerLabel); HIDE(rangeLabel);
 		HIDE(xLabel); HIDE(xCenter); HIDE(xRange); HIDE(xDelta);

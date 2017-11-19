@@ -574,7 +574,7 @@ void SideSectionSettings::Update(bool full)
 
 	const COLORREF OFF_COLOR = GREY(127);
 
-	if (!header.GetCheck())
+	if (!header.GetCheck() || plot.axis_type() == Axis::Invalid)
 	{
 		HIDE(qualityLabel);     HIDE(quality);
 		HIDE(discoLabel);       HIDE(disco);
