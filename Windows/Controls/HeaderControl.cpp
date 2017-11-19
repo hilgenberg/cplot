@@ -11,11 +11,11 @@ void HeaderControl::OnLButtonDown(UINT flags, CPoint p)
 {
 	CRect bounds; GetClientRect(&bounds);
 
-	const int bw = int(bounds.Height() / 3.5), lw = bw / 3;
+	const int bw = int(bounds.Height() / 3.5) + 2;
 	int xm = bounds.right - 5 - bw, ym = bounds.Height() / 2;
 
 	CRect r1(xm - bw, ym - bw, xm + bw, ym + bw);
-	xm -= 2 + bw + 5;
+	xm -= 2 * bw + 1;
 	CRect r2(xm - bw, ym - bw, xm + bw, ym + bw);
 
 	int nr = 0;
@@ -100,7 +100,7 @@ void HeaderControl::OnPaint()
 	xm = bounds.right - 5 - bw;
 	if (canRemove != Hidden)
 	{
-		dc.FillRect(CRect(xm-bw, ym-lw, xm+bw, ym+lw), canRemove == Inactive ? &off : &on);
+		dc.FillRect(CRect(xm - bw, ym - lw, xm + bw, ym + lw), canRemove == Inactive ? &off : &on);
 		xm -= 2 * bw + 5;
 	}
 	if (canAdd != Hidden)
