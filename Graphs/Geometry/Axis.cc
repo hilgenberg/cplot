@@ -23,7 +23,7 @@ void AxisOptions::load(Deserializer &s)
 Axis::Axis() : m_type(Rect)
 {
 	m_center[0] = m_center[1] = m_center[2] = 0.0;
-	m_range [0] = m_range [1] = m_range [2] = 1.0;
+	m_range [0] = m_range [1] = m_range [2] = 5.0;
 	m_in_center[0] = m_in_center[1] = 0.0;
 	m_in_range [0] = m_in_range [1] = 1.0;
 	m_win_w = m_win_h = 100;

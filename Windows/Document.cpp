@@ -26,6 +26,15 @@ BOOL Document::OnNewDocument()
 
 	plot.clear();
 	rns.clear();
+	plot.add_graph();
+
+	MainWindow* w = (MainWindow*)AfxGetMainWnd();
+	SideView *sv = w ? &w->GetSideView() : NULL;
+	if (sv)
+	{
+		sv->UpdateAll();
+		sv->Redraw();
+	}
 
 	return TRUE;
 }
@@ -60,7 +69,12 @@ void Document::Serialize(CArchive &ar)
 			if (s.version() >= FILE_VERSION_1_8) s.uint32_(b.all);
 			s.marker_("EOF.");
 			assert(s.done());
-			if (sv) sv->SetBoxState(b);
+			if (sv)
+			{
+				sv->SetBoxState(b);
+				sv->UpdateAll();
+				sv->Redraw();
+			}
 		}
 	}
 	catch (const std::exception &ex)
