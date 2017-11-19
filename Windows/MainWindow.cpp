@@ -27,6 +27,7 @@ END_MESSAGE_MAP()
 
 BOOL MainWindow::OnCmdMsg(UINT id, int code, void *extra, AFX_CMDHANDLERINFO *handler)
 {
+	// give focused control a chance to handle it
 	MainForm *v = (MainForm*)GetDlgItem(AFX_IDW_PANE_FIRST);
 	if (v)
 	{
@@ -36,6 +37,9 @@ BOOL MainWindow::OnCmdMsg(UINT id, int code, void *extra, AFX_CMDHANDLERINFO *ha
 		if (w && w != this && w->OnCmdMsg(id, code, extra, handler))
 			return true;
 	}
+
+	// try document next
+	if (doc && doc->OnCmdMsg(id, code, extra, handler)) return true;
 	
 	return CFrameWndEx::OnCmdMsg(id, code, extra, handler);
 }
