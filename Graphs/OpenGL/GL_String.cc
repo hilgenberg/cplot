@@ -16,7 +16,8 @@ GL_String::GL_String(const std::string &text, const GL_Font &f) : texName(0), co
 {
 	#ifdef _WINDOWS
 	
-	Gdiplus::Font font(Convert(f.name), f.size);
+	Gdiplus::Font font(Convert(f.name), f.size*4.0f);
+	
 	CString txt = Convert(text);
 
 	// find text size
@@ -24,9 +25,10 @@ GL_String::GL_String(const std::string &text, const GL_Font &f) : texName(0), co
 	{
 		CClientDC screenDC(NULL);
 		Gdiplus::Graphics graphics(screenDC);
-		graphics.SetSmoothingMode(Gdiplus::SmoothingModeHighQuality);
+		graphics.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
 		graphics.SetPageUnit(Gdiplus::UnitPixel);
 		Gdiplus::RectF rc;
+		graphics.SetTextRenderingHint(Gdiplus::TextRenderingHintAntiAlias);
 		graphics.MeasureString(txt, txt.GetLength(), &font, Gdiplus::PointF(0.0f, 0.0f), &rc);
 		Gdiplus::SizeF sz; rc.GetSize(&sz);
 		w = (int)ceil(sz.Width); h = (int)ceil(sz.Height);
@@ -35,9 +37,10 @@ GL_String::GL_String(const std::string &text, const GL_Font &f) : texName(0), co
 	// draw text into CImage
 	CImage im; im.CreateEx(w, h, 32, BI_RGB, NULL, CImage::createAlphaChannel);
 	Gdiplus::Graphics graphics(im.GetDC());
-	graphics.SetSmoothingMode(Gdiplus::SmoothingModeHighQuality);
+	graphics.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
 	graphics.SetPageUnit(Gdiplus::UnitPixel);
 	Gdiplus::SolidBrush brush(Gdiplus::Color(255, 0, 0, 0));
+	graphics.SetTextRenderingHint(Gdiplus::TextRenderingHintAntiAlias);
 	graphics.DrawString(txt, txt.GetLength(), &font, Gdiplus::PointF(0.0f, 0.0f), &brush);
 	im.ReleaseDC();
 
@@ -58,7 +61,7 @@ GL_String::GL_String(const std::string &text, const GL_Font &f) : texName(0), co
 	}
 
 	tex_w = (GLfloat)w; tex_h = (GLfloat)h;
-	frame_w = (float)w; frame_h = (float)h;
+	frame_w = 0.25f*(float)w; frame_h = 0.25f*(float)h;
 
 	glPushAttrib(GL_TEXTURE_BIT);
 	glGenTextures(1, &texName);
