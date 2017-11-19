@@ -807,6 +807,7 @@ void SideSectionSettings::Update(bool full)
 			const bool hasTex = g && (color || g->hasFill());
 			const bool hasRef = g && !color && !twoD && g->hasNormals();
 
+			layout.skip(2);
 			SET(0, -1, 20, 20, -1, 0);
 			USE(NULL, &textureLabel, NULL, NULL, &reflectionLabel, NULL);
 			textureLabel.EnableWindow(hasTex);
@@ -853,7 +854,6 @@ void SideSectionSettings::Update(bool full)
 			}
 			else
 			{
-				layout.skip();
 				USE(NULL, &gridMode, &meshMode, NULL);
 				gridMode.EnableWindow(sel);
 				gridMode.SetCurSel(sel ? find(gridMode, g->options.grid_style) : -1);
