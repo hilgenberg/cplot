@@ -65,7 +65,7 @@ private:
 	void combines(const Element *f, const Element *g, Combination c, bool symmetric = false)
 	{
 		assert(f->arity() == 1);
-		assert(c != Collapses || c != First || g->arity() == 1);
+		assert(c != Collapses && c != First || g->arity() == 1);
 		combinations.emplace(std::make_pair(std::make_pair(f,g), c));
 		if (symmetric)
 		{

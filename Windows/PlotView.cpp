@@ -44,11 +44,11 @@ PlotView::PlotView()
 , last_key(-1.0)
 , rm(NULL)
 , nums_on(0)
-, mb(0)
 , timer(1.0/60.0)
 , drop(DropHandler::CPLOT, [this](const CString &f) { return load(f); })
 , in_resize(false)
 {
+	mb.all = 0;
 	arrows.all = 0;
 	memset(inertia, 0, 3 * sizeof(double));
 	memset(nums, 0, 10 * sizeof(bool));
@@ -294,12 +294,12 @@ void PlotView::OnButtonDown(int i, CPoint p)
 	((MainWindow*)GetParentFrame())->Focus(this);
 
 	m0 = p;
-	if (!mb)
+	if (!mb.all)
 	{
 		SetCapture();
 		// StartAnimation();
 	}
-	mb |= 1 << i;
+	mb.all |= 1 << i;
 }
 void PlotView::OnLButtonDown(UINT flags, CPoint p) { OnButtonDown(0, p); }
 void PlotView::OnMButtonDown(UINT flags, CPoint p) { OnButtonDown(1, p); }
@@ -307,8 +307,8 @@ void PlotView::OnRButtonDown(UINT flags, CPoint p) { OnButtonDown(2, p); }
 
 void PlotView::OnButtonUp(int i, CPoint p)
 {
-	mb &= ~(1 << i);
-	if (!mb)
+	mb.all &= ~(1 << i);
+	if (!mb.all)
 	{
 		ReleaseCapture();
 		// EndAnimation();
@@ -331,27 +331,26 @@ enum
 {
 	CONTROL = 1,
 	ALT     = 2,
-	SHIFT   = 4,
-	WIN     = 8
+	SHIFT   = 4
 };
 
 void PlotView::OnMouseMove(UINT flags, CPoint p)
 {
-	if (!mb) return;
+	if (!mb.all) return;
 	//clearQueue(event, NSOtherMouseDraggedMask, [&dx, &dy, &dz](NSEvent *e) { dx += e.deltaX; dy += e.deltaY; dz += e.deltaZ; });
-	int mods = (flags & MK_CONTROL) * CONTROL | (flags & MK_SHIFT) * SHIFT;
+	int mods = ((flags & MK_CONTROL) ? CONTROL : 0) | ((flags & MK_SHIFT) ? SHIFT : 0);
 	CPoint d = p - m0; m0 = p;
-	if (mb & 1) // left
+	if (mb.left)
 	{
 		move(d.x, d.y, mods);
 	}
-	if (mb & 2) // middle
+	if (mb.middle)
 	{
 		move(d.x, d.y, mods | ALT);
 	}
-	if (mb & 4) // right
+	if (mb.right)
 	{
-		move(d.x, d.y, mods | WIN);
+		move(d.x, d.y, mods | CONTROL);
 	}
 
 	SideView &sv = ((MainWindow*)GetParentFrame())->GetSideView();
@@ -361,10 +360,18 @@ void PlotView::OnMouseMove(UINT flags, CPoint p)
 
 BOOL PlotView::OnMouseWheel(UINT flags, short dz, CPoint p)
 {
-	if (mb) return TRUE; // probably accidental
+	if (mb.middle) return TRUE; // probably accidental
 	//clearQueue(event, NSScrollWheelMask, [&dx, &dy, &dz](NSEvent *e)
-	int mods = (flags & MK_CONTROL) * CONTROL | (flags & MK_SHIFT) * SHIFT;
-	zoom(-0.03*dz, mods);
+
+	if (mb.right)
+	{
+		zoom(-0.03*dz, ALT);
+	}
+	else
+	{
+		int mods = ((flags & MK_CONTROL) ? CONTROL : 0) | ((flags & MK_SHIFT) ? SHIFT : 0);
+		zoom(-0.03*dz, mods);
+	}
 
 	SideView &sv = ((MainWindow*)GetParentFrame())->GetSideView();
 	sv.UpdateAxis(false);
@@ -439,18 +446,18 @@ void PlotView::move(double dx, double dy, int flags)
 	Camera &camera = plot.camera;
 	bool   shift = flags & SHIFT;
 	bool     alt = flags & ALT;
-	bool     cmd = flags & WIN;
+	bool     cmd = flags & CONTROL;
 	double pixel = plot.pixel_size();
 
 	switch (axis.type())
 	{
 		case Axis::Rect:
-			if (alt && shift)
+			if (cmd && shift)
 			{
-				axis.in_zoom(exp(absmax(dx, dy) * 0.01));
+				axis.in_zoom(exp(absmax(dx, -dy) * 0.01));
 				plot.update(CH_IN_RANGE);
 			}
-			else if (alt)
+			else if (cmd)
 			{
 				dx *= pixel;
 				dy *= pixel;
@@ -459,7 +466,7 @@ void PlotView::move(double dx, double dy, int flags)
 			}
 			else if (shift)
 			{
-				zoom(0.5*absmax(dx, dy), 0);
+				zoom(0.5*absmax(dx, -dy), 0);
 			}
 			else
 			{
@@ -471,7 +478,7 @@ void PlotView::move(double dx, double dy, int flags)
 			break;
 
 		default:
-			if (cmd)
+			if (alt)
 			{
 				float f;
 				camera.scalefactor(0, f);
@@ -479,12 +486,12 @@ void PlotView::move(double dx, double dy, int flags)
 				camera.move(axis, -dx*pixel, dy*pixel, 0);
 				plot.update(CH_AXIS_RANGE);
 			}
-			else if (alt && shift)
+			else if (cmd && shift)
 			{
 				axis.in_zoom(exp(absmax(dx, dy) * 0.01));
 				plot.update(CH_IN_RANGE);
 			}
-			else if (alt)
+			else if (cmd)
 			{
 				axis.in_move(dx*0.01, -dy*0.01);
 				plot.update(CH_IN_RANGE);
@@ -521,8 +528,6 @@ static inline void accel(double &inertia, double dt)
 
 void PlotView::handleArrows()
 {
-	//assert(animating());
-
 	int dx = 0, dy = 0, dz = 0;
 	if (arrows.left)  --dx;
 	if (arrows.right) ++dx;
@@ -531,31 +536,33 @@ void PlotView::handleArrows()
 	if (arrows.plus)  ++dz;
 	if (arrows.minus) --dz;
 
+	double t0 = now();
+	double dt = t0 - last_key;
+	double dt0 = 1.0 / 60.0;
+	last_key = t0;
+	double scale = (dt0 > 0 ? std::min(dt / dt0, 5.0) : 1.0);
+
+	if (dx) accel(inertia[0], scale);
+	if (dy) accel(inertia[1], scale);
+	if (dz) accel(inertia[2], scale);
+
 	if (nums_on)
 	{
+		SideView &sv = ((MainWindow*)GetParentFrame())->GetSideView();
 		for (int i = 0; i < 10; ++i)
 		{
-			//if (nums[i])[self.document.parameterBox changeParameter : i by : cnum(dx, -dy)];
+			if (!nums[i]) continue;
+			sv.params.Change(i, cnum(dx*inertia[0], -dy*inertia[1]) * 0.005);
 		}
 	}
 	else
 	{
-		double t0 = now();
-		double dt = t0 - last_key;
-		double dt0 = 1.0 / 60.0;
-		last_key = t0;
-		double scale = (dt0 > 0 ? std::min(dt / dt0, 5.0) : 1.0);
-
-		if (dx) accel(inertia[0], scale);
-		if (dy) accel(inertia[1], scale);
-		if (dz) accel(inertia[2], scale);
-
 		int flags = 0;// [NSEvent modifierFlags];
 
 		if (GetKeyState(VK_SHIFT) & 0x8000) flags |= SHIFT;
 		//const bool alt = c & (1 << 13);
-		if (GetKeyState(VK_RMENU) & 0x8000) flags |= WIN;
-		//const bool ctrl = GetKeyState(VK_CONTROL) & 0x8000;
+		//if (GetKeyState(VK_RMENU) & 0x8000) flags |= WIN;
+		if (GetKeyState(VK_CONTROL) & 0x8000) flags |= CONTROL;
 
 		if (dx || dy) move(dx*inertia[0], dy*inertia[1], flags);
 		if (dz) move(0, dz*inertia[2], flags | SHIFT);
@@ -579,7 +586,7 @@ void PlotView::OnKeyUp(UINT c, UINT rep, UINT flags)
 		case '5': case '6': case '7': case '8': case '9':
 		{
 			int i = (c - '0' + 9) % 10;
-			if (nums[i]) { --nums_on; nums[i] = false; break; }
+			if (nums[i]) { --nums_on; nums[i] = false; }
 			break;
 		}
 	}
@@ -612,6 +619,15 @@ void PlotView::OnKeyDown(UINT c, UINT rep, UINT flags)
 		case       VK_ADD: arrows.plus  = true; break;
 		case VK_OEM_MINUS:
 		case  VK_SUBTRACT: arrows.minus = true; break;
+
+		case '0': case '1': case '2': case '3': case '4':
+		case '5': case '6': case '7': case '8': case '9':
+		{
+			int i = (c - '0' + 9) % 10;
+			if (!nums[i]) { ++nums_on; nums[i] = true; }
+			break;
+		}
+
 		default: done = false;
 	}
 
@@ -637,6 +653,12 @@ void PlotView::OnKeyDown(UINT c, UINT rep, UINT flags)
 		case 'C': sv.settings.OnClipCustom(); break;
 		case 'l': sv.settings.OnClipLock(); break;
 		case 'L': sv.settings.OnClipReset(); break;
+		case 'g': sv.settings.OnToggleGrid(); break;
+
+		case 't': sv.settings.OnCycleTextureMode(+1); return;
+		case 'T': sv.settings.OnCycleTextureMode(-1); return;
+		case 'v': sv.settings.OnCycleVFMode(+1); return;
+		case 'V': sv.settings.OnCycleVFMode(-1); return;
 
 		case 'u': sv.axis.OnTopView(); break;
 		case 'U': sv.axis.OnBottomView(); break;
@@ -647,26 +669,25 @@ void PlotView::OnKeyDown(UINT c, UINT rep, UINT flags)
 		case 'z': sv.axis.OnCenterAxis(); break;
 		case 'e': sv.axis.OnEqualRanges(); break;
 
-		/*case 'g': [settingsBox toggle : settingsBox.gridMode];   return;
+		case VK_OEM_PERIOD:
+			sv.params.StopAllAnimation();
+			break;
 
-		case 't': [settingsBox  cycle : settingsBox.textureMode direction : +1]; return;
-		case 'T': [settingsBox  cycle : settingsBox.textureMode direction : -1]; return;
-		case 'v': [settingsBox  cycle : settingsBox.vfMode      direction : +1]; return;
-		case 'V': [settingsBox  cycle : settingsBox.vfMode      direction : -1]; return;
-
-
-		case '0': case '1': case '2': case '3': case '4':
-		case '5': case '6': case '7': case '8': case '9':
+		case ' ':
 		{
-			int i = (c - '0' + 9) % 10;
-			if (i < self.document.parameterBox.numberOfParameters)
+			if (nums_on)
 			{
-				if (!nums[i]) ++nums_on;
-				nums[i] = true;
-				return;
+				for (int i = 0; i < 10; ++i)
+				{
+					if (nums[i]) sv.params.ToggleAnimation(i);
+				}
 			}
-			// fallthrough
-		}*/
+			else
+			{
+				sv.params.ToggleAnimation(0);
+			}
+			break;
+		}
 	}
 }
 
@@ -677,12 +698,14 @@ void PlotView::OnSysKeyUp(UINT c, UINT rep, UINT flags)
 
 bool PlotView::load(const CString &f)
 {
+	MainWindow* w = (MainWindow*)AfxGetMainWnd();
+	w->OnFocusGraph();
+
 	auto &d = document();
 	if (!d.OnOpenDocument(f)) return false;
 	d.SetPathName(f);
 	d.UpdateAllViews(NULL);
 
-	MainWindow* w = (MainWindow*)AfxGetMainWnd();
 	w->GetSideView().UpdateAll();
 	w->GetMainView().Update();
 	Invalidate();

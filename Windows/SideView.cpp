@@ -56,7 +56,6 @@ BOOL SideView::PreCreateWindow(CREATESTRUCT& cs)
 {
 	if (!CScrollView::PreCreateWindow(cs)) return FALSE;
 
-	cs.dwExStyle |= WS_EX_CLIENTEDGE;
 	cs.style &= ~WS_BORDER;
 	cs.style &= ~WS_HSCROLL;
 	cs.style |= WS_TABSTOP| WS_GROUP;

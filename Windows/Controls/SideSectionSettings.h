@@ -22,6 +22,7 @@ public:
 	CStatic         displayModeLabel; CComboBox displayMode, vfMode;
 	void            OnDisplayMode();
 	void            OnVFMode();
+	void            OnCycleVFMode(int d);
 	CStatic         histoModeLabel; CComboBox histoMode;
 	CStatic         histoScaleLabel; NumericEdit histoScale; CSliderCtrl histoScaleSlider;
 	void            OnHistoMode();
@@ -44,6 +45,9 @@ public:
 	void            OnFillColor();
 	void            OnAxisColor();
 	void            OnGridColor();
+	CStatic         fontLabel;
+	CButton         font;
+	void            OnFont();
 
 	CStatic         textureLabel, reflectionLabel;
 	TextureControl  texture, reflection;
@@ -52,12 +56,14 @@ public:
 	void            OnVScroll(UINT code, UINT pos, CScrollBar *sb);
 	CComboBox       textureMode;
 	void            OnTextureMode();
+	void            OnCycleTextureMode(int d);
 
 	CStatic         gridModeLabel, meshModeLabel;
 	CComboBox       gridMode, meshMode;
 	CSliderCtrl     gridDensity, meshDensity;
 	void            OnGridMode();
 	void            OnMeshMode();
+	void            OnToggleGrid(); // for PlotView
 
 	CButton         drawAxis;
 	void            OnDrawAxis();

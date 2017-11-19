@@ -35,6 +35,7 @@ BOOL Document::OnNewDocument()
 		sv->UpdateAll();
 		sv->Redraw();
 	}
+	w->OnFocusEdit();
 
 	return TRUE;
 }
@@ -59,6 +60,7 @@ void Document::Serialize(CArchive &ar)
 		}
 		else
 		{
+			if (w) w->OnFocusGraph();
 			FileReader   fr(ar.GetFile());
 			Deserializer s(fr);
 			plot.clear(); // TODO: don't modify on fail

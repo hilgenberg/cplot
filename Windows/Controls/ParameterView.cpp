@@ -197,6 +197,17 @@ void ParameterView::OnAnimate()
 	Update(false);
 }
 
+void ParameterView::StopAnimation()
+{
+	Parameter *p = parameter();
+	if (p && p->anim)
+	{
+		p->anim_stop();
+		parent.parent().AnimStateChanged(false);
+		Update(false);
+	}
+}
+
 void ParameterView::Animate(double t)
 {
 	double dx = delta.evolve(t); // always do this for slideback
@@ -259,4 +270,23 @@ void ParameterView::OnMinus()
 
 	MainView &v = ((MainWindow*)GetParentFrame())->GetMainView();
 	if (v.GetDocument().plot.recalc(p)) v.GetPlotView().Invalidate();
+}
+
+void ParameterView::Change(cnum delta)
+{
+	Parameter *p = parameter(); if (!p) return;
+
+	p->value(p->value() + delta);
+	if (p->is_real())
+	{
+		value.SetDouble(p->rvalue());
+	}
+	else
+	{
+		value.SetComplex(p->value());
+	}
+
+	MainView &v = ((MainWindow*)GetParentFrame())->GetMainView();
+	if (v.GetDocument().plot.recalc(p)) v.GetPlotView().Invalidate();
+	UpdateWindow();
 }

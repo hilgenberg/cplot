@@ -280,6 +280,8 @@ BEGIN
     BEGIN
         MENUITEM "&Properties\tCtrl+T",         ID_VIEW_PROPERTIES, CHECKED
         MENUITEM "S&plit",                      ID_WINDOW_SPLIT
+        MENUITEM "Focus Formula\tCtrl+L",       ID_VIEW_FORMULA
+        MENUITEM "Focus Graph View\tCtrl+G",    ID_VIEW_GRAPH
     END
     POPUP "&Help"
     BEGIN
@@ -325,6 +327,8 @@ BEGIN
     VK_F6,          ID_NEXT_PANE,           VIRTKEY, NOINVERT
     VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
     "T",            ID_VIEW_PROPERTIES,     VIRTKEY, CONTROL, NOINVERT
+    "L",            ID_VIEW_FORMULA,        VIRTKEY, CONTROL, NOINVERT
+    "G",            ID_VIEW_GRAPH,          VIRTKEY, CONTROL, NOINVERT
 END
 
 

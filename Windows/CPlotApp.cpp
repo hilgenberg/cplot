@@ -25,7 +25,7 @@ END_MESSAGE_MAP()
 
 CPlotApp::CPlotApp()
 {
-	SetAppID(_T("CPlot.2.1"));
+	SetAppID(_T("CPlot.1.10"));
 }
 
 BOOL CPlotApp::InitInstance()

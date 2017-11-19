@@ -26,6 +26,8 @@ public:
 	void OnMinus();
 	void OnAnimate();
 	void Animate(double t);
+	void Change(cnum delta);
+	void StopAnimation();
 
 private:
 	friend class SideSectionParams;

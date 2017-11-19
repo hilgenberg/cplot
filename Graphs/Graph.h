@@ -79,7 +79,8 @@ enum VectorfieldMode
 	VF_Unscaled   = 0,
 	VF_Normalized = 1,
 	VF_Unit       = 2,
-	VF_Connected  = 3
+	VF_Connected  = 3,
+	VF_LAST       = VF_Connected
 };
 
 enum GridStyle
@@ -103,7 +104,8 @@ enum TextureProjection
 	TP_Repeat  = 0,
 	TP_Center  = 1,
 	TP_Riemann = 2,
-	TP_UV      = 3
+	TP_UV      = 3,
+	TP_LAST    = TP_UV
 };
 
 enum

@@ -23,6 +23,8 @@ IMPLEMENT_DYNCREATE(MainWindow, CFrameWndEx)
 BEGIN_MESSAGE_MAP(MainWindow, CFrameWndEx)
 	ON_WM_CREATE()
 	ON_WM_ERASEBKGND()
+	ON_COMMAND(ID_VIEW_GRAPH,   OnFocusGraph)
+	ON_COMMAND(ID_VIEW_FORMULA, OnFocusEdit)
 END_MESSAGE_MAP()
 
 BOOL MainWindow::OnCmdMsg(UINT id, int code, void *extra, AFX_CMDHANDLERINFO *handler)
@@ -79,6 +81,24 @@ void MainWindow::Focus(CWnd *who)
 	if (!who) return;
 	MainForm *v = (MainForm*)GetDlgItem(AFX_IDW_PANE_FIRST);
 	::SendMessageW(*v, WM_NEXTDLGCTL, (WPARAM)(HWND)*who, TRUE);
+}
+
+void MainWindow::OnFocusEdit()
+{
+	Focus(mainView->GetEditView(0));
+}
+void MainWindow::OnFocusGraph()
+{
+	Focus(&mainView->GetPlotView());
+}
+
+BOOL MainWindow::PreTranslateMessage(MSG *m)
+{
+	// no idea why this doesn't work otherwise...
+	static HACCEL foo = LoadAccelerators(GetModuleHandle(NULL), MAKEINTRESOURCE(IDR_MAINFRAME));
+	assert(foo); if (foo && ::TranslateAccelerator(*this, foo, m)) return true;
+
+	return CFrameWndEx::PreTranslateMessage(m);
 }
 
 int MainForm::OnCreate(LPCREATESTRUCT cs)

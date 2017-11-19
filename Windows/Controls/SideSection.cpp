@@ -45,7 +45,6 @@ BOOL SideSection::PreCreateWindow(CREATESTRUCT& cs)
 {
 	if (!CWnd::PreCreateWindow(cs)) return FALSE;
 
-	//cs.dwExStyle |= WS_EX_CLIENTEDGE;
 	cs.style &= ~WS_BORDER;
 	cs.style &= ~WS_HSCROLL;
 	//cs.style |= WS_TABSTOP| WS_GROUP;

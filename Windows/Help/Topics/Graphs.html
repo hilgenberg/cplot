@@ -3,7 +3,7 @@
 	<head>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 		<title>Graph Types</title>
-		<link href="../help.css" rel="stylesheet" media="all" type="text/css" />
+		<link href="../Media/help.css" rel="stylesheet" media="all" type="text/css" />
 	</head>
 	
 	<body>
@@ -28,11 +28,11 @@
 			</tr>
 			<tr>
 				<td>ℝ²</td>
-				<td>-</td><td>Graph, Implicit</td><td>Image, Vectorfield, Color</td><td>Parametric</td>
+				<td>-</td><td>Graph, Implicit<sup>*</sup></sup></td><td>Image, Vector Field, Color</td><td>Parametric</td>
 			</tr>
 			<tr>
 				<td>ℝ³</td>
-				<td>-</td><td>Implicit</td><td>-</td><td>Vectorfield</td>
+				<td>-</td><td>Implicit<sup>*</sup></td><td>-</td><td>Vector Field</td>
 			</tr>
 			<tr>
 				<td>S¹</td>
@@ -44,7 +44,7 @@
 			</tr>
 		</table>
 		
-		<p>Contour plots can be done by plotting sin(πf) in implicit mode (which draws contours on all integers).</p>
+		<p><sup>*</sup>Contour plots can be done by plotting sin(πf) in implicit mode (which draws contours on all integers).</p>
 		
 		<h2>Coordinates</h2>
 		<p>On ℝ² we have cartesian (x and y) and polar coordinates (r and angle φ, which is counterclockwise from the positive real axis).
@@ -70,7 +70,7 @@
 		<div class="figure"><img src="../Media/Graph2.png" alt=""/><p>ℝ² → ℝ</p></div>
 		</div>
 		
-		<p>On ℝ² and ℝ³ CPlot can draw the zero set {x ∈ ℝⁿ | f(x) = 0}, also known as isosurface, level set or implicit function graph.</p>
+		<p>On ℝ² and ℝ³ CPlot can also draw the zero set {x ∈ ℝⁿ | f(x) = 0}, a.k.a. isosurface, level set or implicit function graph.</p>
 		<p>Variable names on ℝ³ are: x, y, z, r&nbsp;=&nbsp;√(x²+y²+z²), phi, theta (spherical coordinates) and again u&nbsp;=&nbsp;x, v&nbsp;=&nbsp;y.</p>
 		<p>In the points display mode, this draws points where f(x,y,z)&nbsp;≤&nbsp;0.</p>
 		<div class="figures">
@@ -84,23 +84,20 @@
 		<p>Variable names: z, x&nbsp;=&nbsp;re(z), y&nbsp;=&nbsp;im(z), r&nbsp;=&nbsp;abs(z), phi&nbsp;=&nbsp;arg(z) and the synonyms u&nbsp;=&nbsp;x, v&nbsp;=&nbsp;y.</p>
 		<div class="figures">
 		<div class="figure"><img src="../Media/Complex1.png" alt=""/><p>Imaginary part of Γ(z)</p></div>
-		<div class="figure"><img src="../Media/Complex2.png" alt=""/><p>Riemann image of the pole of 1/z²</p></div>
-		<div class="figure"><img src="../Media/ImageMode.png" alt=""/><p>Image mode for exp(z), using texture</p></div>
-		<div class="figure"><img src="../Media/Histogram.png" alt=""/><p>Riemann-Histogram for z+2</p></div>
 		</div>
 
-		<p>Histograms take some number (controlled by the quality setting) of random points, map them to f(z) and approximate the resulting probability distribution by splitting ℂ into bins (size controlled by the grid setting) and counting how many values get mapped into each bin. The volume of each bar then shows the approximate probability density at that point. In <a href="Settings.html">points</a> mode it just plots the mapped points,  so the density of the points in some area is related to the volume of the matching histogram bar. Three source distributions are available:</p>
-		<ol>
-			<li>The uniform distribution on the Riemann sphere, which can be useful for figuring out how some function operates on the sphere.</li>
-			<li>The uniform distribution on a disc around 0 with an arbitrary radius. The center can be shifted by plotting f(z+center).</li>
-			<li>The complex normal distribution with µ=0 and arbitrary σ.</li>
-		</ol>
+		<p>The <b>image mode</b>, especially when using textures, assigns a color value to every point in the preimage rectangle, maps that rectangle and draw the points at f(z) with the color from z. This shows directly how some area is moved, stretched and folded by the function. The image can be drawn onto the plane representation of ℂ or onto the Riemann sphere (tends to work better when the function has poles).</p>
+		<div class="figures">
+		<div class="figure"><img src="../Media/ImageMode.png" alt=""/><p>Image mode for exp(z), using texture</p></div>
+		<div class="figure"><img src="../Media/Complex2.png" alt=""/><p>Riemann image of the pole of 1/z²</p></div>
+		</div>
 
-		<p>The color modes assign a color value to every point in the complex plane and draw the point at z with the color at f(z). There are four ways of assigning the color:</p>
+		<p>The <b>color modes</b> assign a color value to every point in the complex plane (now as the image range!) and draw the point at
+		z (now in the preimage range) with the color at f(z). There are four ways of assigning the color:</p>
 		<ol>
-			<li>Tiled mode scales the current texture proportionally so that its width covers [0,1] and tiles the plane with copies of the scaled texture (the corners of four copies meet at 0). This shows how fast the function changes (the smaller the image, the faster f changes), where it takes the values n + iℝ and ℝ + i n h<sub>texture</sub>/w<sub>texture</sub> (where the seams are), where it does and does not flip the orientation, and conformality is somewhat visible.</li>
-			<li>Centered scales the texture proportionally so that its width covers [-1,1] and the center maps to 0. Points outside the texture will become transparent.</li>
-			<li>Riemann mode takes the largest centered disc in the texture, scales it onto the unit disc, maps that onto the Riemann sphere so that 0 becomes the north pole, the entire outside boundary becomes infinity and the circle with radius 1/2 becomes the image of S¹ (π times radius becomes the spherical distance from the north pole). This shows how often f takes every value (number of copies of that texture part) and f(z) is directly visible in the image (depending very much on the texture). There are two specialized builtin textures for this mode: Phase and Units (in the context menu of the texture control).</li>
+			<li>Tiled mode scales the current texture proportionally so that its width covers [0,1] and tiles the plane with copies of the scaled texture (the corners of four copies meet at 0). This shows how fast the function changes (the smaller the image, the faster f changes), which points get mapped onto the values n&nbsp;+&nbsp;iℝ and ℝ&nbsp;+&nbsp;i&nbsp;n&nbsp;h<sub>texture</sub>/w<sub>texture</sub> (where the seams and corners are), where it does and does not flip the orientation, and conformality is somewhat visible.</li>
+			<li>Centered mode scales the texture proportionally so that its width covers [-1,1] and the center maps to 0. Points outside the texture will become transparent. This shows all points that get mapped into the textured region, f.e. - if the texture is square and transparent outside a circle, it will show all points that get mapped onto the unit disc.</li>
+			<li>Riemann mode takes the largest centered disc in the texture, scales it onto the unit disc, maps that onto the Riemann sphere so that 0 becomes the north pole, the entire outside boundary becomes infinity and the circle with radius 1/2 becomes the image of S¹ (π times radius becomes the spherical distance from the north pole). This shows how often f takes every value (number of copies of that texture part) and f(z) is directly visible in the image (assuming the texture is not too uniform). There are two specialized builtin textures for this mode: Phase and Units (in the context menu of the texture control).</li>
 			<li>Spherical (a.k.a. equirectangular or direct polar) is similar to Riemann but uses the texture's x and y coordinates as spherical coordinates. This maps the entire top border to 0, the bottom border to complex infinity, the left and right borders to [-∞, 0], and the center of the texure to +1.</li>
 		</ol>
 		<p>The difference between the image and color modes is that image mode draws points at f(z) with the color at z, while color mode draws points at z with the color at f(z).</p>
@@ -108,9 +105,19 @@
 		<div class="figure"><img src="../Media/Color_Tiled.png" alt=""/><p>Color mode with tiled texture</p></div>
 		<div class="figure"><img src="../Media/Color_Riemann.png" alt=""/><p>The same function with phase texture in Riemann mode</p></div>
 		</div>
+
+		<p><b>Histograms</b> take some number (controlled by the quality setting) of random points, map them to f(z) and approximate the resulting probability distribution by splitting ℂ into bins (size controlled by the grid setting) and counting how many values get mapped into each bin. The volume of each bar then shows the approximate probability density at that point. In <a href="Settings.html">points</a> mode it just plots the mapped points,  so the density of the points in some area is related to the volume of the matching histogram bar. Three source distributions are available:</p>
+		<ol>
+			<li>The uniform distribution on the Riemann sphere, which can be useful for figuring out how some function operates on the sphere.</li>
+			<li>The uniform distribution on a disc around 0 with an arbitrary radius. The center can be shifted by plotting f(z+center).</li>
+			<li>The complex normal distribution with µ=0 and arbitrary σ.</li>
+		</ol>
+		<div class="figures">
+		<div class="figure"><img src="../Media/Histogram.png" alt=""/><p>Riemann-Histogram for z+2</p></div>
+		</div>
 		
 		<h2>Parametric Functions</h2>
-		<p>These are the images of functions from {ℝ, S¹, ℝ² or S¹&nbsp;×&nbsp;S¹} to {ℝ² or ℝ³}. All preceding plot modes are special cases of these.
+		<p>These are the images of functions from {ℝ, S¹, ℝ² or S¹&nbsp;×&nbsp;S¹} to {ℝ² or ℝ³}. Most other plot modes are special cases of these.
 		In the S¹ modes, the variables x and y will have values in [0,&nbsp;2π], where f(0) and f(2π) will be glued together. In the other modes they can
 		be set to any interval (on the left of the window, under "Axis").</p>
 		<p>Variable names: x and y a.k.a. u and v. r, phi and z as for graphs. y will be 0 on ℝ and S¹. For functions on ℝ or S¹ there is also t as synonym

@@ -37,6 +37,9 @@ public:
 	BOOL PreCreateWindow(CREATESTRUCT &cs) override;
 	int  OnCreate(LPCREATESTRUCT cs);
 	BOOL OnEraseBkgnd(CDC *dc);
+	void OnFocusGraph();
+	void OnFocusEdit();
+	BOOL PreTranslateMessage(MSG *m);
 
 	BOOL OnCmdMsg(UINT id, int code, void *extra, AFX_CMDHANDLERINFO *handler) override;
 

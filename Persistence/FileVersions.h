@@ -18,6 +18,7 @@
 inline const char *version_string(unsigned v)
 {
 	static char buf[32];
+	#pragma warning(suppress: 6031) // return of snprintf ignored
 	snprintf(buf, 31, "%u.%u", v >> 16, v & 0xFFFF);
 	return buf;
 }

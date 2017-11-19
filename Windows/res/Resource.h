@@ -25,13 +25,15 @@
 #define IDC_PARAM_ABSMAX                1024
 #define IDC_DEF_FORMULA                 1025
 #define ID_VIEW_PROPERTIES              32777
+#define ID_VIEW_GRAPH                   32784
+#define ID_VIEW_FORMULA                 32785
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        322
-#define _APS_NEXT_COMMAND_VALUE         32781
+#define _APS_NEXT_COMMAND_VALUE         32789
 #define _APS_NEXT_CONTROL_VALUE         1026
 #define _APS_NEXT_SYMED_VALUE           310
 #endif

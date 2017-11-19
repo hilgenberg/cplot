@@ -287,7 +287,7 @@ void GL_Axis::draw3D() const
 	// XYZ-labels
 	labelCache.start();
 	GL_Font font(axis.options.label_font);
-	font.size *= 2.0f;
+	font.size *= 1.5f;
 	font.color = axis.options.axis_color;
 	labelCache.font(font);
 	

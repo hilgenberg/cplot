@@ -29,6 +29,7 @@ enum
 	ID_bgLabel, ID_fillLabel, ID_axisLabel, ID_gridLabel,
 	ID_bgColor, ID_fillColor, ID_axisColor, ID_gridColor,
 	ID_bgAlpha, ID_fillAlpha, ID_axisAlpha, ID_gridAlpha,
+	ID_fontLabel, ID_font,
 
 	ID_textureLabel, ID_reflectionLabel,
 	ID_texture, ID_reflection,
@@ -68,6 +69,7 @@ BEGIN_MESSAGE_MAP(SideSectionSettings, SideSection)
 	ON_BN_CLICKED(ID_clipCustom, OnClipCustom)
 	ON_BN_CLICKED(ID_clipLock, OnClipLock)
 	ON_BN_CLICKED(ID_clipReset, OnClipReset)
+	ON_BN_CLICKED(ID_font, OnFont)
 END_MESSAGE_MAP()
 
 static constexpr int    SLIDER_MAX = 64000;
@@ -125,6 +127,32 @@ void SideSectionSettings::OnClipReset()
 	Recalc(plot);
 }
 
+void SideSectionSettings::OnToggleGrid()
+{
+	Graph *g = document().plot.current_graph(); if (!g) return;
+	g->options.grid_style = (g->options.grid_style == Grid_Off ? Grid_On : Grid_Off);
+	Update(false); // enable slider
+	Recalc(g);
+}
+
+void SideSectionSettings::OnFont()
+{
+	GL_Font &f = document().plot.axis.options.label_font;
+
+	LOGFONT lf; memset(&lf, 0, sizeof(LOGFONT));
+	CClientDC dc(this);
+	lf.lfHeight = -(LONG)(f.size * dc.GetDeviceCaps(LOGPIXELSY) / 72.0f);
+	_tcscpy_s(lf.lfFaceName, LF_FACESIZE, Convert(f.name));
+
+	CFontDialog dlg(&lf);
+	if (dlg.DoModal() != IDOK) return;
+
+	f.name = Convert(dlg.GetFaceName());
+	f.size = 0.1f * (float)dlg.GetSize();
+
+	Update(false);
+	Redraw();
+}
 //---------------------------------------------------------------------------------------------
 // Sliders
 //---------------------------------------------------------------------------------------------
@@ -273,6 +301,20 @@ void SideSectionSettings::OnVFMode()
 	Recalc(g);
 }
 
+void SideSectionSettings::OnCycleVFMode(int d)
+{
+	assert(d == 1 || d == -1);
+	Graph *g = document().plot.current_graph(); if (!g) return;
+
+	int m = d + (int)g->options.vf_mode;
+	if (m < 0) m = VF_LAST;
+	if (m > VF_LAST) m = 0;
+
+	g->options.vf_mode = (VectorfieldMode)m;
+	Recalc(g);
+	Update(false);
+}
+
 void SideSectionSettings::OnHistoMode()
 {
 	Graph *g = document().plot.current_graph(); if (!g) return;
@@ -382,6 +424,20 @@ void SideSectionSettings::OnTextureMode()
 	Recalc(g);
 }
 
+void SideSectionSettings::OnCycleTextureMode(int d)
+{
+	assert(d == 1 || d == -1);
+	Graph *g = document().plot.current_graph(); if (!g) return;
+
+	int m = d + (int)g->options.texture_projection;
+	if (m < 0) m = TP_LAST;
+	if (m > TP_LAST) m = 0;
+
+	g->options.texture_projection = (TextureProjection)m;
+	Recalc(g);
+	Update(false);
+}
+
 //---------------------------------------------------------------------------------------------
 // Textures & Colors
 //---------------------------------------------------------------------------------------------
@@ -487,6 +543,8 @@ int SideSectionSettings::OnCreate(LPCREATESTRUCT cs)
 	LABEL(fillLabel, "Fill Color:"); COLOR(fillColor); SLIDER(fillAlpha, 255);
 	LABEL(axisLabel, "Axis Color:"); COLOR(axisColor); SLIDER(axisAlpha, 255);
 	LABEL(gridLabel, "Grid Color:"); COLOR(gridColor); SLIDER(gridAlpha, 255);
+	LABEL(fontLabel, "Axis Font:");
+	BUTTON(font, "Arial 12");
 
 	LABEL(textureLabel, "Texture");
 	LABEL(reflectionLabel, "Reflection");
@@ -592,6 +650,7 @@ void SideSectionSettings::Update(bool full)
 		HIDE(fillLabel); HIDE(fillColor); HIDE(fillAlpha);
 		HIDE(axisLabel); HIDE(axisColor); HIDE(axisAlpha);
 		HIDE(gridLabel); HIDE(gridColor); HIDE(gridAlpha);
+		HIDE(fontLabel); HIDE(font);
 		HIDE(textureLabel);
 		HIDE(reflectionLabel);
 		HIDE(texture);
@@ -791,6 +850,9 @@ void SideSectionSettings::Update(bool full)
 		gridLabel.SetWindowText(g && g->usesLineColor() ? _T("Line Color:") : _T("Grid Color"));
 		gridColor.SetColor(hasGrid ? (COLORREF)(g->usesLineColor() ? g->options.line_color : g->options.grid_color) : OFF_COLOR);
 		gridAlpha.SetPos(hasGrid ? (g->usesLineColor() ? g->options.line_color : g->options.grid_color).GetAlpha() : 0);
+
+		USE(&fontLabel, &font, &font);
+		font.SetWindowText(Convert(plot.axis.options.label_font.to_string()));
 
 		if (vf || line || points)
 		{

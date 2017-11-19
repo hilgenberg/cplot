@@ -274,6 +274,14 @@ void MainView::Update()
 	RedrawHeader();
 }
 
+FocusEdit* MainView::GetEditView(int i) const
+{
+	const Graph *graph = GetDocument().plot.current_graph();
+	if (!graph || i < 0 || i >= 3) return NULL;
+	int nf = graph->n_components();
+	return i < nf ? const_cast<FocusEdit*>(&f[i]) : NULL;
+}
+
 void MainView::OnInitialUpdate()
 {
 	SetClassLongPtr(*this, GCLP_HBRBACKGROUND, (LONG_PTR)GetStockObject(BLACK_BRUSH));

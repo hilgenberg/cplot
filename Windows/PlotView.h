@@ -87,7 +87,17 @@ private:
 	std::set<KeySym> keys; // pressed keys
 
 	CPoint m0; // last mouse position (for OnMouseMove)
-	int    mb; // bits for LMR buttons
+	union
+	{
+		struct
+		{
+			bool left : 1;
+			bool middle : 1;
+			bool right : 1;
+		};
+		char all;
+	}
+	mb; // currently held mouse buttons
 
 	DECLARE_DYNCREATE(PlotView)
 	DECLARE_MESSAGE_MAP()

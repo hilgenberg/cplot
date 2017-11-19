@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-		<link href="../help.css" rel="stylesheet" media="all" type="text/css" />
+		<link href="../Media/help.css" rel="stylesheet" media="all" type="text/css" />
 		<title>Parameters</title>
 	</head>
 	<body>
@@ -18,7 +18,7 @@
 					<li>Real degrees: [0, 360] (use like sin(a°) in a function that uses radians).</li>
 					<li>Complex: {exp(it) for t in [0, 2π]}</li>
 				</ul>
-				The difference to real/complex is the fixed range and that they display a rotary knob instead of a slider to modifiy their value.
+				The difference to real/complex is the fixed range and (TODO) that they display a rotary knob instead of a slider to modifiy their value.
 			</li>
 		</ul>
 		
@@ -28,7 +28,5 @@
 		<p>To set the parameter's value, use either the sliders or enter any value into the matching text field. The text field will parse any
 		entered formula but the parameter stores only the current value, so if a parameter is set to sin(a), it will not update when the value of a changes.
 		Computed parameters can be defined as <a href="Functions.html">custom functions</a> with no arguments.</p>
-		<p>In the creation/editing dialog, Min/Max define the valid range for re(parameter), iMin/iMax are for the range of im(parameter) and rMax is for
-		abs(parameter).</p>
 	</body>
 </html>

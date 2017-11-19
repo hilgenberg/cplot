@@ -197,7 +197,7 @@ Rule::Pattern *Rule::Pattern::load(bool replacement, const WorkingTree &t,
 // Rule
 //----------------------------------------------------------------------------------------------------------------------
 
-static inline void syntax_error(const std::string &s)
+__declspec(noreturn) static inline void syntax_error(const std::string &s)
 {
 	throw std::runtime_error(format("Invalid rule: %s", s.c_str()));
 }

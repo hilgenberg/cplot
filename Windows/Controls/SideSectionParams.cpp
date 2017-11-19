@@ -45,6 +45,22 @@ void SideSectionParams::Animate(double t)
 	for (auto *p : params) p->Animate(t);
 }
 
+void SideSectionParams::Change(int i, cnum delta)
+{
+	if (i < 0 || (size_t)i >= params.size()) return;
+	params[i]->Change(delta);
+}
+
+void SideSectionParams::ToggleAnimation(int i)
+{
+	if (i < 0 || (size_t)i >= params.size()) return;
+	params[i]->OnAnimate();
+}
+void SideSectionParams::StopAllAnimation()
+{
+	for (auto *p : params) p->StopAnimation();
+}
+
 void SideSectionParams::Update(bool full)
 {
 	SideSection::Update(full);

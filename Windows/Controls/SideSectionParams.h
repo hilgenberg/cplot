@@ -1,6 +1,7 @@
 #pragma once
 #include "afxwin.h"
 #include "SideSection.h"
+#include "../../Engine/cnum.h"
 class Parameter;
 class ParameterView;
 
@@ -17,6 +18,9 @@ public:
 	void OnAdd() { OnEdit(NULL); }
 	void OnEdit(Parameter *p);
 	void Animate(double t);
+	void Change(int i, cnum delta);
+	void ToggleAnimation(int i);
+	void StopAllAnimation();
 
 protected:
 	std::vector<ParameterView*> params;

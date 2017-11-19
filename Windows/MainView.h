@@ -20,6 +20,7 @@ public:
 	inline Document& GetDocument() const { return *((MainWindow*)GetParentFrame())->doc; }
 	inline PlotView& GetPlotView() const { return const_cast<PlotView&>(plotView); }
 	inline SideView& GetSideView() const { return ((MainWindow*)GetParentFrame())->GetSideView(); }
+	FocusEdit* GetEditView(int i) const;
 
 	void   RedrawHeader();
 

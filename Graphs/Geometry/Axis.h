@@ -15,7 +15,7 @@ struct AxisOptions : public Serializable
 	: axis_color(0.25f, 0.5f, 0.85f)
 	, background_color(1.0f, 0.0f)
 	#ifdef _WINDOWS
-	, label_font("Lucida Console", 9.0)
+	, label_font("Arial", 9.0)
 	#else
 	, label_font("Lucida Grande", 9.0)
 	#endif

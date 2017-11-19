@@ -102,7 +102,9 @@ private: std::vector<WorkingTree> children; public:
 	WorkingTree(WorkingTree &&t) : type(t.type), element(t.element), children(std::move(t.children))
 	{
 		t.num = NULL;
-		assert((t.type = (Type)-15)); // so verify will not fail assertions if some container copies the remains
+		#ifndef NDEBUG
+		t.type = (Type)-15; // so verify will not fail assertions if some container copies the remains
+		#endif
 	}
 	
 	WorkingTree(const cnum &z, const RootNamespace &rns) : num(new CNP({&rns, z})), type(TT_Number){ assert(verify()); }
