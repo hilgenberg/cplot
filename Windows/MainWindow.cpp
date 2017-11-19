@@ -60,13 +60,16 @@ int MainWindow::OnCreate(LPCREATESTRUCT cs)
 
 BOOL MainWindow::OnCreateClient(LPCREATESTRUCT cs, CCreateContext *ctx)
 {
-	doc = (Document*)ctx->m_pCurrentDoc;
+	doc = (Document*)ctx->m_pCurrentDoc; assert(doc);
 	if (!CFrameWnd::OnCreateClient(cs, ctx)) return false;
 
 	MainForm *v = (MainForm*)GetDlgItem(AFX_IDW_PANE_FIRST);
 	splitter = &v->splitter;
 	mainView = (MainView*)splitter->GetPane(0, 1);
 	sideView = (SideView*)splitter->GetPane(0, 0);
+
+	if (doc) doc->AddView(v);
+	SetActiveView(v);
 
 	return TRUE;
 }
