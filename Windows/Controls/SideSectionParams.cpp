@@ -99,12 +99,13 @@ void SideSectionParams::Update(bool full)
 				m.insert(std::make_pair(p, q));
 			}
 		}
+		DS0;
 		for (Parameter *p : plot.ns.all_parameters(true))
 		{
 			if (m.count(p)) continue;
 			ParameterView *q = new ParameterView(*this, *p);
 			m.insert(std::make_pair(p, q));
-			q->Create(CRect(0, 0, 20, 44), this, 2000 + (UINT)p->oid());
+			q->Create(CRect(0, 0, DS(20), DS(44)), this, 2000 + (UINT)p->oid());
 		}
 		params.clear(); params.reserve(m.size());
 		for (auto i : m) params.push_back(i.second);

@@ -104,13 +104,14 @@ void SideSectionGraphs::Update(bool full)
 				m.insert(std::make_pair(f, q));
 			}
 		}
+		DS0;
 		for (int i = 0, n = plot.number_of_graphs(); i < n; ++i)
 		{
 			Graph *f = plot.graph(i);
 			if (m.count(f)) continue;
 			GraphView *q = new GraphView(*this, *f);
 			m.insert(std::make_pair(f, q));
-			q->Create(CRect(0, 0, 20, 22), this, 4000 + (UINT)f->oid());
+			q->Create(CRect(0, 0, DS(20), DS(22)), this, 4000 + (UINT)f->oid());
 		}
 		defs.clear(); defs.reserve(m.size());
 		for (int i = 0, n = plot.number_of_graphs(); i < n; ++i)

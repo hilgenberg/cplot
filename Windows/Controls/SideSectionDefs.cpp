@@ -76,12 +76,13 @@ void SideSectionDefs::Update(bool full)
 				m.insert(std::make_pair(f, q));
 			}
 		}
+		DS0;
 		for (UserFunction *f : plot.ns.all_functions(true))
 		{
 			if (m.count(f)) continue;
 			DefinitionView *q = new DefinitionView(*this, *f);
 			m.insert(std::make_pair(f, q));
-			q->Create(CRect(0, 0, 20, 22), this, 3000 + (UINT)f->oid());
+			q->Create(CRect(0, 0, DS(20), DS(22)), this, 3000 + (UINT)f->oid());
 		}
 		defs.clear(); defs.reserve(m.size());
 		for (auto i : m) defs.push_back(i.second);
