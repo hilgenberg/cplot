@@ -34,8 +34,8 @@ BOOL Document::OnNewDocument()
 	{
 		sv->UpdateAll();
 		sv->Redraw();
+		w->OnFocusEdit();
 	}
-	w->OnFocusEdit();
 
 	return TRUE;
 }
