@@ -31,9 +31,8 @@ BEGIN_MESSAGE_MAP(PlotView, CWnd)
 	ON_WM_MOUSEWHEEL()
 
 	ON_WM_KEYDOWN()
-	ON_WM_SYSKEYDOWN()
 	ON_WM_KEYUP()
-	ON_WM_SYSKEYUP()
+	ON_WM_CHAR()
 	ON_WM_GETDLGCODE()
 END_MESSAGE_MAP()
 
@@ -71,7 +70,7 @@ Document &PlotView::document() const
 
 UINT PlotView::OnGetDlgCode()
 {
-	return CWnd::OnGetDlgCode() | DLGC_WANTARROWS;
+	return CWnd::OnGetDlgCode() | DLGC_WANTARROWS | DLGC_WANTCHARS;
 }
 
 BOOL PlotView::PreCreateWindow(CREATESTRUCT& cs)
@@ -691,10 +690,10 @@ void PlotView::OnKeyDown(UINT c, UINT rep, UINT flags)
 	}
 }
 
-void PlotView::OnSysKeyDown(UINT c, UINT rep, UINT flags)
-{}
-void PlotView::OnSysKeyUp(UINT c, UINT rep, UINT flags)
-{}
+void PlotView::OnChar(UINT c, UINT rep, UINT flags)
+{
+	// don't care, just don't beep on every key
+}
 
 bool PlotView::load(const CString &f)
 {

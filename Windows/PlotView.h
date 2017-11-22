@@ -36,9 +36,8 @@ public:
 	BOOL OnMouseWheel (UINT flags, short dz, CPoint p);
 
 	void OnKeyDown   (UINT c, UINT rep, UINT flags);
-	void OnSysKeyDown(UINT c, UINT rep, UINT flags);
 	void OnKeyUp     (UINT c, UINT rep, UINT flags);
-	void OnSysKeyUp  (UINT c, UINT rep, UINT flags);
+	void OnChar      (UINT c, UINT rep, UINT flags);
 	UINT OnGetDlgCode();
 
 private:
