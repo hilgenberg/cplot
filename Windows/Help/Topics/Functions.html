@@ -17,16 +17,16 @@
 	<h2>Builtin Functions</h2>
 	<h3>Constants</h3>
 	<table>
+		<tr><td>i</td><td>Imaginary unit: i² = -1</td></tr>
 		<tr><td>pi, π</td><td>Smallest positive zero of sin(x).</td></tr>
 		<tr><td>e</td><td>Euler's number</td></tr>
 		<tr><td>eulergamma</td><td>Euler-Mascheroni constant</td></tr>
-		<tr><td>i</td><td>Imaginary unit: i² = -1, i = (0,1) in the canonical ℂ ≅ ℝ² identification</td></tr>
-		<tr><td>°</td><td>π/180, so 360° = 360∙° = 2π</td></tr>
+		<tr><td>°</td><td>π/180, so 360° = 360 * ° = 2π</td></tr>
 		<tr><td>NAN</td><td>Undefined value. f(NAN) = NAN.</td></tr>
 		<tr>
 			<td>const</td>
 			<td>
-				Physical constants. Use either const(name) or const_name with any of these:<br />
+				Physical constants. Use either const(name) or const_name with any of these (names are case-insensitive):<br />
 				<table>
 					<tr><th>Name</th><th>Value</th><th>Unit</th><th>Description</th></tr>
 					<tr><td>Avogadro</td><td>6.022…e23</td><td>mol⁻¹</td><td>particles per mole</td></tr>
@@ -48,19 +48,21 @@
 		</tr>
 	</table>
 
-	<h3>Operators</h3>
+	<h3>Operators and precedence</h3>
 	<table>
-		<tr><td>+</td><td>Addition</td></tr>
-		<tr><td>-</td><td>Negation/Subtraction</td></tr>
-		<tr><td>*</td><td>Multiplication</td></tr>
-		<tr><td>/</td><td>Division</td></tr>
-		<tr><td>%</td><td>Modulus. Only defined for real numbers: a % b = a - b*floor(a/b). The result is always between 0 and b.</td></tr>
-		<tr><td>^, **</td><td>Exponentiation, see also spow</td></tr>
-		<tr><td>~</td><td>Complex conjugation: ~(a+ib) = a-ib, no effect on real numbers.</td></tr>
-		<tr><td>!</td><td>Factorial (postfix), see also gamma</td></tr>
-		<tr><td>¹ .. ⁹</td><td>Powers (postfix)</td></tr>
-		<tr><td>&lt;, &gt;</td><td>Comparison. Only defined for real numbers: a > b := 1 if a > b, else 0</td></tr>
-		<tr><td>|•|</td><td>Absolute value.</td></tr>
+		<tr><th>Operators<br />ordered&nbsp;by<br />precedence</th><th>Meaning</th><th>Associativity</th><th>Examples</th></tr>
+		<tr><td>(&nbsp;), [&nbsp;], {&nbsp;}</td><td>Grouping (see below)</td><td>-</td><td></td></tr>
+		<tr><td>|•|</td><td>Absolute value</td><td>-</td><td>|z|&nbsp;=&nbsp;abs(z)</td></tr>
+		<tr><td>•! •²…•⁹</td><td>Postfix operators (factorial, powers)</td><td>-</td><td>x^3!&nbsp;=&nbsp;x^(3!)&nbsp;=&nbsp;x^6</td></tr>
+		<tr><td></td><td>Function call</td><td>-</td><td>sinx²&nbsp;=&nbsp;sin(x²), also sin(x)²&nbsp;=&nbsp;sin(x²), but (sinx)²&nbsp;=&nbsp;(sin(x))²</td></tr>
+		<tr><td>-• ~•</td><td>Prefix operators (Negation, complex conjugation)</td><td>-</td><td>-x²&nbsp;=&nbsp;-(x²)</td></tr>
+		<tr><td></td><td>Implicit Multiplication</td><td>left</td><td>ab^cd&nbsp;=&nbsp;(ab)^(cd), abc&nbsp;=&nbsp;(ab)c, sinxy&nbsp;=&nbsp;(sinx)*y, xx²&nbsp;=&nbsp;x^3, not x^4</td></tr>
+		<tr><td>^ **</td><td>Exponentiation</td><td>right</td><td>a^b^c&nbsp;=&nbsp;a^(b^c)</td></tr>
+		<tr><td>* / %</td><td>Multiplication, Division, Modulus (only defined for real numbers: a&nbsp;%&nbsp;b&nbsp;=&nbsp;a-b*floor(a/b). The result is always between 0 and b)</td><td>left</td><td>a/b/c&nbsp;=&nbsp;(a/b)/c&nbsp;=&nbsp;a/(bc), a*b^c*d&nbsp;=&nbsp;a*(b^c)*d</td></tr>
+		<tr><td>+ -</td><td>Addition, Subtraction</td><td>left</td><td>a-b-c&nbsp;=&nbsp;(a-b)-c&nbsp;=&nbsp;a-(b+c)</td></tr>
+		<tr><td>and, or, xor</td><td>Binary AND, OR, XOR (see bit function)</td><td>left</td><td>-(a and b) = -a or -b, a xor b = -a xor -b</td></tr>
+		<tr><td>&lt; &gt;</td><td>Comparison - only defined for real numbers: a&nbsp;&gt;&nbsp;b&nbsp;:=&nbsp;1 if a&nbsp;&gt;&nbsp;b, else 0</td><td>-</td><td>(a&nbsp;&lt;&nbsp;b)&nbsp;*&nbsp;(b&nbsp;&lt;&nbsp;c) is a&nbsp;&lt;&nbsp;b&nbsp;&lt;&nbsp;c<br />Sets can be plotted like this:<br /><span class="x">sin xx - sin yy > 0</span>.</td></tr>
+		<tr><td>⌴</td><td>Whitespace (grouping)</td><td>-</td><td>see below</td></tr>
 	</table>
 
 	<h3>Functions</h3>
@@ -77,8 +79,7 @@
 		<tr><td>hypot</td><td>hypot(z,w) = sqrt(z²+w²)</td></tr>
 		<tr><td>sqr</td><td>sqr(z) = z²</td></tr>
 		<tr><td>√, sqrt</td><td>Square root, branch cut along the negative real axis.</td></tr>
-		<tr><td>clamp</td><td>clamp(x) restricts the argument to [0,1], meaning clamp(x) = max(0, min(1, x)).<br/>
-			clamp(x, a, b) restricts x to [min(a,b), max(a,b)].<br/>
+		<tr><td>clamp</td><td>clamp(x, a, b) restricts x to [min(a,b), max(a,b)]. clamp(x)&nbsp;=&nbsp;clamp(x,0,1).<br/>
 			clamp(z, a, b) = clamp(re z, re a, re b) + i clamp(im z, im a, im b) for complex z, a, b.<br/>
 			clamp(z) = clamp(z, 0, 1+i) = clamp(re z) + i clamp(im z).<br/>
 			Invariant under permutation: clamp(a,b,c) = clamp(b,c,a) = clamp(c,b,a) = ...<br/>
@@ -127,8 +128,8 @@
 		<tr><th colspan="2">Gamma</th></tr>
 		<tr><td>gamma, Γ</td><td>Gamma function</td></tr>
 		<tr><td>factorial</td><td>factorial(z) = z! = gamma(z+1)</td></tr>
-		<tr><td>beta</td><td>Beta function: beta(a,b) = Γ(a)Γ(b) / Γ(a+b)</td></tr>
-		<tr><td>bico</td><td>Binomial coefficient: bico(n,k) = n! / k!(n-k)! = 1 / (n+1)beta(n-k+1,k+1)</td></tr>
+		<tr><td>beta</td><td>Beta function: beta(a,b) = Γ(a)Γ(b)&nbsp;/&nbsp;Γ(a+b)</td></tr>
+		<tr><td>bico</td><td>Binomial coefficient: bico(n,k) = n!&nbsp;/&nbsp;k!(n-k)!</td></tr>
 		<tr><td>digamma</td><td>Logarithmic derivative of the Gamma function: digamma(z) = (lnΓ)'(z) = Γ'(z) / Γ(z)</td></tr>
 		<tr><td>trigamma</td><td>Second logarithmic derivative of the Gamma function: trigamma(z) = (lnΓ)''(z)</td></tr>
 
@@ -161,31 +162,14 @@
 		<tr><td>ceil</td><td>ceil(z) rounds the real and imaginary parts of z up (i.e. towards +∞).</td></tr>
 
 		<tr><th colspan="2">Binary</th></tr>
-		<tr><td>bit(x,k)</td><td>Return k'th bit of x. 
-			For negative x, this uses floating point two's complement, i.e. bit(-x,k) = 1-bit(x,k) for all x and k.
-			The zero has two representations: all bits zero (+0) or all bits one (-0).
-			For complex numbers: bit(x+iy, n) = bit(x,n) + i bit(y,n) and only defined for integer n.</td></tr>
-		<tr><td>and</td><td>Binary "and". Some properties:<br/>
-		x and y = y and x<br/>
-		x and y = -(-x or -y)<br/>
-		x and +0 = +0<br/>
-		(x and -0 = x if the parser would not simplify -0 to 0)</td></tr>
-		<tr><td>or</td><td>Binary "or". Some properties:<br/>
-		x or y = y or x<br/>
-		x or y = -(-x and -y)<br/>
-		x or +0 = x<br/>
-		(x or -0 = -0 but -0 can not be entered)</td></tr>
-		<tr><td>xor</td><td>Binary "xor". Some properties:<br/>
-		x xor y = y xor x<br/>
-		-x xor -y = x xor y<br/>
-		-x xor y = -(x xor y)<br/>
-		x xor +0 = x<br/>
-		(x xor -0 = -x but again, -0 can not be entered)</td></tr>
-		<tr><td>ieee_m</td><td>Mantissa of an IEEE 754 double precision floating point number. Includes the leading 1. Properties:<br/>
+		<tr><td>bit(x,k)</td><td>Return k'th bit of x. Only defined for integer k. bit(-x,k) = 1-bit(x,k) for all x and k (0=+0 with all bits zero).
+		For x ≥ 0: x&nbsp;=&nbsp;sum(bit(x,k)&nbsp;*&nbsp;2^k).
+			For complex numbers: bit(x+iy,&nbsp;n)&nbsp;=&nbsp;bit(x,n)&nbsp;+&nbsp;i bit(y,n)</td></tr>
+		<tr><td>ieee_m</td><td>Mantissa of an IEEE&nbsp;754 double precision floating point number. Includes the leading 1. Properties:<br/>
 		|x| = ieee_m(x) * 2 ^ ieee_e(x)<br/>
 		ieee_m(-x) = ieee_m(x)<br/>
 		ieee_m(2x) = ieee_m(x)</td></tr>
-		<tr><td>ieee_e</td><td>Exponent of an IEEE 754 double precision floating point number. Bias is already subtracted, so ieee_e(1) = 0, not 1023.</td></tr>
+		<tr><td>ieee_e</td><td>Exponent of an IEEE&nbsp;754 double precision floating point number. Bias is already subtracted, so ieee_e(1)&nbsp;=&nbsp;0, not 1023.</td></tr>
 
 		<tr><th colspan="2">Misc</th></tr>
 		<tr><td>blend</td><td>Blends two functions, which can be useful for the image modes ("Image" and "Riemann"). Let
@@ -199,27 +183,27 @@
 		<tr><td>mandel</td><td>mandel(c) = 1 if c is in the Mandelbrot set (the numbers for which the iteration 0 → z → z²+c stays finite), otherwise closer to 0, depending on how quickly it diverges.</td></tr>
 	</table>
 
+	<h2>Defining Functions</h2>
+	<p>To create: Use the + button in the Definitions box. <img class="right" src="../Media/Definitions.png" alt="" /></p>
+	<p>To edit: Click on the definition, which will bring up an editor dialog. At the bottom of the dialog is also a delete button.</p>
+	<p>Functions can not be recursive or use the plotting variables without declaring them as parameters. For example
+		<span class="x">f = x*y</span> is an error because x and y are unknown when the function is parsed. This must be written as
+		<span class="x">f(x,y) = x*y</span>. Parameters and other functions can be used though.</p>
+
+	<h2>Names</h2>
+	<p>Names of functions, variables and parameters cannot contain spaces, commas, bars ('|'), control characters, parantheses, brackets, braces, unicode exponents or start with a digit. But other than that, the full unicode range is valid and there is no limit on the length.</p>
+	
 	<h2>Expression Syntax<a name="Functions"></a></h2>
+
+	<h3>Basics</h3>
 	<p>
-		The precise rules are below but the short version is this: Parantheses are optional unless a function has more than one argument
+		Parantheses are optional unless a function has more than one argument
 		(<span class="x">sin(x)</span> and <span class="x">sinx</span> are the same).
 		Multiplication is implicit, so <span class="x">x*y</span> and <span class="x">xy</span> are the same.
 		Whitespace is for grouping, so <span class="x">(x+y)*(z+w)</span> can be written as <span class="x">x+y&nbsp;*&nbsp;z+w</span> and
 		<span class="x">sin(x+y)</span> as <span class="x">sin&nbsp;x+y</span>. Numbers are not localized, the decimal separator is always
 		a dot, never a comma because the comma separates multiple arguments. Writing <span class="x">|z|</span> for abs(z) is ok.
 	</p>
-
-	<h2>Names</h2>
-	<p>Names of functions, variables and parameters cannot contain spaces, commas, bars ('|'), control characters, parantheses, brackets, braces, unicode exponents or start with a digit. But other than that, the full unicode range is valid and there is no limit on the length.</p>
-	
-	<h2>Defining Functions</h2>
-	<p>To create: Use the + button in the Definitions box. <img class="right" src="../Media/Definitions.png" alt="" /></p>
-	<p>To edit: Click on the definition, which will bring up an editor dialog. At the bottom of the dialog is also a delete button.</p>
-	<p>Functions can not be recursive and can not use the plotting variables without declaring them as parameters. For example
-		<span class="x">f = x*y</span> is an error because x and y are unknown when the function is parsed. This must be written as
-		<span class="x">f(x,y) = x*y</span>. Parameters and other functions can be used though.</p>
-
-	<h2>Expression Syntax II</h2>
 	<p>The parser does backtracking, so functions can be overloaded (different functions with the same name for different numbers
 	of arguments). When an expression is split into separate tokens, longer matches are always tried first if there are several
 	possibilities. For example, even if there are parameters a and c, arcsin is never read as a*r*c*sin.</p>
@@ -230,26 +214,11 @@
 		<span class="x">0b110.001101e1101</span> (the exponent is binary too), or hexadecimal: <span class="x">0xA8B.CD53q-7F</span>
 		(since e is already a digit, we use q as exponent marker).
 	</p>
-	<p>The imaginary unit is called <span class="x">i</span>.</p>
 	<p>Unicode superscripts are read as power operators. For example <span class="x">x⁻⁴⁺⁵ⁱ</span> is equal to x^(-4+5i).</p>
-
-	<h3>Operators and precedence</h3>
-	<table>
-		<tr><th>Operators<br />ordered&nbsp;by<br />precedence</th><th>Meaning</th><th>Associativity</th><th>Examples</th></tr>
-		<tr><th>•! •²…•⁹</th><td>Postfix operators</td><td>-</td><td>x^3!&nbsp;=&nbsp;x^(3!)&nbsp;=&nbsp;x^6</td></tr>
-		<tr><th></th><td>Function call</td><td>-</td><td>sinx^2&nbsp;=&nbsp;(sinx)^2</td></tr>
-		<tr><th>-• ~•</th><td>Prefix operators</td><td>-</td><td>~x^2&nbsp;=&nbsp;(~x)^2</td></tr>
-		<tr><th></th><td>Implicit Multiplication</td><td>left</td><td>ab^cd&nbsp;=&nbsp;(ab)^(cd), abc&nbsp;=&nbsp;(ab)c, sinxy&nbsp;=&nbsp;(sinx)*y</td></tr>
-		<tr><th>^ **</th><td>Exponentiation</td><td>right</td><td>a^b^c&nbsp;=&nbsp;a^(b^c)</td></tr>
-		<tr><th>* / %</th><td>Multiplication, Division, Modulo</td><td>left</td><td>a/b/c&nbsp;=&nbsp;(a/b)/c&nbsp;=&nbsp;a/(bc), a*b^c*d&nbsp;=&nbsp;a*(b^c)*d</td></tr>
-		<tr><th>+ -</th><td>Addition, Subtraction</td><td>left</td><td>a-b-c&nbsp;=&nbsp;(a-b)-c&nbsp;=&nbsp;a-(b+c)</td></tr>
-		<tr><th>and or xor</th><td>Binary AND, OR, XOR</td><td>left</td><td>-(a and b) = -a or -b, a xor b = -a xor -b</td></tr>
-		<tr><th>&lt; &gt;</th><td>Comparison</td><td>-</td><td>The value is 1 for true or 0 for false.<br />(a&nbsp;&lt;&nbsp;b)&nbsp;*&nbsp;(b&nbsp;&lt;&nbsp;c) is a&nbsp;&lt;&nbsp;b&nbsp;&lt;&nbsp;c<br />Ice cube tray-style plots for sets can be done like this:<br /><span class="x">sin xx - sin yy > 0</span>.</td></tr>
-		<tr><th>⌴</th><td>Whitespace</td><td>-</td><td>see below</td></tr>
-	</table>
+	
 	<h3>Parantheses and whitespace</h3>
 	<p>
-		Whitespace works like this: Any block of tokens (without mismatched parantheses) that is surrounded by
+		Any block of tokens (without mismatched parantheses) that is surrounded by
 		whitespace (beginning and end of the expression count as whitespace) and can be put inside parantheses without
 		creating syntax errors will be put in parantheses and then whitespace is removed.
 	</p>
