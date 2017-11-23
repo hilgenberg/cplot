@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CPlot", "CPlot.vcxproj", "{D83136BA-C18C-4407-A26F-8631F2244291}"
 EndProject
@@ -12,20 +12,20 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		Debug|x64 = Debug|x64
-		Debug|x86 = Debug|x86
-		Release|x64 = Release|x64
-		Release|x86 = Release|x86
+		Debug|32-bit = Debug|32-bit
+		Debug|64-bit = Debug|64-bit
+		Release|32-bit = Release|32-bit
+		Release|64-bit = Release|64-bit
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{D83136BA-C18C-4407-A26F-8631F2244291}.Debug|x64.ActiveCfg = Debug|x64
-		{D83136BA-C18C-4407-A26F-8631F2244291}.Debug|x64.Build.0 = Debug|x64
-		{D83136BA-C18C-4407-A26F-8631F2244291}.Debug|x86.ActiveCfg = Debug|Win32
-		{D83136BA-C18C-4407-A26F-8631F2244291}.Debug|x86.Build.0 = Debug|Win32
-		{D83136BA-C18C-4407-A26F-8631F2244291}.Release|x64.ActiveCfg = Release|x64
-		{D83136BA-C18C-4407-A26F-8631F2244291}.Release|x64.Build.0 = Release|x64
-		{D83136BA-C18C-4407-A26F-8631F2244291}.Release|x86.ActiveCfg = Release|Win32
-		{D83136BA-C18C-4407-A26F-8631F2244291}.Release|x86.Build.0 = Release|Win32
+		{D83136BA-C18C-4407-A26F-8631F2244291}.Debug|32-bit.ActiveCfg = Debug|Win32
+		{D83136BA-C18C-4407-A26F-8631F2244291}.Debug|32-bit.Build.0 = Debug|Win32
+		{D83136BA-C18C-4407-A26F-8631F2244291}.Debug|64-bit.ActiveCfg = Debug|x64
+		{D83136BA-C18C-4407-A26F-8631F2244291}.Debug|64-bit.Build.0 = Debug|x64
+		{D83136BA-C18C-4407-A26F-8631F2244291}.Release|32-bit.ActiveCfg = Release|Win32
+		{D83136BA-C18C-4407-A26F-8631F2244291}.Release|32-bit.Build.0 = Release|Win32
+		{D83136BA-C18C-4407-A26F-8631F2244291}.Release|64-bit.ActiveCfg = Release|x64
+		{D83136BA-C18C-4407-A26F-8631F2244291}.Release|64-bit.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

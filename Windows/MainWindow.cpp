@@ -97,10 +97,18 @@ int MainForm::OnCreate(LPCREATESTRUCT cs)
 	DS0;
 	int w = cs->cx, w0 = DS(230), min_w = DS(160);
 
+	MainWindow *mw = (MainWindow*)GetParentFrame();
+	CCreateContext ctx;
+	if (mw)
+	{
+		ctx.m_pCurrentFrame = mw;
+		ctx.m_pCurrentDoc = mw->doc;
+	}
+	
 	if (!(
 		splitter.CreateStatic(this, 1, 2) &&
-		splitter.CreateView(0, 1, RUNTIME_CLASS(MainView), CSize(w - w0, cs->cy), NULL) &&
-		splitter.CreateView(0, 0, RUNTIME_CLASS(SideView), CSize(w0, cs->cy), NULL)
+		splitter.CreateView(0, 1, RUNTIME_CLASS(MainView), CSize(w - w0, cs->cy), &ctx) &&
+		splitter.CreateView(0, 0, RUNTIME_CLASS(SideView), CSize(w0, cs->cy), &ctx)
 		)) return FALSE;
 
 	splitter.SetColumnInfo(0, w0, min_w); // set min width
