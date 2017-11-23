@@ -14,7 +14,7 @@ public:
 	DECLARE_MESSAGE_MAP()
 };
 
-class MainView : public CWnd
+class MainView : public CView
 {
 public:
 	inline Document& GetDocument() const { return *((MainWindow*)GetParentFrame())->doc; }
@@ -25,6 +25,7 @@ public:
 	void   RedrawHeader();
 
 	BOOL   OnEraseBkgnd(CDC *dc);
+	void   OnDraw(CDC *dc);
 	BOOL   PreCreateWindow(CREATESTRUCT &cs) override;
 	int    OnCreate(LPCREATESTRUCT cs);
 	HBRUSH OnCtlColor(CDC *dc, CWnd *wnd, UINT ctrl);

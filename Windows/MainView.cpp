@@ -40,8 +40,8 @@ BOOL BGStatic::OnEraseBkgnd(CDC *dc)
 }
 
 
-IMPLEMENT_DYNCREATE(MainView, CWnd)
-BEGIN_MESSAGE_MAP(MainView, CWnd)
+IMPLEMENT_DYNCREATE(MainView, CView)
+BEGIN_MESSAGE_MAP(MainView, CView)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
 	ON_WM_ERASEBKGND()
@@ -63,11 +63,16 @@ HBRUSH MainView::OnCtlColor(CDC *dc, CWnd *wnd, UINT ctrl)
 		dc->SetBkMode(MFC_TRANSPARENT);
 		return (HBRUSH)GetStockObject(NULL_BRUSH);
 	}
-	return CWnd::OnCtlColor(dc, wnd, ctrl);
+	return CView::OnCtlColor(dc, wnd, ctrl);
 }
+
+void MainView::OnDraw(CDC *dc)
+{
+}
+
 BOOL MainView::PreCreateWindow(CREATESTRUCT &cs)
 {
-	if (!CWnd::PreCreateWindow(cs)) return FALSE;
+	if (!CView::PreCreateWindow(cs)) return FALSE;
 
 	cs.style &= ~WS_BORDER;
 	cs.style |= WS_CHILD | WS_CLIPCHILDREN;
@@ -77,7 +82,7 @@ BOOL MainView::PreCreateWindow(CREATESTRUCT &cs)
 
 int MainView::OnCreate(LPCREATESTRUCT cs)
 {
-	if (CWnd::OnCreate(cs) < 0) return -1;
+	if (CView::OnCreate(cs) < 0) return -1;
 	EnableScrollBarCtrl(SB_BOTH, FALSE);
 
 	START_CREATE;
@@ -322,7 +327,7 @@ BOOL MainView::OnEraseBkgnd(CDC *dc)
 
 void MainView::OnSize(UINT type, int w, int h)
 {
-	CWnd::OnSize(type, w, h);
+	CView::OnSize(type, w, h);
 	EnableScrollBarCtrl(SB_BOTH, FALSE);
 	Update();
 	plotView.Invalidate();
