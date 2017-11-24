@@ -35,6 +35,7 @@ class Rule
 			Range           range; // for TT_Wildcard
 		};
 
+		#pragma warning(suppress:4582) // number's c'tor is not called, but that's ok
 		Pattern(Type t) : type(t){}
 
 		typedef std::map<const Pattern*, const WorkingTree*> Bindings;

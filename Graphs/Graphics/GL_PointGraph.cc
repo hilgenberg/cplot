@@ -586,6 +586,7 @@ void GL_PointGraph::draw(GL_RM &/*rm*/) const
 			case VF_Normalized: f = gridsize*0.9f  / max_len; unit = false; break;
 			case VF_Connected:  f = gridsize*0.75f / max_len; unit = false; break;
 			case VF_Unit:       f = gridsize*0.75f;           unit = true;  break;
+			default: assert(false); return;
 		}
 
 		glLineWidth(1.0f);

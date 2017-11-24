@@ -485,7 +485,7 @@ ParsingTree *ParsingTree::parse(Token *token, ParsingResult &info, const RootNam
 	Token *lowOpToken = NULL; int prec = -1; const Operator *lowOp = NULL; bool implicit = false;
 	for (Token *t = token; t; t = t->next)
 	{
-		int p; const BinaryOperator *op = NULL; bool imp;
+		int p = 0; const BinaryOperator *op = NULL; bool imp = false;
 		if (t->is_valid_binary())
 		{
 			op  = (const BinaryOperator*) t->data.operator_;
@@ -505,6 +505,7 @@ ParsingTree *ParsingTree::parse(Token *token, ParsingResult &info, const RootNam
 		}
 		
 		if(!op) continue;
+
 		assert(!lowOp || p != prec || op->rightbinding() == ((BinaryOperator*)lowOp)->rightbinding());
 		if (lowOp && (prec < p || p == prec && op->rightbinding())) continue;
 		

@@ -64,7 +64,7 @@ void TextureControl::OnRButtonUp(UINT flags, CPoint p)
 		MENUITEMINFO mi; mi.cbSize = sizeof(MENUITEMINFO);
 		cm.GetMenuItemInfo(i, &mi, TRUE);
 		mi.fMask = MIIM_STATE;
-		mi.fState = (cm.GetMenuItemID(i) - 1000 == (int)x0 ? MF_CHECKED : MF_UNCHECKED);
+		mi.fState = (cm.GetMenuItemID(i) - 1000 == (UINT)x0 ? MF_CHECKED : MF_UNCHECKED);
 		cm.SetMenuItemInfo(i, &mi, TRUE);
 	}
 	ClientToScreen(&p);
@@ -169,7 +169,6 @@ bool TextureControl::load(const CString &f)
 	if (!im) return false;
 	CImage image; if (FAILED(image.Load(f))) return false;
 
-	int dr = image.GetPitch();
 	int w = image.GetWidth();
 	int h = image.GetHeight();
 	if (!w || !h) return false;

@@ -224,9 +224,7 @@ void ParameterController::OnDelete()
 		std::string nm = p->name();
 		delete p;
 
-		Namespace &ns = sv.document().rns;
 		Plot &plot = sv.document().plot;
-
 		plot.reparse(nm);
 
 		CDialogEx::OnOK();

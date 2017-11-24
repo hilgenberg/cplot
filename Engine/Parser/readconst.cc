@@ -29,6 +29,9 @@ static const std::map<const std::string, std::pair<const double, const std::stri
 	{"TP",       {1.416833e32,     "K"           }}  // Planck temperature
 };
 
+static char tolower_(char c) { return (char)::tolower((int)(unsigned char)c); }
+static char toupper_(char c) { return (char)::toupper((int)(unsigned char)c); }
+
 static inline bool find_const(std::string &name, double &value)
 {
 	// try as-is
@@ -50,7 +53,7 @@ static inline bool find_const(std::string &name, double &value)
 	}
 	
 	// try lowercase
-	std::transform(name.begin(), name.end(), name.begin(), ::tolower);
+	std::transform(name.begin(), name.end(), name.begin(), ::tolower_);
 	it = constants.find(name);
 	if (it != constants.end())
 	{
@@ -59,7 +62,7 @@ static inline bool find_const(std::string &name, double &value)
 	}
 	
 	// try uppercase
-	std::transform(name.begin(), name.end(), name.begin(), ::toupper);
+	std::transform(name.begin(), name.end(), name.begin(), ::toupper_);
 	it = constants.find(name);
 	if (it != constants.end())
 	{

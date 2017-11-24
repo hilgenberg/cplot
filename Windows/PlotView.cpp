@@ -240,14 +240,14 @@ void PlotView::OnPaint()
 		((MainWindow*)GetParentFrame())->GetSideView().Animate();
 	}
 
-	bool dynamic = true; // todo: from pref
 	if (!anim && !plot.at_full_quality()) plot.update(CH_UNKNOWN);
 	GL_CHECK;
 
 	int nt = -1; // todo: pref
 	if (nt < 1 || nt > 256) nt = n_cores;
 	bool accum = false; // TODO
-	plot.draw(*rm, nt, accum, anim);
+	bool dynamic = true; // todo: from pref
+	plot.draw(*rm, nt, accum, anim && dynamic);
 	GL_CHECK;
 
 	//status();
@@ -635,9 +635,6 @@ void PlotView::OnKeyDown(UINT c, UINT rep, UINT flags)
 		if (arrows.all) animating();
 		return;
 	}
-
-	Plot &plot = document().plot;
-	Axis &axis = plot.axis;
 
 	SideView &sv = ((MainWindow*)GetParentFrame())->GetSideView();
 

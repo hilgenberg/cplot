@@ -31,7 +31,7 @@ struct GL_Color : public Serializable
 	
 	Gdiplus::Color convert() const
 	{
-		return Gdiplus::Color(int(a*255.0f), int(r*255.0f), int(g*255.0f), int(b*255.0f));
+		return Gdiplus::Color(BYTE(a*255.0f), BYTE(r*255.0f), BYTE(g*255.0f), BYTE(b*255.0f));
 	}
 	
 	GL_Color &operator= (COLORREF c)

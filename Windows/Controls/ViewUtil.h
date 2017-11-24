@@ -16,7 +16,7 @@ const DWORD buttonStyle = WS_CHILD | BS_PUSHBUTTON | WS_TABSTOP;
 
 #define START_CREATE \
 	DS0;\
-	CComboBox *currentPopup = NULL; int currentIdx = 0;
+	CComboBox *currentPopup = NULL; int currentIdx = 0; (void)currentIdx; (void)currentPopup;
 
 #define CREATE(c, h, ...)      c.Create(__VA_ARGS__, CRect(0, 0, 80, DS(h)), this, ID_##c); c.SetFont(&controlFont())
 #define CREATEI(c, h, ID, ...) c.Create(__VA_ARGS__, CRect(0, 0, 80, DS(h)), this, ID);     c.SetFont(&controlFont())
