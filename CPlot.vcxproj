@@ -254,6 +254,7 @@
     <ClInclude Include="Windows\Controls\SideSectionGraphs.h" />
     <ClInclude Include="Windows\Controls\SideSectionParams.h" />
     <ClInclude Include="Windows\Controls\SideSectionSettings.h" />
+    <ClInclude Include="Windows\Controls\SideSectionStyle.h" />
     <ClInclude Include="Windows\DefinitionController.h" />
     <ClInclude Include="Windows\ParameterController.h" />
     <ClInclude Include="Windows\Controls\NumericEdit.h" />
@@ -385,6 +386,7 @@
     <ClCompile Include="Windows\Controls\SideSectionGraphs.cpp" />
     <ClCompile Include="Windows\Controls\SideSectionParams.cpp" />
     <ClCompile Include="Windows\Controls\SideSectionSettings.cpp" />
+    <ClCompile Include="Windows\Controls\SideSectionStyle.cpp" />
     <ClCompile Include="Windows\DefinitionController.cpp" />
     <ClCompile Include="Windows\ParameterController.cpp" />
     <ClCompile Include="Windows\Controls\NumericEdit.cpp" />

@@ -28,36 +28,6 @@ public:
 	void            OnHistoMode();
 	void            OnHistoScale();
 
-	CStatic         aaModeLabel; CComboBox aaMode;
-	void            OnAAMode();
-
-	CStatic         transparencyModeLabel; CComboBox transparencyMode;
-	void            OnTransparencyMode();
-
-	CStatic         fogLabel;       CSliderCtrl fog;
-	CStatic         lineWidthLabel; CSliderCtrl lineWidth;
-	CStatic         shinynessLabel; CSliderCtrl shinyness;
-
-	CStatic         bgLabel, fillLabel, axisLabel, gridLabel;
-	CMFCColorButton bgColor, fillColor, axisColor, gridColor;
-	CSliderCtrl     bgAlpha, fillAlpha, axisAlpha, gridAlpha;
-	void            OnBgColor();
-	void            OnFillColor();
-	void            OnAxisColor();
-	void            OnGridColor();
-	CStatic         fontLabel;
-	CButton         font;
-	void            OnFont();
-
-	CStatic         textureLabel, reflectionLabel;
-	TextureControl  texture, reflection;
-	void            OnChangeTexture(int i);
-	CSliderCtrl     textureStrength, reflectionStrength;
-	void            OnVScroll(UINT code, UINT pos, CScrollBar *sb);
-	CComboBox       textureMode;
-	void            OnTextureMode();
-	void            OnCycleTextureMode(int d);
-
 	CStatic         gridModeLabel, meshModeLabel;
 	CComboBox       gridMode, meshMode;
 	CSliderCtrl     gridDensity, meshDensity;

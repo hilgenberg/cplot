@@ -654,8 +654,8 @@ void PlotView::OnKeyDown(UINT c, UINT rep, UINT flags)
 		case 'L': sv.settings.OnClipReset(); break;
 		case 'g': sv.settings.OnToggleGrid(); break;
 
-		case 't': sv.settings.OnCycleTextureMode(+1); return;
-		case 'T': sv.settings.OnCycleTextureMode(-1); return;
+		case 't': sv.style.OnCycleTextureMode(+1); return;
+		case 'T': sv.style.OnCycleTextureMode(-1); return;
 		case 'v': sv.settings.OnCycleVFMode(+1); return;
 		case 'V': sv.settings.OnCycleVFMode(-1); return;
 

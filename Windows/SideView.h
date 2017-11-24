@@ -5,6 +5,7 @@
 #include "Controls/SideSectionDefs.h"
 #include "Controls/SideSectionGraphs.h"
 #include "Controls/SideSectionSettings.h"
+#include "Controls/SideSectionStyle.h"
 #include "Controls/SideSectionAxis.h"
 class Document;
 class Graph;
@@ -19,6 +20,7 @@ union BoxState
 		bool graphs   : 1;
 		bool settings : 1;
 		bool axis     : 1;
+		bool style    : 1;
 	};
 	uint32_t all;
 };
@@ -41,6 +43,7 @@ public:
 	void UpdateDefs(bool full) { defs.Update(full); if (full) Update(false); }
 	void UpdateGraphs(bool full) { graphs.Update(full); if (full) Update(false); }
 	void UpdateSettings(bool full) { settings.Update(full); if (full) Update(false); }
+	void UpdateStyle(bool full) { style.Update(full); if (full) Update(false); }
 	void UpdateAxis(bool full) { axis.Update(full); if (full) Update(false); }
 	void UpdateAll();
 
@@ -69,6 +72,7 @@ private:
 	SideSectionDefs     defs;
 	SideSectionGraphs   graphs;
 	SideSectionSettings settings;
+	SideSectionStyle    style;
 	SideSectionAxis     axis;
 
 	DECLARE_DYNCREATE(SideView)

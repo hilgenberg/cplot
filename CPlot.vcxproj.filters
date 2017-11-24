@@ -399,6 +399,9 @@
     <ClInclude Include="Windows\Util\Layout.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Windows\Controls\SideSectionStyle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Windows\Controls\DeltaSlider.cpp">
@@ -747,6 +750,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Windows\Util\Layout.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Windows\Controls\SideSectionStyle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

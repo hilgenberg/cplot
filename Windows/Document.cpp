@@ -44,7 +44,7 @@ void Document::Serialize(CArchive &ar)
 			Serializer  w(fw);
 			rns.save(w);
 			plot.save(w);
-			BoxState b; b.all = -1;
+			BoxState b; b.all = (unsigned)-1;
 			if (sv) b = sv->GetBoxState();
 			if (w.version() >= FILE_VERSION_1_8) w.uint32_(b.all);
 			w.marker_("EOF.");
@@ -58,8 +58,10 @@ void Document::Serialize(CArchive &ar)
 			rns.clear();
 			rns.load(s);
 			plot.load(s);
-			BoxState b; b.all = -1;
+			BoxState b; b.all = (unsigned)-1;
 			if (s.version() >= FILE_VERSION_1_8) s.uint32_(b.all);
+			if (s.version() < FILE_VERSION_1_11) b.style = b.settings;
+			b.style = false; // avoid CMFCColorButton problem
 			s.marker_("EOF.");
 			assert(s.done());
 			if (sv)

@@ -14,6 +14,7 @@ enum
 	ID_defs,
 	ID_graphs,
 	ID_settings,
+	ID_style,
 	ID_axis
 };
 
@@ -122,6 +123,7 @@ BoxState SideView::GetBoxState() const
 	b.defs     = defs.header.GetCheck();
 	b.graphs   = graphs.header.GetCheck();
 	b.settings = settings.header.GetCheck();
+	b.style    = style.header.GetCheck();
 	b.axis     = axis.header.GetCheck();
 	return b;
 }
@@ -132,6 +134,7 @@ void SideView::SetBoxState(BoxState b)
 	defs.header.SetCheck(b.defs);
 	graphs.header.SetCheck(b.graphs);
 	settings.header.SetCheck(b.settings);
+	style.header.SetCheck(b.style);
 	axis.header.SetCheck(b.axis);
 }
 
@@ -149,6 +152,7 @@ int SideView::OnCreate(LPCREATESTRUCT cs)
 	defs.Create(this, ID_defs);
 	graphs.Create(this, ID_graphs);
 	settings.Create(this, ID_settings);
+	style.Create(this, ID_style);
 	axis.Create(this, ID_axis);
 
 	return 0;
@@ -184,6 +188,10 @@ void SideView::Update(bool full)
 	settings.Width(W);
 	settings.Update(full);
 	settings.Position(y);
+
+	style.Width(W);
+	style.Update(full);
+	style.Position(y);
 
 	axis.Width(W);
 	axis.Update(full);
