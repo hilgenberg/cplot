@@ -23,7 +23,7 @@ BEGIN_MESSAGE_MAP(CPlotApp, CWinAppEx)
 	ON_UPDATE_COMMAND_UI(ID_VIEW_PROPERTIES, OnUpdateViewProperties)
 END_MESSAGE_MAP()
 
-CPlotApp::CPlotApp()
+CPlotApp::CPlotApp() : CWinAppEx(true)
 {
 	SetAppID(_T("CPlot.1.10"));
 }
@@ -105,20 +105,4 @@ void CPlotApp::OnUpdateViewProperties(CCmdUI *mi)
 {
 	SplitterWnd &splitter = ((MainWindow*)m_pMainWnd)->GetSplitter();
 	mi->SetCheck(!splitter.Hidden());
-}
-
-void CPlotApp::PreLoadState()
-{
-	CString strName;
-	BOOL bNameValid = strName.LoadString(IDS_EDIT_MENU);
-	ASSERT(bNameValid);
-	GetContextMenuManager()->AddMenu(strName, IDR_POPUP_EDIT);
-}
-
-void CPlotApp::LoadCustomState()
-{
-}
-
-void CPlotApp::SaveCustomState()
-{
 }

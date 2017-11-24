@@ -11,7 +11,7 @@ public:
 	BOOL Create(DWORD style, const RECT &rect, CWnd *parent, UINT ID);
 
 	std::function<void(void)> OnChange;
-	void SetImage(GL_Image *im, bool forceReload); // NULL to clear
+	void SetImage(GL_Image *im); // NULL to clear
 
 	int  OnCreate(LPCREATESTRUCT cs);
 	void OnPaint();
@@ -21,6 +21,7 @@ public:
 
 private:
 	GL_Image   *im;
+	size_t      im_state; // im->state_counter from last update
 	CBitmap     bmp;
 	CMenu       cm; // context menu
 	DropHandler drop;

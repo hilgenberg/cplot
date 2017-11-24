@@ -92,15 +92,6 @@ void MainWindow::OnFocusGraph()
 	Focus(&mainView->GetPlotView());
 }
 
-BOOL MainWindow::PreTranslateMessage(MSG *m)
-{
-	// no idea why this doesn't work otherwise...
-	static HACCEL foo = LoadAccelerators(GetModuleHandle(NULL), MAKEINTRESOURCE(IDR_MAINFRAME));
-	assert(foo); if (foo && ::TranslateAccelerator(*this, foo, m)) return true;
-
-	return CFrameWndEx::PreTranslateMessage(m);
-}
-
 int MainForm::OnCreate(LPCREATESTRUCT cs)
 {
 	DS0;

@@ -11,15 +11,6 @@
 
 IMPLEMENT_DYNCREATE(Document, CDocument)
 
-Document::Document()
-: plot(rns)
-{
-}
-
-Document::~Document()
-{
-}
-
 BOOL Document::OnNewDocument()
 {
 	if (!CDocument::OnNewDocument()) return FALSE;

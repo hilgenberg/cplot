@@ -20,9 +20,10 @@ enum GL_ImagePattern
 
 struct GL_Image : public Serializable, public GL_Resource
 {
-	GL_Image() : _w(0), _h(0), _pattern(IP_CUSTOM), _opacity(1){ }
+	GL_Image() : _w(0), _h(0), _pattern(IP_CUSTOM), _opacity(1), _state(0){ }
 	GL_Image(const GL_Image &i)
 	: GL_Resource() // not copied
+	, _state(0)
 	, _w(i._w), _h(i._h), _data(i._data), _pattern(i._pattern), _opacity(i._opacity)
 	{
 		check_data();
@@ -35,6 +36,7 @@ struct GL_Image : public Serializable, public GL_Resource
 		_pattern = x._pattern;
 		_opacity = x._opacity;
 		check_data();
+		++_state;
 		modify();
 		return *this;
 	}
@@ -47,7 +49,7 @@ struct GL_Image : public Serializable, public GL_Resource
 		return _w == x._w && _h == x._h && _data == x._data;
 	}
 
-	inline void clear(){ redim(0,0); }
+	inline void clear() { redim(0, 0); ++_state; }
 	
 	virtual void save(Serializer   &s) const;
 	virtual void load(Deserializer &s);
@@ -58,6 +60,7 @@ struct GL_Image : public Serializable, public GL_Resource
 		_data.resize(_w * _h * 4);
 		_pattern = IP_CUSTOM;
 		_opacity = -1;
+		++_state;
 		modify(); // even if w==w_ and h==h_ !
 		return _data.data();
 	}
@@ -67,6 +70,7 @@ struct GL_Image : public Serializable, public GL_Resource
 	unsigned w() const{ return _w; }
 	unsigned h() const{ return _h; }
 	bool empty() const{ return _w == 0 || _h == 0; }
+	size_t state_counter() const { return _state; }
 	
 	GL_ImagePattern is_pattern() const{ return _pattern; }
 
@@ -98,6 +102,7 @@ private:
 	GL_ImagePattern            _pattern; // to save space when serializing computed patterns
 	std::vector<unsigned char> _data;    // rgba, size = 4*w*h or empty for patterns
 	mutable short              _opacity; // -1 = unknown, 0 = transparent, 1 = opaque
+	size_t                     _state;   // incremented on every modification
 
 	inline void check_data() const
 	{

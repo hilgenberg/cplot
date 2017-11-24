@@ -11,6 +11,7 @@
 #define IDD_PARAMETER                   310
 #define IDD_MAINVIEW                    311
 #define IDD_DEFINITION                  312
+#define IDR_HELP_MENU                   322
 #define IDC_PARAM_RADIANS               1002
 #define IDC_PARAM_NAME                  1014
 #define IDC_PARAM_T_REAL                1015
@@ -32,7 +33,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        322
+#define _APS_NEXT_RESOURCE_VALUE        323
 #define _APS_NEXT_COMMAND_VALUE         32789
 #define _APS_NEXT_CONTROL_VALUE         1026
 #define _APS_NEXT_SYMED_VALUE           310

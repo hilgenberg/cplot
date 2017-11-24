@@ -10,7 +10,7 @@ BEGIN_MESSAGE_MAP(TextureControl, CWnd)
 END_MESSAGE_MAP()
 
 TextureControl::TextureControl()
-: im(NULL)
+: im(NULL), im_state(0)
 , drop(DropHandler::IMAGE, [this](const CString &f)->bool { return load(f); })
 {
 }
@@ -80,18 +80,19 @@ void TextureControl::OnContextItem(UINT which)
 	
 	if (OnChange) OnChange();
 	
-	SetImage(im, true);
+	SetImage(im);
 	Invalidate();
 }
 
-void TextureControl::SetImage(GL_Image *im_, bool force)
+void TextureControl::SetImage(GL_Image *im_)
 {
-	if (!force && im_ == im)
+	if (im_ == im && (!im || im->state_counter() == im_state))
 	{
 		Invalidate();
 		return;
 	}
 	im = im_;
+	im_state = im ? im->state_counter() : 0;
 
 	HGDIOBJ old = bmp.Detach();
 	if (old) DeleteObject(old);
@@ -212,6 +213,6 @@ bool TextureControl::load(const CString &f)
 	}
 
 	if (OnChange) OnChange();
-	SetImage(im, true);
+	SetImage(im);
 	return true;
 }

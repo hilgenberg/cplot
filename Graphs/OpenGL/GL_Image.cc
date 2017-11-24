@@ -240,6 +240,7 @@ void GL_Image::load(Deserializer &s)
 		_data.clear();
 		_opacity = pattern_opacity(_pattern);
 	}
+	++_state;
 	modify();
 }
 
@@ -258,6 +259,7 @@ GL_Image &GL_Image::operator=(GL_ImagePattern p)
 	pattern_dim(p, _w, _h);
 	_data.clear();
 	_opacity = pattern_opacity(_pattern);
+	++_state;
 	modify();
 
 	return *this;

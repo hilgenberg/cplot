@@ -8,10 +8,6 @@ public:
 	BOOL InitInstance() override;
 	int  ExitInstance() override;
 
-	void PreLoadState() override;
-	void LoadCustomState() override;
-	void SaveCustomState() override;
-
 	void OnAppAbout();
 	void OnViewProperties();
 	void OnUpdateViewProperties(CCmdUI *mi);

@@ -5,8 +5,7 @@
 class Document : public CDocument
 {
 public:
-	Document();
-	~Document();
+	Document() : plot(rns) {}
 
 	BOOL OnNewDocument() override;
 	void Serialize(CArchive& ar) override;
