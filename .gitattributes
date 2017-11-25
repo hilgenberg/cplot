@@ -7,3 +7,4 @@
 *.hh text
 *.rc text
 *.ico binary
+*.h linguist-language=C++
