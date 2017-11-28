@@ -304,7 +304,7 @@ void Plot::draw(GL_RM &rm, int n_threads, bool accum_ok, bool for_animation) con
 					axis.options.light.setup(true);
 
 					bool depth_sort = false;
-					if (first) settings.get("depthSorting", depth_sort);
+					if (first) depth_sort = Preferences::depthSort();
 
 					P3f view = camera.view_vector();
 					if (!options.clip.locked()) options.clip.normal(view);

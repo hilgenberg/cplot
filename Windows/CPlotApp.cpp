@@ -3,6 +3,7 @@
 #include "afxdialogex.h"
 #include "CPlotApp.h"
 #include "MainWindow.h"
+#include "PreferencesDialog.h"
 #include "Controls/SplitterWnd.h"
 #include "res/resource.h"
 
@@ -20,6 +21,7 @@ BEGIN_MESSAGE_MAP(CPlotApp, CWinAppEx)
 	ON_COMMAND(ID_FILE_NEW, &CWinAppEx::OnFileNew)
 	ON_COMMAND(ID_FILE_OPEN, &CWinAppEx::OnFileOpen)
 	ON_COMMAND(ID_VIEW_PROPERTIES, OnViewProperties)
+	ON_COMMAND(ID_VIEW_PREFERENCES, OnPreferences)
 	ON_UPDATE_COMMAND_UI(ID_VIEW_PROPERTIES, OnUpdateViewProperties)
 END_MESSAGE_MAP()
 
@@ -89,6 +91,17 @@ int CPlotApp::ExitInstance()
 	Gdiplus::GdiplusShutdown(gdiplusToken);
 
 	return CWinAppEx::ExitInstance();
+}
+
+void CPlotApp::OnPreferences()
+{
+	switch (PreferencesDialog().DoModal())
+	{
+		case IDOK: Preferences::flush(); break;
+		default:   Preferences::reset(); break;
+	}
+	auto &sv = ((MainWindow*)m_pMainWnd)->GetSideView();
+	sv.Redraw();
 }
 
 void CPlotApp::OnAppAbout()

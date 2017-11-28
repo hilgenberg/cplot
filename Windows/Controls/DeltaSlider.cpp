@@ -1,4 +1,5 @@
 #include "DeltaSlider.h"
+#include "../../Utility/Preferences.h"
 
 #define M 32000
 
@@ -54,7 +55,11 @@ double DeltaSlider::evolve(double t)
 		v -= (double)x / (double)M * 0.02 * scale;
 		const int eps = M / 20;
 
-		if (x > 0)
+		if (!Preferences::slideback())
+		{
+			x = 0;
+		}
+		else if (x > 0)
 		{
 			x += (int)(v * M * scale);
 			if (x < eps) x = 0;

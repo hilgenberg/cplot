@@ -180,6 +180,22 @@ bool PlotView::animating()
 	bool anim = (document().plot.axis_type() == Axis::Invalid || arrows.all || 
 		((MainWindow*)GetParentFrame())->GetSideView().Animating());
 
+	if (!anim && mb.all)
+	{
+		// mouse drags should trigger animation state in color graphs
+		Plot &plot = document().plot;
+		for (int i = 0, n = plot.number_of_graphs(); i < n; ++i)
+		{
+			const Graph *g = plot.graph(i);
+			if (g->options.hidden) continue;
+			if (g->isColor())
+			{
+				anim = true;
+				break;
+			}
+		}
+	}
+
 	if (anim)
 	{
 		if (!timer.running()) timer.start();
@@ -243,10 +259,10 @@ void PlotView::OnPaint()
 	if (!anim && !plot.at_full_quality()) plot.update(CH_UNKNOWN);
 	GL_CHECK;
 
-	int nt = -1; // todo: pref
+	int nt = Preferences::threads();
 	if (nt < 1 || nt > 256) nt = n_cores;
 	bool accum = false; // TODO
-	bool dynamic = true; // todo: from pref
+	bool dynamic = Preferences::dynamic();
 	plot.draw(*rm, nt, accum, anim && dynamic);
 	GL_CHECK;
 

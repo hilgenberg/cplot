@@ -389,8 +389,7 @@ void GL_AreaGraph::draw(GL_RM &rm) const
 	// debugging
 	//------------------------------------------------------------------------------------------------------------------
 
-	bool draw_normals = false;
-	settings.get("drawNormals", draw_normals);
+	bool draw_normals = Preferences::drawNormals();
 	if (do_normals && draw_normals)
 	{
 		glEnable(GL_BLEND);

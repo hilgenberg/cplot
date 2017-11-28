@@ -44,8 +44,15 @@ void SideView::Recalc(Plot &plot)
 }
 void SideView::Recalc(Graph *g)
 {
-	g->update(-1);
-	Redraw();
+	if (!g)
+	{
+		Recalc(document().plot);
+	}
+	else
+	{
+		g->update(-1);
+		Redraw();
+	}
 }
 
 Document &SideView::document() const

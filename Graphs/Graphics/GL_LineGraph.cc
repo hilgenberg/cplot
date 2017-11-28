@@ -360,8 +360,7 @@ void GL_LineGraph::draw(GL_RM &) const
 	lines.draw();
 	dots.draw();
 	
-	bool debug = false;
-	settings.get("drawNormals", debug);
+	bool debug = Preferences::drawNormals();
 	if (debug)
 	{
 		glDepthMask(!glIsEnabled(GL_LINE_SMOOTH));

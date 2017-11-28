@@ -8,6 +8,7 @@ public:
 	BOOL InitInstance() override;
 	int  ExitInstance() override;
 
+	void OnPreferences();
 	void OnAppAbout();
 	void OnViewProperties();
 	void OnUpdateViewProperties(CCmdUI *mi);

@@ -254,6 +254,9 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Windows\PreferencesDialog.h" />
+    <ClInclude Include="Utility\Preferences.h" />
+    <ClInclude Include="Utility\Timer.h" />
     <ClInclude Include="Windows\Controls\DefinitionView.h" />
     <ClInclude Include="Windows\Controls\GraphView.h" />
     <ClInclude Include="Windows\Controls\SideSection.h" />
@@ -386,6 +389,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Graphs\OpenGL\GL_String.cc" />
+    <ClCompile Include="Windows\PreferencesDialog.cpp" />
+    <ClCompile Include="Utility\Preferences.cpp" />
+    <ClCompile Include="Utility\Timer.cpp" />
     <ClCompile Include="Windows\Controls\DefinitionView.cpp" />
     <ClCompile Include="Windows\Controls\GraphView.cpp" />
     <ClCompile Include="Windows\Controls\SideSection.cpp" />
