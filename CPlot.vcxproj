@@ -110,7 +110,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <LanguageStandard>stdcpp14</LanguageStandard>
-      <DisableSpecificWarnings>4061;4191;4192;4263;4264;4265;4266;4365;4456;4457;4458;4464;4471;4571;4619;4623;4625;4626;4668;4706;4774;4820;4917;4987;5026;5027</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4061;4191;4192;4263;4264;4265;4266;4365;4456;4457;4458;4464;4471;4571;4619;4623;4625;4626;4668;4706;4710;4711;4774;4820;4917;4987;5026;5027</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -146,7 +146,7 @@
       <MinimalRebuild>false</MinimalRebuild>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <LanguageStandard>stdcpp14</LanguageStandard>
-      <DisableSpecificWarnings>4061;4191;4192;4263;4264;4265;4266;4365;4456;4457;4458;4464;4471;4571;4619;4623;4625;4626;4668;4706;4774;4820;4917;4987;5026;5027</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4061;4191;4192;4263;4264;4265;4266;4365;4456;4457;4458;4464;4471;4571;4619;4623;4625;4626;4668;4706;4710;4711;4774;4820;4917;4987;5026;5027</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -186,7 +186,7 @@
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp14</LanguageStandard>
-      <DisableSpecificWarnings>4061;4191;4192;4263;4264;4265;4266;4365;4456;4457;4458;4464;4471;4571;4619;4623;4625;4626;4668;4706;4774;4820;4917;4987;5026;5027</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4061;4191;4192;4263;4264;4265;4266;4365;4456;4457;4458;4464;4471;4571;4619;4623;4625;4626;4668;4706;4710;4711;4774;4820;4917;4987;5026;5027</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -228,7 +228,7 @@
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp14</LanguageStandard>
-      <DisableSpecificWarnings>4061;4191;4192;4263;4264;4265;4266;4365;4456;4457;4458;4464;4471;4571;4619;4623;4625;4626;4668;4706;4774;4820;4917;4987;5026;5027</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4061;4191;4192;4263;4264;4265;4266;4365;4456;4457;4458;4464;4471;4571;4619;4623;4625;4626;4668;4706;4710;4711;4774;4820;4917;4987;5026;5027</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
