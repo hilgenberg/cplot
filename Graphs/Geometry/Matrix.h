@@ -17,6 +17,7 @@ template<typename T> struct M3
 	
 	M3(){ }
 	M3(T x) : a11(x), a12(0), a13(0), a21(0), a22(x), a23(0), a31(0), a32(0), a33(x){ }
+	inline constexpr M3(const M3 &) = default;
 
 	inline M3 & operator = (const M3 &m){ memmove(this, &m, sizeof(M3)); return *this; }
 	inline void clear(){ memset(this, 0, sizeof(M3)); }
@@ -179,6 +180,7 @@ template<typename T> struct M2
 	
 	M2(){ }
 	M2(T x) : a11(x), a12(0), a21(0), a22(x){ }
+	inline constexpr M2(const M2 &) = default;
 	
 	inline M2 & operator = (const M2 &m){ memmove(this, &m, sizeof(M2)); return *this; }
 	inline void clear(){ memset(this, 0, sizeof(M2)); }
@@ -274,6 +276,8 @@ template<typename T> struct M4
 		memset(this, 0, 16*sizeof(double));
 		a11 = a22 = a33 = a44 = x;
 	}
+	inline constexpr M4(const M4 &) = default;
+
 	inline M4 & operator = (T x)
 	{
 		memset(this, 0, 16*sizeof(double));

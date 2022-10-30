@@ -202,7 +202,7 @@ size_t readexp(const std::string &S, size_t i0, size_t i1, int &re, int &im)
 		
 		return len;
 	}
-	catch(utf8::exception)
+	catch(utf8::exception &)
 	{
 		assert(false);
 		return 0;

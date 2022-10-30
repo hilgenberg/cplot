@@ -15,6 +15,7 @@ template<typename T> struct P3
 	T x, y, z;
 	P3(){ }
 	P3(T x_, T y_, T z_) : x(x_), y(y_), z(z_){ }
+	inline constexpr P3(const P3 &) = default;
 	inline void operator = (const P3 &b){ memmove(this, &b, sizeof(P3)); }
 	template<typename S> explicit operator P3<S> () const{ return P3<S>((S)x, (S)y, (S)z); }
 	inline void clear(){ memset(this, 0, sizeof(P3)); }
@@ -87,6 +88,7 @@ template<typename T> struct P2
 	T x, y;
 	P2(){ }
 	P2(T x_, T y_) : x(x_), y(y_){ }
+	inline constexpr P2(const P2 &) = default;
 	inline void operator = (const P2 &b){ memmove(this, &b, sizeof(P2)); }
 	template<typename S> explicit operator P2<S> () const{ return P2<S>((S)x, (S)y); }
 	inline void clear(){ memset(this, 0, sizeof(P2)); }
@@ -143,6 +145,7 @@ template<typename T> struct P4
 	P4(){ }
 	P4(T x_, T y_, T z_, T w_) : x(x_), y(y_), z(z_), w(w_){ }
 	explicit P4(T v) : x(v), y(v), z(v), w(v){ }
+	inline constexpr P4(const P4 &) = default;
 	inline void operator = (const P4 &b){ memmove(this, &b, sizeof(P4)); }
 	inline void clear(){ memset(this, 0, sizeof(P4)); }
 	inline void set(T x_, T y_, T z_, T w_){ x = x_; y = y_; z = z_; w = w_; }

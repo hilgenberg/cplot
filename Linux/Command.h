@@ -2,6 +2,7 @@
 #include <atomic>
 #include <thread>
 #include <pthread.h>
+#include <sched.h>
 #include <vector>
 #include "../Utility/System.h"
 #include "main.h"
@@ -45,7 +46,7 @@ public:
 		args = std::move(a);
 		fflush(stdout);
 		state(true);
-		while (*this && !quit){ pthread_yield(); sleep(0.01); }
+		while (*this && !quit){ sched_yield(); sleep(0.01); }
 		return cid == CID::RETURN;
 	}
 	bool send(CID c, const Argument &a)

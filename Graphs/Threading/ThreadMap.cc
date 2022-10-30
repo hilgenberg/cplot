@@ -7,6 +7,7 @@
 #include <thread>
 #include <mutex>
 #include <condition_variable>
+#include <sched.h>
 
 #ifdef DEBUG
 //#define TASK_DEBUG
@@ -70,7 +71,7 @@ void WorkUnit::start(int i)
 
 			//usleep(500 + arc4random_uniform(200)); // waiting for the lower level could take some time
 			#ifdef USE_PTHREADS
-			pthread_yield();
+			sched_yield();
 			#else
 			std::this_thread::yield();
 			#endif
@@ -108,7 +109,7 @@ void WorkUnit::start(int i)
 			
 
 			#ifdef USE_PTHREADS
-			pthread_yield();
+			sched_yield();
 			#else
 			std::this_thread::yield();
 			std::this_thread::sleep_for(std::chrono::nanoseconds(100));
@@ -216,7 +217,7 @@ void *Task::run_thread(void *task_)
 			u->work(data);
 			u->finish();
 			#ifdef USE_PTHREADS
-			pthread_yield();
+			sched_yield();
 			#else
 			std::this_thread::yield();
 			#endif
