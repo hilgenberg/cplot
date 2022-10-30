@@ -1,6 +1,5 @@
 *.o
 /cplot
-*.dblite
 /TODO
 
 *.swp
@@ -11,8 +10,8 @@
 /Gallery/
 /User Gallery/
 
-/gch.pyc
-*.gch
+/build_*/
+/build.ninja
 
 /gmon.out
 Windows/boost/*
