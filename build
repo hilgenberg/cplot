@@ -23,7 +23,7 @@ if len(sys.argv) == 3 and sys.argv[1] == "file2str":
 ##############################################################################
 
 target  = 'cplot'
-libs    = 'z X11 Xi GL GLU GLEW pthread readline'
+libs    = 'z X11 Xi GL GLU GLEW pthread readline dl'
 
 pch     = "pch.h" # pre-compiled header path (compiled as C++) or None
 shaders = False   # translate all .glsl files to .c code?
@@ -62,6 +62,10 @@ lflags += " " + getf('pkg-config --libs   pangocairo')
 # add SDL2
 cflags += " " + getf('sdl2-config --cflags')
 lflags += " " + getf('sdl2-config --libs')
+# add dear imgui
+imgui_dir = "Linux/imgui"
+imgui_cc  = ["imgui.cpp", "imgui_demo.cpp", "imgui_draw.cpp", "imgui_tables.cpp", "imgui_widgets.cpp", "backends/imgui_impl_sdl.cpp", "backends/imgui_impl_opengl2.cpp"]
+ccflags  += f" -I{imgui_dir} -I{imgui_dir}/backends"
 
 del getf # done with that
 
@@ -84,9 +88,9 @@ if len(sys.argv) == 2 and sys.argv[1] == "clean":
 
 # add $ chars where needed
 lflags += " " + ' '.join(['-l'+s for s in libs.split()])
-cflags  =  cflags.replace("\n", " $\n").replace("\t", " ")
-lflags  =  lflags.replace("\n", " $\n").replace("\t", " ")
-ccflags = ccflags.replace("\n", " $\n").replace("\t", " ")
+cflags  =  cflags.replace("\n", " $\n").replace("\t", " ").strip()
+lflags  =  lflags.replace("\n", " $\n").replace("\t", " ").strip()
+ccflags = ccflags.replace("\n", " $\n").replace("\t", " ").strip()
 
 del libs # done with that
 
@@ -173,6 +177,9 @@ rule link
 					print(f"build {base}/{f}.o: cc {base}/{f}.cc")
 					obj.append(f"{base}/{f}.o")
 					glsl.append(name)
+		for f in imgui_cc:
+				print(f"build {base}/{f}.o: cc {os.path.join(imgui_dir, f)}{PCH_DEP}")
+				obj.append(f"{base}/{f}.o")
 		print(f"build {base}/{target}: link {' '.join(obj)}")
 
 		if not os.path.lexists("shaders.h") and glsl:
