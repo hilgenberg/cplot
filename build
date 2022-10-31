@@ -23,7 +23,7 @@ if len(sys.argv) == 3 and sys.argv[1] == "file2str":
 ##############################################################################
 
 target  = 'cplot'
-libs    = 'z X11 Xi GL GLU GLEW pthread readline dl'
+libs    = 'z GL GLU GLEW pthread readline dl'
 
 pch     = "pch.h" # pre-compiled header path (compiled as C++) or None
 shaders = False   # translate all .glsl files to .c code?
@@ -73,6 +73,19 @@ del getf # done with that
 # handle cleaning
 ##############################################################################
 
+def usage():
+	sys.exit(f"""Usage:
+	build clean: delete all build products
+	build <variant>: switch to variant and build it, variants being:
+		{[v for v in variants]}
+	build: build current variant (debug is default variant)
+
+This will create build_variant directories and symlink the target executable
+and build.ninja from the active variant into the base directory.
+
+The build.ninja files must be regenerated via "build clean" after adding,
+deleting, renaming or moving files around.""")
+
 if len(sys.argv) == 2 and sys.argv[1] == "clean":
 	if os.path.islink("build.ninja"): os.remove("build.ninja")
 	if os.path.islink(target): os.remove(target)
@@ -95,7 +108,7 @@ ccflags = ccflags.replace("\n", " $\n").replace("\t", " ").strip()
 del libs # done with that
 
 # create/update symlinks for current build variant
-if len(sys.argv) > 1 and sys.argv[1] in variants:
+if len(sys.argv) == 2 and sys.argv[1] in variants:
 	d = 'build_' + sys.argv[1]
 	if os.path.islink("build.ninja"): os.remove("build.ninja")
 	if os.path.islink(target): os.remove(target)
@@ -103,6 +116,8 @@ if len(sys.argv) > 1 and sys.argv[1] in variants:
 		os.symlink(d + "/build.ninja", "build.ninja")
 	if not os.path.exists(target):
 		os.symlink(d + "/"+target, target)
+elif len(sys.argv) != 1:
+	usage()
 elif not os.path.lexists("build.ninja") and not os.path.lexists(target):
 	os.symlink("build_debug/build.ninja", "build.ninja")
 	os.symlink("build_debug/"+target, target)
