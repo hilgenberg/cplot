@@ -1,15 +1,15 @@
 #pragma once
-#include "XWindow.h"
 #include "Document.h"
 #include "../Graphs/OpenGL/GL_RM.h"
 #include "../Graphs/OpenGL/GL_StringCache.h"
 #include "../Engine/Namespace/Parameter.h"
 #include <map>
+#include <SDL_events.h>
 
-class PlotWindow : public XWindow, public Document
+class PlotWindow : public Document
 {
 public:
-	PlotWindow();
+	PlotWindow(SDL_Window* window, GL_Context &context);
 	virtual ~PlotWindow();
 
 	bool   animating() const{ return tnf > 0.0; }
@@ -17,23 +17,21 @@ public:
 	void   animate(double now);
 	bool   needs_redraw() const{ return need_redraw; }
 
+	operator bool() const{ return !closed; }
+
 	void draw();
 	void redraw(){ need_redraw = true; }
 
-	virtual void load(const std::string &path){ Document::load(path); redraw(); }
+	void load(const std::string &path) override { Document::load(path); redraw(); }
 
-	virtual void reshape();
-	virtual bool handle_key(KeySym key, const char *s, bool release);
-	virtual bool handle_scroll(double dx, double dy, bool discrete);
-	virtual bool handle_drag(int buttons, double dx, double dy);
-	virtual bool handle_other(XEvent &e);
+	void reshape(int w, int h);
+	bool handle_event(const SDL_Event &event);
+	bool handle_key(SDL_Keysym key, bool release);
 
 	enum AnimType{ Linear, Saw, PingPong, Sine };
 	void animate(Parameter &p, const cnum &v0, const cnum &v1, double dt, int reps=-1, AnimType type=Sine);
 	void stop_animations(){ panims.clear(); }
 	void stop_animation(Parameter &p){ panims.erase(p.oid()); }
-
-	bool focus(Window w);
 
 protected:
 	void start(); // animating
@@ -43,6 +41,11 @@ protected:
 	double   last_frame; // time of last draw
 	bool     need_redraw; // call draw after all pending events are handled
 	GL_RM    rm;
+	SDL_Window* window;
+
+	int  w, h;
+	int  accum;  // accumulation buffer size
+	bool closed; // should window close?
 
 	struct ParameterAnimation
 	{
@@ -53,8 +56,8 @@ protected:
 	};
 	std::map<IDCarrier::OID, ParameterAnimation> panims;
 
-	std::map<KeySym, double> ikeys; // pressed key -> inertia
-	std::set<KeySym> keys; // pressed keys
+	std::map<SDL_Keycode, double> ikeys; // pressed key -> inertia
+	std::set<SDL_Keycode> keys; // pressed keys
 
 	void move(double dx, double dy, double dz, bool kbd, int buttons=0);
 	enum Zoom{ Axis, Camera, Inrange }; 

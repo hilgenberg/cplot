@@ -4,16 +4,12 @@
 #include "../Graphs/Plot.h"
 #include "../Graphs/Geometry/Axis.h"
 #include "../Graphs/Geometry/Camera.h"
-#include "XWindow.h"
 #include "Document.h"
 #include <vector>
 #include <set>
 #include <algorithm>
 #include "../Engine/Namespace/all.h"
-#include "main.h"
-
 #include <cassert>
-#include <X11/extensions/XI2.h>
 
 #define ScrollUpButton    5
 #define ScrollDownButton  4
@@ -22,12 +18,21 @@
 
 #define FPS 90
 
-PlotWindow::PlotWindow()
-: XWindow(format("%s", arg0))
-, tnf(-1.0)
+PlotWindow::PlotWindow(SDL_Window* window, GL_Context &context)
+: tnf(-1.0)
 , last_frame(-1.0)
-, rm(GL_Context(context))
+, rm(context)
+, accum(0)
+, w(0), h(0)
+, window(window)
+, closed(false)
+, need_redraw(true)
 {
+	int n = 0;
+	SDL_GL_GetAttribute(SDL_GL_ACCUM_RED_SIZE, &accum);
+	SDL_GL_GetAttribute(SDL_GL_ACCUM_GREEN_SIZE, &n); if (n < accum) accum = n;
+	SDL_GL_GetAttribute(SDL_GL_ACCUM_BLUE_SIZE, &n); if (n < accum) accum = n;
+	SDL_GL_GetAttribute(SDL_GL_ACCUM_ALPHA_SIZE, &n); if (n < accum) accum = n;
 }
 PlotWindow::~PlotWindow(){ }
 
@@ -51,12 +56,12 @@ void PlotWindow::animate(double t)
 		
 		switch (i.first)
 		{
-			case XK_Left:  --idx; dx -= inertia; break;
-			case XK_Right: ++idx; dx += inertia; break;
-			case XK_Up:    --idy; dy -= inertia; break;
-			case XK_Down:  ++idy; dy += inertia; break;
-			case XK_plus:  ++idz; dz += inertia; break;
-			case XK_minus: --idz; dz -= inertia; break;
+			case SDLK_LEFT:  --idx; dx -= inertia; break;
+			case SDLK_RIGHT: ++idx; dx += inertia; break;
+			case SDLK_UP:    --idy; dy -= inertia; break;
+			case SDLK_DOWN:  ++idy; dy += inertia; break;
+			case SDLK_PLUS:  ++idz; dz += inertia; break;
+			case SDLK_MINUS: --idz; dz -= inertia; break;
 			default: assert(false); break;
 		}
 	}
@@ -64,10 +69,10 @@ void PlotWindow::animate(double t)
 	{
 		switch (k)
 		{
-			case XK_0: params.insert(9); break;
-			case XK_1: case XK_2: case XK_3: case XK_4:
-			case XK_5: case XK_6: case XK_7: case XK_8:
-			case XK_9: params.insert(k - XK_1); break;
+			case SDLK_0: params.insert(9); break;
+			case SDLK_1: case SDLK_2: case SDLK_3: case SDLK_4:
+			case SDLK_5: case SDLK_6: case SDLK_7: case SDLK_8:
+			case SDLK_9: params.insert(k - SDLK_1); break;
 			default: assert(false); break;
 		}
 	}
@@ -140,93 +145,145 @@ void PlotWindow::animate(double t)
 	while (tnf + spf*0.01 < t1) tnf += spf;
 }
 
-//static inline void toggle(bool &what){ what = !what; }
-
-bool PlotWindow::handle_key(KeySym key, const char *s, bool release)
+bool PlotWindow::handle_event(const SDL_Event &e)
 {
+	switch (e.type)
+	{
+		case SDL_QUIT: closed = true; return true;
+		case SDL_WINDOWEVENT:
+			switch (e.window.event)
+			{
+				case SDL_WINDOWEVENT_CLOSE:
+					if (e.window.windowID == SDL_GetWindowID(window))
+					{
+						closed = true;
+						return true;
+					}
+					break;
+				case SDL_WINDOWEVENT_SHOWN:
+				case SDL_WINDOWEVENT_EXPOSED:
+				case SDL_WINDOWEVENT_RESTORED:
+					redraw();
+					return true;
+			}
+			return false;
+
+		case SDL_KEYDOWN:
+		case SDL_KEYUP:
+			return handle_key(e.key.keysym, e.type == SDL_KEYUP);
+
+		case SDL_MOUSEMOTION:
+		{
+			auto buttons = e.motion.state;
+			if (!(buttons & (SDL_BUTTON_LMASK|SDL_BUTTON_RMASK|SDL_BUTTON_MMASK)))
+				return true;
+			int dx = e.motion.xrel, dy = e.motion.yrel;
+			if (dx*dx + dy*dy < 4) return true;
+			move(dx, dy, 0.0, false, buttons);
+			return true;
+		}
+		case SDL_MOUSEBUTTONDOWN:
+		case SDL_MOUSEBUTTONUP:
+			return true;
+		case SDL_MOUSEWHEEL:
+		{
+			//printf("SCRL %g %g - %d %d - %d\n", e.wheel.preciseX, e.wheel.preciseY, e.wheel.x, e.wheel.y, e.wheel.which);
+			if (e.wheel.preciseX != e.wheel.x || e.wheel.preciseY != e.wheel.y)
+			{
+				move(-5.0*e.wheel.preciseX, 5.0*e.wheel.preciseY, 0, false, 0);
+			}
+			else
+			{
+				move(0, 0, -5.0*(e.wheel.x + e.wheel.y), false, 0);
+			}
+			return true;
+		}
+		case SDL_MULTIGESTURE:
+		{
+			// UNTESTED: my trackpad does not send these...
+			auto &g = e.mgesture;
+			printf("MULT %g %g - %g %g\n", g.x, g.y, g.dDist, g.dTheta);
+			move(0, 0, -5.0*e.mgesture.dDist, false, 0);
+			return true;
+		}
+	}
+	return false;
+}
+
+bool PlotWindow::handle_key(SDL_Keysym keysym, bool release)
+{
+	auto key = keysym.sym;
+	bool shift = keysym.mod & (KMOD_LSHIFT|KMOD_RSHIFT);
+	auto toggle = [this](bool &what){ what = !what; redraw(); return true; };
+	auto view   = [this](double x, double y)
+	{
+		switch (plot.axis_type())
+		{
+			case Axis::Invalid:
+			case Axis::Rect: return false;
+			default: plot.camera.set_angles(x, y, 0.0); redraw(); return true;
+		}
+	};
+
+	Graph *g = plot.current_graph();
+
 	if (!release)
 	{
 		switch (key)
 		{
-			case XK_Left: case XK_Right:
-			case XK_Up:   case XK_Down:
-			case XK_plus: case XK_minus:
+			case SDLK_LEFT: case SDLK_RIGHT:
+			case SDLK_UP:   case SDLK_DOWN:
+			case SDLK_PLUS: case SDLK_MINUS:
 				if (!ikeys.count(key)) ikeys[key] = 0.0;
 				start();
 				return true;
 		
-			case XK_0: case XK_1: case XK_2: case XK_3: case XK_4:
-			case XK_5: case XK_6: case XK_7: case XK_8: case XK_9:
+			case SDLK_0: case SDLK_1: case SDLK_2: case SDLK_3: case SDLK_4:
+			case SDLK_5: case SDLK_6: case SDLK_7: case SDLK_8: case SDLK_9:
 				if (!keys.count(key)) redraw();
 				keys.insert(key);
 				return true;
-		}
-
-		int len = strlen(s);
-		if (len != 1) return false;
 		
-		auto toggle = [this](bool &what){ what = !what; redraw(); return true; };
-		auto view   = [this](double x, double y)
-		{
-			switch (plot.axis_type())
-			{
-				case Axis::Invalid:
-				case Axis::Rect: return false;
-				default: plot.camera.set_angles(x, y, 0.0); redraw(); return true;
-			}
-		};
+			case SDLK_q: /*case SDLK_ESCAPE:*/ closed = true; return true;
+			case SDLK_PERIOD: stop_animations(); return true;
 
-		Graph *g = plot.current_graph();
-		switch (s[0])
-		{
-			case 'q': case 'Q': case 3: case 27: closed = true; return true;
-			case '.': stop_animations(); return true;
+			case SDLK_a: return toggle(plot.axis.options.hidden);
+			case SDLK_c: if (g && g->toggle_clipping()) redraw(); return true;
+			case SDLK_g: if (g && g->toggle_grid(shift)) redraw(); return true;
 
-			case 'a': return toggle(plot.axis.options.hidden);
-			case 'c': if (g && g->toggle_clipping()) redraw(); return true;
-			case 'g': if (g && g->toggle_grid(false)) redraw(); return true;
-			case 'G': if (g && g->toggle_grid(true)) redraw(); return true;
-
-			case 'e': plot.axis.equal_ranges(); plot.recalc(); redraw(); return true;
-			case 't': view(  0,  90); return true;
-			case 'T': view(  0, -90); return true;
-			case 'f': view(  0,   0); return true;
-			case 'F': view(180,   0); return true;
-			case 's': view(-90,   0); return true;
-			case 'S': view( 90,   0); return true;
-			case 'z': plot.axis.reset_center(); plot.recalc(); redraw(); return true;
+			case SDLK_e: plot.axis.equal_ranges(); plot.recalc(); redraw(); return true;
+			case SDLK_t: view(  0, shift ? -90 : 90); return true;
+			case SDLK_f: view(shift ? 180 : 0,   0); return true;
+			case SDLK_s: view(shift ? 90 : -90,   0); return true;
+			case SDLK_z: plot.axis.reset_center(); plot.recalc(); redraw(); return true;
 
 			/*
-			case 'd': [settingsBox toggle:settingsBox.disco];      return;
-			case 'C': [settingsBox toggle:settingsBox.clipCustom]; return;
-			case 'l': [settingsBox toggle:settingsBox.clipLock];   return;
-			case 'L': [settingsBox   push:settingsBox.clipReset];  return;
+			case SDLK_d: [settingsBox toggle:settingsBox.disco];      return;
+			case SDLK_C: [settingsBox toggle:settingsBox.clipCustom]; return;
+			case SDLK_l: [settingsBox toggle:settingsBox.clipLock];   return;
+			case SDLK_L: [settingsBox   push:settingsBox.clipReset];  return;
 				
-			case 't': [settingsBox  cycle:settingsBox.textureMode direction:+1]; return;
-			case 'T': [settingsBox  cycle:settingsBox.textureMode direction:-1]; return;
-			case 'v': prop(CYCLE, P_VF_MODE); return;
-			case 'V': [settingsBox  cycle:settingsBox.vfMode      direction:-1]; return;
+			case SDLK_t: [settingsBox  cycle:settingsBox.textureMode direction:+1]; return;
+			case SDLK_T: [settingsBox  cycle:settingsBox.textureMode direction:-1]; return;
+			case SDLK_v: prop(CYCLE, P_VF_MODE); return;
+			case SDLK_V: [settingsBox  cycle:settingsBox.vfMode      direction:-1]; return;
 
-			case 'e': [axisBox equalRanges]; return;
-			case 'z': [axisBox  centerAxis]; return;*/
-
-			case '\r':
-			case '\t':
-			case '\n': if (terminalID) focus(terminalID); break;
+			case SDLK_e: [axisBox equalRanges]; return;
+			case SDLK_z: [axisBox  centerAxis]; return;*/
 		}
 	}
 	else
 	{
 		switch (key)
 		{
-			case XK_Left: case XK_Right:
-			case XK_Up:   case XK_Down:
-			case XK_plus: case XK_minus:
+			case SDLK_LEFT: case SDLK_RIGHT:
+			case SDLK_UP:   case SDLK_DOWN:
+			case SDLK_PLUS: case SDLK_MINUS:
 				ikeys.erase(key);
 				return true;
 		
-			case XK_0: case XK_1: case XK_2: case XK_3: case XK_4:
-			case XK_5: case XK_6: case XK_7: case XK_8: case XK_9:
+			case SDLK_0: case SDLK_1: case SDLK_2: case SDLK_3: case SDLK_4:
+			case SDLK_5: case SDLK_6: case SDLK_7: case SDLK_8: case SDLK_9:
 				if (keys.count(key)) redraw();
 				keys.erase(key);
 				return true;
@@ -235,42 +292,11 @@ bool PlotWindow::handle_key(KeySym key, const char *s, bool release)
 	return false;
 }
 
-bool PlotWindow::focus(Window w)
+void PlotWindow::reshape(int w_, int h_)
 {
-	XWindowAttributes a;
-	if (!XGetWindowAttributes(display, w, &a)) return false;
-	if (a.map_state != IsViewable) return false;
-	XSetInputFocus(display, w, RevertToParent, CurrentTime);
-	XMapRaised(display, w);
-	return true;
-}
-
-bool PlotWindow::handle_scroll(double dx, double dy, bool discrete)
-{
-	double s = discrete ? 5.0 : 1.0;
-	move(s*dx, s*dy, 0, false, 0);
-	return true;
-}
-
-bool PlotWindow::handle_drag(int buttons, double dx, double dy)
-{
-	move(dx, dy, 0, false, buttons);
-	return true;
-}
-
-bool PlotWindow::handle_other(XEvent &e)
-{
-	int t = e.type;
-	if (t == Expose || t == GraphicsExpose || t == VisibilityNotify || t == CreateNotify || t == MapNotify || t == ReparentNotify || t == ConfigureNotify)
-	{
-		redraw();
-		return true;
-	}
-	return false;
-}
-	
-void PlotWindow::reshape()
-{
+	if (w == w_ && h == h_) return;
+	w = w_; h = h_;
+	if (w <= 0 || h <= 0) return;
 	glViewport(0, 0, w, h);
 	plot.camera.viewport(w, h, plot.axis);
 	plot.update_axis();
@@ -281,8 +307,9 @@ void PlotWindow::reshape()
 
 void PlotWindow::draw()
 {
-	if (last_frame <= 0.0) reshape();
+	//if (last_frame <= 0.0) reshape();
 	last_frame = now();
+	if (w <= 0 || h <= 0) return;
 
 	if (plot.axis_type() == Axis::Invalid)
 	{
@@ -312,14 +339,14 @@ void PlotWindow::draw()
 		}
 		glEnd();
 
-		swap_buffers();
 		need_redraw = false;
 		start();
 		return;
 	}
+	
 
 	bool dynamic = true; // todo: from pref
-	bool anim = dynamic && (!ikeys.empty() || modifiers & (Button1Mask|Button2Mask|Button3Mask));
+	bool anim = dynamic && (!ikeys.empty() || SDL_GetMouseState(NULL,NULL) & (SDL_BUTTON_LMASK|SDL_BUTTON_RMASK|SDL_BUTTON_MMASK));
 	if (!anim && !plot.at_full_quality()) plot.update(CH_UNKNOWN);
 	GL_CHECK;
 
@@ -331,7 +358,6 @@ void PlotWindow::draw()
 	status();
 	GL_CHECK;
 
-	swap_buffers();
 	need_redraw = !plot.at_full_quality();
 }
 
@@ -344,16 +370,17 @@ void PlotWindow::move(double dx, double dy, double dz, bool kbd, int buttons)
 	if (axis == Axis::Invalid) return;
 	double pixel = plot.pixel_size();
 
+	SDL_Keymod m = SDL_GetModState();
 	//fprintf(stderr, "move %g %g %g %d %d\n", dx, dy, dz, (int)kbd, buttons);
 	const int SHIFT=1, CTRL=2, ALT=4;
-	int  shift   = (modifiers & ShiftMask) ? SHIFT : 0;
-	int  ctrl    = (modifiers & ControlMask) ? CTRL : 0;
-	int  alt     = (modifiers & (Mod1Mask|Mod5Mask)) ? ALT : 0; // alt|altGr
+	int  shift   = (m & (KMOD_LSHIFT|KMOD_RSHIFT)) ? SHIFT : 0;
+	int  ctrl    = (m & (KMOD_LCTRL|KMOD_RCTRL)) ? CTRL : 0;
+	int  alt     = (m & (KMOD_LALT|KMOD_RALT)) ? ALT : 0; // alt|altGr
 	int  mods    = shift + ctrl + alt;
 	bool b0      = !kbd && !buttons; // scrollwheel or trackpad
-	bool b1      = buttons & Button1Mask;
-	bool b2      = buttons & Button2Mask;
-	bool b3      = buttons & Button3Mask;
+	bool b1      = buttons & SDL_BUTTON_LMASK;
+	bool b2      = buttons & SDL_BUTTON_RMASK;
+	bool b3      = buttons & SDL_BUTTON_MMASK;
 	
 	#if 0
 	#define M(i) (modifiers & Mod ## i ## Mask)
@@ -547,7 +574,7 @@ void PlotWindow::status()
 	int rows = 1, i = 0;
 	for (Parameter *p : ps)
 	{
-		bool sel = (i < 10 && keys.count(i==9 ? XK_0 : XK_1+i));
+		bool sel = (i < 10 && keys.count(i==9 ? SDLK_0 : SDLK_1+i));
 		labelCache.font(sel ? 1 : 0);
 		GL_String *s = labelCache.get(format("%s = %s", p->name().c_str(), to_string(p->value(), rns).c_str()));
 		labels.push_back(s);
