@@ -20,7 +20,7 @@ public:
 	operator bool() const{ return !closed; }
 
 	void draw();
-	void redraw(){ need_redraw = true; }
+	//void redraw(){ need_redraw = true; } --> moved to base class
 
 	void load(const std::string &path) override { Document::load(path); redraw(); }
 
@@ -39,7 +39,6 @@ protected:
 
 	double   tnf; // scheduled time for next frame
 	double   last_frame; // time of last draw
-	bool     need_redraw; // call draw after all pending events are handled
 	GL_RM    rm;
 	SDL_Window* window;
 

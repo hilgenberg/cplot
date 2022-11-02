@@ -26,7 +26,6 @@ PlotWindow::PlotWindow(SDL_Window* window, GL_Context &context)
 , w(0), h(0)
 , window(window)
 , closed(false)
-, need_redraw(true)
 {
 	int n = 0;
 	SDL_GL_GetAttribute(SDL_GL_ACCUM_RED_SIZE, &accum);
@@ -214,7 +213,7 @@ bool PlotWindow::handle_key(SDL_Keysym keysym, bool release)
 {
 	auto key = keysym.sym;
 	bool shift = keysym.mod & (KMOD_LSHIFT|KMOD_RSHIFT);
-	auto toggle = [this](bool &what){ what = !what; redraw(); return true; };
+	bool control = keysym.mod & (KMOD_LCTRL|KMOD_RCTRL);
 	auto view   = [this](double x, double y)
 	{
 		switch (plot.axis_type())
@@ -225,69 +224,78 @@ bool PlotWindow::handle_key(SDL_Keysym keysym, bool release)
 		}
 	};
 
-	Graph *g = plot.current_graph();
-
-	if (!release)
+	if (!release) switch (key)
 	{
-		switch (key)
-		{
-			case SDLK_LEFT: case SDLK_RIGHT:
-			case SDLK_UP:   case SDLK_DOWN:
-			case SDLK_PLUS: case SDLK_MINUS:
-				if (!ikeys.count(key)) ikeys[key] = 0.0;
-				start();
-				return true;
+		case SDLK_LEFT: case SDLK_RIGHT:
+		case SDLK_UP:   case SDLK_DOWN:
+		case SDLK_PLUS: case SDLK_MINUS:
+			if (!ikeys.count(key)) ikeys[key] = 0.0;
+			start();
+			return true;
+	
+		case SDLK_0: case SDLK_1: case SDLK_2: case SDLK_3: case SDLK_4:
+		case SDLK_5: case SDLK_6: case SDLK_7: case SDLK_8: case SDLK_9:
+			if (!keys.count(key)) redraw();
+			keys.insert(key);
+			return true;
+	
+		case SDLK_q: closed = true; return true;
+		case SDLK_PERIOD: stop_animations(); return true;
+
+		case SDLK_a: return toggleAxis();
+		case SDLK_c: return toggleClip();
+		case SDLK_g: return toggleGrid();
+
+		case SDLK_e: plot.axis.equal_ranges(); plot.recalc(); redraw(); return true;
+		case SDLK_t: view(  0, shift ? -90 : 90); return true;
+		case SDLK_f: view(shift ? 180 : 0,   0); return true;
+		case SDLK_s: view(shift ? 90 : -90,   0); return true;
 		
-			case SDLK_0: case SDLK_1: case SDLK_2: case SDLK_3: case SDLK_4:
-			case SDLK_5: case SDLK_6: case SDLK_7: case SDLK_8: case SDLK_9:
-				if (!keys.count(key)) redraw();
-				keys.insert(key);
+		case SDLK_z:
+			if (control)
+			{
+				ut.undo();
 				return true;
-		
-			case SDLK_q: /*case SDLK_ESCAPE:*/ closed = true; return true;
-			case SDLK_PERIOD: stop_animations(); return true;
+			}
+			else
+			{
+				plot.axis.reset_center(); plot.recalc(); redraw(); return true;
+			}
+		case SDLK_y:
+			if (control)
+			{
+				ut.redo();
+				return true;
+			}
+			break;
 
-			case SDLK_a: return toggle(plot.axis.options.hidden);
-			case SDLK_c: if (g && g->toggle_clipping()) redraw(); return true;
-			case SDLK_g: if (g && g->toggle_grid(shift)) redraw(); return true;
+		case SDLK_v: return cycleVFMode(shift ? -1 : 1);
 
-			case SDLK_e: plot.axis.equal_ranges(); plot.recalc(); redraw(); return true;
-			case SDLK_t: view(  0, shift ? -90 : 90); return true;
-			case SDLK_f: view(shift ? 180 : 0,   0); return true;
-			case SDLK_s: view(shift ? 90 : -90,   0); return true;
-			case SDLK_z: plot.axis.reset_center(); plot.recalc(); redraw(); return true;
+		/*
+		case SDLK_d: [settingsBox toggle:settingsBox.disco];      return;
+		case SDLK_C: [settingsBox toggle:settingsBox.clipCustom]; return;
+		case SDLK_l: [settingsBox toggle:settingsBox.clipLock];   return;
+		case SDLK_L: [settingsBox   push:settingsBox.clipReset];  return;
+			
+		case SDLK_t: [settingsBox  cycle:settingsBox.textureMode direction:+1]; return;
+		case SDLK_T: [settingsBox  cycle:settingsBox.textureMode direction:-1]; return;
 
-			/*
-			case SDLK_d: [settingsBox toggle:settingsBox.disco];      return;
-			case SDLK_C: [settingsBox toggle:settingsBox.clipCustom]; return;
-			case SDLK_l: [settingsBox toggle:settingsBox.clipLock];   return;
-			case SDLK_L: [settingsBox   push:settingsBox.clipReset];  return;
-				
-			case SDLK_t: [settingsBox  cycle:settingsBox.textureMode direction:+1]; return;
-			case SDLK_T: [settingsBox  cycle:settingsBox.textureMode direction:-1]; return;
-			case SDLK_v: prop(CYCLE, P_VF_MODE); return;
-			case SDLK_V: [settingsBox  cycle:settingsBox.vfMode      direction:-1]; return;
-
-			case SDLK_e: [axisBox equalRanges]; return;
-			case SDLK_z: [axisBox  centerAxis]; return;*/
-		}
+		case SDLK_e: [axisBox equalRanges]; return;
+		case SDLK_z: [axisBox  centerAxis]; return;*/
 	}
-	else
+	else switch (key)
 	{
-		switch (key)
-		{
-			case SDLK_LEFT: case SDLK_RIGHT:
-			case SDLK_UP:   case SDLK_DOWN:
-			case SDLK_PLUS: case SDLK_MINUS:
-				ikeys.erase(key);
-				return true;
-		
-			case SDLK_0: case SDLK_1: case SDLK_2: case SDLK_3: case SDLK_4:
-			case SDLK_5: case SDLK_6: case SDLK_7: case SDLK_8: case SDLK_9:
-				if (keys.count(key)) redraw();
-				keys.erase(key);
-				return true;
-		}
+		case SDLK_LEFT: case SDLK_RIGHT:
+		case SDLK_UP:   case SDLK_DOWN:
+		case SDLK_PLUS: case SDLK_MINUS:
+			ikeys.erase(key);
+			return true;
+	
+		case SDLK_0: case SDLK_1: case SDLK_2: case SDLK_3: case SDLK_4:
+		case SDLK_5: case SDLK_6: case SDLK_7: case SDLK_8: case SDLK_9:
+			if (keys.count(key)) redraw();
+			keys.erase(key);
+			return true;
 	}
 	return false;
 }
