@@ -24,11 +24,13 @@ private:
 	PlotWindow &w;
 	bool visible;
 	int  need_redraw;
+	bool show_demo_window = false;
 	
 	bool enabled;
 	bool enable(bool e);
 	void begin_section();
 	void end_section();
 	
+	void main_menu();
 	void settings_window();
 };

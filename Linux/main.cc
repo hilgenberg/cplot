@@ -152,7 +152,6 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "%s: %s\n", arg0, e.what());
 		retcode = 2;
 	}
-	printf("\n");
 
 	SDL_GL_DeleteContext(gl_context);
 	SDL_DestroyWindow(window);

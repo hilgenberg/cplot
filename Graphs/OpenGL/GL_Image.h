@@ -42,6 +42,18 @@ struct GL_Image : public Serializable, public GL_Resource
 	}
 	GL_Image &operator=(GL_ImagePattern p);
 
+	GL_Image &swap(GL_Image &x)
+	{
+		std::swap(_w, x._w);
+		std::swap(_h, x._h);
+		std::swap(_data, x._data);
+		std::swap(_pattern, x._pattern);
+		std::swap(_opacity, x._opacity);
+		++_state; ++x._state;
+		modify(); x.modify();
+		return *this;
+	}
+
 	bool operator==(const GL_Image &x) const
 	{
 		if (_pattern != x._pattern) return false;

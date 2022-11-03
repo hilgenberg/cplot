@@ -278,3 +278,237 @@ bool Document::setAxisGrid(AxisOptions::AxisGridMode m)
 	ut.reg("Change Axis Grid", [this,m0]{ setAxisGrid(m0); });
 	return true;
 }
+
+//-------------------------------------------------------------------------------
+
+bool Document::setFog(double v)
+{
+	auto v0 = plot.options.fog;
+	if (fabs(v-v0) < 1e-12) return true;
+	plot.options.fog = v;
+	redraw();
+	ut.reg("Change Fog Strength", [this,v0]{ setFog(v0); }, &plot.options.fog);
+	return true;
+}
+
+bool Document::setLineWidth(double v)
+{
+	Graph *g = plot.current_graph(); if (!g) return false;
+	auto v0 = (g->usesLineColor() ? g->options.line_width : g->options.gridline_width);
+	if (fabs(v-v0) < 1e-12) return true;
+	(g->usesLineColor() ? g->options.line_width : g->options.gridline_width) = v;
+	redraw();
+	ut.reg("Change Line Width", [this,v0]{ setLineWidth(v0); }, &(g->usesLineColor() ? g->options.line_width : g->options.gridline_width));
+	return true;
+}
+
+bool Document::setShinyness(double v)
+{
+	Graph *g = plot.current_graph(); if (!g) return false;
+	auto v0 = g->options.shinyness;
+	if (fabs(v-v0) < 1e-12) return true;
+	g->options.shinyness = v;
+	redraw();
+	ut.reg("Change Shinyness", [this,v0]{ setShinyness(v0); }, &g->options.shinyness);
+	return true;
+}
+
+bool Document::setTextureStrength(double v)
+{
+	Graph *g = plot.current_graph(); if (!g) return false;
+	auto v0 = g->options.texture_opacity;
+	if (fabs(v-v0) < 1e-12) return true;
+	g->options.texture_opacity = v;
+	redraw();
+	ut.reg("Change Texture Strength", [this,v0]{ setTextureStrength(v0); }, &g->options.texture_opacity);
+	return true;
+}
+
+bool Document::setReflectionStrength(double v)
+{
+	Graph *g = plot.current_graph(); if (!g) return false;
+	auto v0 = g->options.reflection_opacity;
+	if (fabs(v-v0) < 1e-12) return true;
+	g->options.reflection_opacity = v;
+	redraw();
+	ut.reg("Change Reflection Strength", [this,v0]{ setReflectionStrength(v0); }, &g->options.reflection_opacity);
+	return true;
+}
+
+bool Document::setAAMode(AntialiasMode m)
+{
+	auto m0 = plot.options.aa_mode;
+	if (m0 == m) return true;
+	plot.options.aa_mode = m;
+	redraw();
+	ut.reg("Change Antialiasing", [this,m0]{ setAAMode(m0); }, &plot.options.aa_mode);
+	return true;
+}
+
+bool Document::setTransparencyMode(const GL_BlendMode &m)
+{
+	Graph *g = plot.current_graph(); if (!g) return false;
+	GL_BlendMode m0 = g->options.transparency;
+	if (m == m0) return true;
+	g->options.transparency = m;
+	redraw();
+	ut.reg("Change Transparency", [this,m0]{ setTransparencyMode(m0); }, &g->options.transparency);
+	return true;
+}
+
+bool Document::setTextureMode(TextureProjection m)
+{
+	Graph *g = plot.current_graph(); if (!g) return false;
+	TextureProjection m0 = g->options.texture_projection;
+	if (m == m0) return true;
+	g->options.texture_projection = m;
+	recalc(g);
+	ut.reg("Change Texture Mode", [this,m0]{ setTextureMode(m0); }, &g->options.texture_projection);
+	return true;
+}
+
+/*void SideSectionStyle::OnCycleTextureMode(int d)
+{
+	assert(d == 1 || d == -1);
+	Graph *g = document().plot.current_graph(); if (!g) return;
+
+	int m = d + (int)g->options.texture_projection;
+	if (m < 0) m = TP_LAST;
+	if (m > TP_LAST) m = 0;
+
+	g->options.texture_projection = (TextureProjection)m;
+	Recalc(g);
+	Update(false);
+}*/
+
+bool Document::setBgColor(const GL_Color &v)
+{
+	GL_Color v0 = plot.axis.options.background_color;
+	if (v == v0) return true;
+	plot.axis.options.background_color = v;
+	redraw();
+	ut.reg("Change Background Color", [this,v0]{ setBgColor(v0); }, &plot.axis.options.background_color);
+	return true;
+}
+
+bool Document::setAxisColor(const GL_Color &v)
+{
+	GL_Color v0 = plot.axis.options.axis_color;
+	if (v == v0) return true;
+	plot.axis.options.axis_color = v;
+	redraw();
+	ut.reg("Change Axis Color", [this,v0]{ setAxisColor(v0); }, &plot.axis.options.axis_color);
+	return true;
+}
+
+bool Document::setFillColor(const GL_Color &v)
+{
+	Graph *g = plot.current_graph(); if (!g) return false;
+	GL_Color v0 = g->options.fill_color;
+	if (v == v0) return true;
+	g->options.fill_color = v;
+	redraw();
+	ut.reg("Change Fill Color", [this,v0]{ setFillColor(v0); }, &g->options.fill_color);
+	return true;
+}
+
+bool Document::setGridColor(const GL_Color &v)
+{
+	Graph *g = plot.current_graph(); if (!g) return false;
+	auto &c = (g->usesLineColor() ? g->options.line_color : g->options.grid_color);
+	GL_Color v0 = c;
+	if (v == v0) return true;
+	c = v;
+	redraw();
+	ut.reg("Change Grid Color", [this,v0]{ setGridColor(v0); }, &c);
+	return true;
+}
+
+bool Document::setTexture(GL_ImagePattern v)
+{
+	Graph *g = plot.current_graph(); if (!g) return false;
+	GL_Image &m0 = g->options.texture;
+	GL_ImagePattern v0 = m0.is_pattern();
+	if (v0)
+	{
+		if (v0 == v) return true;
+		ut.reg("Change Texture", [this,v0]{ setTexture(v0); }, &m0);
+		m0 = v;
+	}
+	else
+	{
+		GL_Image tmp; tmp = v; tmp.swap(m0);
+		ut.reg("Change Texture", [this,tmp]() mutable { setTexture(tmp); });
+	}
+	g->isColor() ? recalc(g) : redraw();
+	return true;
+}
+bool Document::setTexture(GL_Image &v)
+{
+	Graph *g = plot.current_graph(); if (!g) return false;
+	GL_Image &m0 = g->options.texture;
+	GL_ImagePattern v0 = m0.is_pattern();
+	if (v0)
+	{
+		ut.reg("Change Texture", [this,v0]{ setTexture(v0); });
+		m0.swap(v);
+	}
+	else
+	{
+		m0.swap(v);
+		ut.reg("Change Texture", [this,v]() mutable{ setTexture(v); });
+	}
+	g->isColor() ? recalc(g) : redraw();
+	return true;
+}
+
+bool Document::setReflectionTexture(GL_ImagePattern v)
+{
+	Graph *g = plot.current_graph(); if (!g) return false;
+	GL_Image &m0 = g->options.reflection_texture;
+	GL_ImagePattern v0 = m0.is_pattern();
+	if (v0)
+	{
+		if (v0 == v) return true;
+		ut.reg("Change Reflection Texture", [this,v0]{ setReflectionTexture(v0); }, &m0);
+		m0 = v;
+	}
+	else
+	{
+		GL_Image tmp; tmp = v; tmp.swap(m0);
+		ut.reg("Change Reflection Texture", [this,tmp]() mutable { setReflectionTexture(tmp); });
+	}
+	g->isColor() ? recalc(g) : redraw();
+	return true;
+}
+bool Document::setReflectionTexture(GL_Image &v)
+{
+	Graph *g = plot.current_graph(); if (!g) return false;
+	GL_Image &m0 = g->options.reflection_texture;
+	GL_ImagePattern v0 = m0.is_pattern();
+	if (v0)
+	{
+		ut.reg("Change Reflection Texture", [this,v0]{ setReflectionTexture(v0); });
+		m0.swap(v);
+	}
+	else
+	{
+		m0.swap(v);
+		ut.reg("Change Reflection Texture", [this,v]() mutable{ setReflectionTexture(v); });
+	}
+	g->isColor() ? recalc(g) : redraw();
+	return true;
+}
+
+bool Document::setAxisFont(const std::string &name, float size)
+{
+	GL_Font &f = plot.axis.options.label_font;
+	const std::string n0 = f.name;
+	float s0 = f.size;
+	if (n0 == name && fabs(s0-size) < 1e-8) return true;
+	ut.reg("Change Axis Font", [this,n0,s0]{ setAxisFont(n0,s0); }, &f);
+	f.name = name;
+	f.size = size;
+	redraw();
+	return true;
+}

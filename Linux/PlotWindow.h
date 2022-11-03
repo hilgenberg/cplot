@@ -33,18 +33,20 @@ public:
 	void stop_animations(){ panims.clear(); }
 	void stop_animation(Parameter &p){ panims.erase(p.oid()); }
 
+	int  accum_size() const { return accum; }
+	
 protected:
 	void start(); // animating
 	void stop();
 
-	double   tnf; // scheduled time for next frame
-	double   last_frame; // time of last draw
-	GL_RM    rm;
-	SDL_Window* window;
-
-	int  w, h;
-	int  accum;  // accumulation buffer size
-	bool closed; // should window close?
+	SDL_Window *window;
+	int         w, h;
+	int         accum;      // accumulation buffer size
+	bool        closed;     // should window close?
+   
+	double      tnf;        // scheduled time for next frame
+	double      last_frame; // time of last draw
+	GL_RM       rm;
 
 	struct ParameterAnimation
 	{

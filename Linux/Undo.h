@@ -139,11 +139,18 @@ public:
 		name = "Redo " + rs.back().name;
 		return true;
 	}
+
+	#ifndef NDEBUG
+	// #define CHECK_REDO_REG
+	#endif
+	// this fails assertions when e.g. moving some slider somewhere and back,
+	// which makes the redo-operation a no-op, which is not registered.
+
 	void undo()
 	{
 		assert(!undoing && !redoing);
 		if (us.empty()) return;
-		#ifndef NDEBUG
+		#ifdef CHECK_REDO_REG
 		size_t n0 = rs.size();
 		#endif
 		UndoItem &item = us.back();
@@ -159,14 +166,16 @@ public:
 		}
 		undoing = false;
 		assert(&item == &us.back()); // undo only modifies redo stack
+		#ifdef CHECK_REDO_REG
 		assert(rs.size() > n0); // should have gone from undo to redo
+		#endif
 		us.pop_back();
 	}
 	void redo()
 	{
 		assert(!undoing && !redoing);
 		if (rs.empty()) return;
-		#ifndef NDEBUG
+		#ifdef CHECK_REDO_REG
 		size_t n0 = us.size();
 		#endif
 		UndoItem &item = rs.back();
@@ -182,7 +191,9 @@ public:
 		}
 		redoing = false;
 		assert(&item == &rs.back()); // redo only modifies undo stack
+		#ifdef CHECK_REDO_REG
 		assert(us.size() > n0); // should have gone from redo to undo
+		#endif
 		rs.pop_back();
 	}
 

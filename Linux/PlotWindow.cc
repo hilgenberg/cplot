@@ -177,7 +177,6 @@ bool PlotWindow::handle_event(const SDL_Event &e)
 			if (!(buttons & (SDL_BUTTON_LMASK|SDL_BUTTON_RMASK|SDL_BUTTON_MMASK)))
 				return true;
 			int dx = e.motion.xrel, dy = e.motion.yrel;
-			if (dx*dx + dy*dy < 4) return true;
 			move(dx, dy, 0.0, false, buttons);
 			return true;
 		}
@@ -565,7 +564,7 @@ void PlotWindow::status()
 	std::vector<Parameter*> ps(aps.begin(), aps.end());
 	std::sort(ps.begin(), ps.end(), [&](Parameter *a, Parameter *b)->bool{ return a->name() < b->name(); });
 
-	bool dark = plot.axis.options.background_color.lightness() < 0.3;
+	bool dark = plot.axis.options.background_color.lightness() < 0.55;
 	double fs = 20.0f;
 	std::vector<GL_Font> fonts;
 	fonts.push_back(GL_Font("sans regular", fs));
@@ -604,17 +603,29 @@ void PlotWindow::status()
 	float c = dark ? 0.0f :1.0f;
 	glColor4d(c, c, c, dark ? 0.85 : 0.7);
 	glBegin(GL_QUADS);
+	#ifdef DRAW_STATUS_AT_TOP
 	glVertex2d(0, 0);
 	glVertex2d(w, 0);
 	glVertex2d(w, rows*lh+vspace*(rows+1));
 	glVertex2d(0, rows*lh+vspace*(rows+1));
+	#else
+	const double y0 = h-rows*lh-vspace*(rows+1);
+	glVertex2d(0, y0);
+	glVertex2d(w, y0);
+	glVertex2d(w, h);
+	glVertex2d(0, h);
+	#endif
 	glEnd();
 
 	x = hspace; double y = vspace;
 	for (GL_String *s : labels)
 	{
 		if (x > hspace && x + s->w() + hspace > w){ x = hspace; y += lh + vspace; }
+		#ifdef DRAW_STATUS_AT_TOP
 		s->draw2d(x, y, s->w(), s->h());
+		#else
+		s->draw2d(x, y0+y, s->w(), s->h());
+		#endif
 		x += s->w() + 2.0*hspace;
 	}
 	glMatrixMode(GL_PROJECTION); glPopMatrix();
