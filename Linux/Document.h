@@ -9,6 +9,7 @@ struct Document
 	Document() : plot(rns), need_redraw(true) { }
 
 	virtual void load(const std::string &path);
+	void clear();
 	void save() const{ saveAs(path); }
 	void saveAs(const std::string &path) const;
 
@@ -61,6 +62,27 @@ struct Document
 	bool setReflectionTexture(GL_Image &v); // leaves v with the previous value!
 	bool setReflectionTexture(GL_ImagePattern v);
 	bool setAxisFont(const std::string &name, float size);
+	//-------------------------------------------------------------
+	bool setF1(const std::string &f) { return setF(1, f); }
+	bool setF2(const std::string &f) { return setF(2, f); }
+	bool setF3(const std::string &f) { return setF(3, f); }
+	bool setF(int i, const std::string &s);
+	bool setDomain(GraphType t);
+	bool setCoords(GraphCoords c);
+	bool setMode(GraphMode m);
+	bool deleteGraph(IDCarrier::OID g_, IDCarrier::OID g_sel = 0);
+	bool undeleteGraph(const std::vector<char> &data, IDCarrier::OID g_, bool make_current);
+	bool addGraph();
+	bool selectGraph(int i);
+	bool toggleGraphVisibility();
+	//-------------------------------------------------------------
+	bool deleteParam(IDCarrier::OID g_);
+	bool undeleteParam(const std::vector<char> &data, IDCarrier::OID g_);
+	bool modifyParam(const std::vector<char> &data, IDCarrier::OID p_);
+	//-------------------------------------------------------------
+	bool deleteDef(IDCarrier::OID f_);
+	bool undeleteDef(const std::vector<char> &data, IDCarrier::OID f_);
+	bool modifyDef(const std::vector<char> &data, IDCarrier::OID f_);
 
 protected:
 	bool need_redraw;

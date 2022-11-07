@@ -35,11 +35,21 @@
 	ImGui::ColorEdit4(title, tmp.v, colorEditFlags);\
 	if (enabled && tmp != orig) w.action(tmp); }while(0)
 
-void GUI::settings_window()
+void GUI::settings_panel()
 {
 	const Plot &plot = w.plot;
-
 	if (plot.axis_type() == Axis::Invalid) return;
+
+	ImGuiViewport &screen = *ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(ImVec2(screen.WorkPos.x, screen.WorkPos.y+main_panel_height));
+	ImGui::SetNextWindowSize(ImVec2(0.0f, screen.WorkSize.y-main_panel_height));
+	ImGui::SetNextWindowBgAlpha(0.7f);
+	ImGuiWindowFlags window_flags = 0;
+	window_flags |= ImGuiWindowFlags_NoTitleBar;
+	window_flags |= ImGuiWindowFlags_NoMove;
+	window_flags |= ImGuiWindowFlags_NoResize;
+	window_flags |= ImGuiWindowFlags_NoCollapse;
+	window_flags |= ImGuiWindowFlags_NoSavedSettings;
 
 	const Graph *g    = plot.current_graph();
 	const bool sel    = g != NULL;
@@ -50,13 +60,12 @@ void GUI::settings_window()
 	const bool twoD   = plot.axis_type() == Axis::Rect;
 	const bool points = g && g->options.shading_mode == Shading_Points;
 
-	ImGui::Begin("Settings");
-	begin_section();
+	ImGui::Begin("Settings", &show_settings_panel, window_flags);
+	assert(enabled);
 
 	ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
-
 	if (!vf && (!color || g->mode() == GM_RiemannColor))
-		SLIDER(sel, "Quality", g->options.quality, 0.0, 0.1, setQuality);
+		SLIDER(sel, "Quality", g->options.quality, 0.0, 0.6, setQuality);
 	if (!color && !line)
 		SLIDER(sel && (!histo || !points), "Grid Density", g->options.grid_density, 0.0, 100.0, setGridDensity);
 	if (!vf && !color && !histo && !points)
@@ -261,7 +270,7 @@ void GUI::settings_window()
 		}
 	}
 
+	enable();
 	ImGui::PopItemWidth();
-	end_section();
 	ImGui::End();
 }

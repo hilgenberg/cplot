@@ -1,3 +1,9 @@
 [submodule "Linux/imgui"]
 	path = Linux/imgui
 	url = https://github.com/ocornut/imgui.git
+[submodule "Linux/ImFileDialog/orig"]
+	path = Linux/ImFileDialog/orig
+	url = https://github.com/dfranx/ImFileDialog.git
+[submodule "Linux/stb"]
+	path = Linux/stb
+	url = https://github.com/nothings/stb.git

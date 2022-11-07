@@ -1,5 +1,7 @@
 #include "Document.h"
 #include "../Persistence/Serializer.h"
+#include "../Engine/Namespace/Parameter.h"
+#include "../Engine/Namespace/UserFunction.h"
 
 void Document::saveAs(const std::string &p) const
 {
@@ -26,6 +28,14 @@ void Document::saveAs(const std::string &p) const
 	fclose(F);
 	path = p;
 	ut.file_was_saved();
+}
+
+void Document::clear()
+{
+	plot.clear();
+	rns.clear();
+	path.clear();
+	ut.file_was_loaded();
 }
 
 void Document::load(const std::string &p)
@@ -512,3 +522,224 @@ bool Document::setAxisFont(const std::string &name, float size)
 	redraw();
 	return true;
 }
+
+//-------------------------------------------------------------
+
+bool Document::setF(int i, const std::string &s)
+{
+	if (i < 1 || i > 3) { assert(false); return false; }
+	Graph *g = plot.current_graph(); if (!g) return false;
+	std::string s0 = g->fn(i);
+	if (s == s0) return true;
+	ut.reg("Change Function", [this,i,s0]{ setF(i,s0); }, g, i);
+	g->set(s, i);
+	redraw();
+	return true;
+}
+
+bool Document::setDomain(GraphType t)
+{
+	Graph *g = plot.current_graph(); if (!g) return false;
+	GraphType t0 = g->type();
+	if (t == t0) return true;
+	ut.reg("Change Domain", [this,t0]{ setDomain(t0); }, g, 4);
+	g->type(t);
+	plot.update_axis();
+	redraw();
+	return true;
+}
+
+bool Document::setCoords(GraphCoords c)
+{
+	Graph *g = plot.current_graph(); if (!g) return false;
+	GraphCoords c0 = g->coords();
+	if (c == c0) return true;
+	ut.reg("Change Coordinates", [this,c0]{ setCoords(c0); }, g, 5);
+	g->coords(c);
+	redraw();
+	return true;
+}
+
+bool Document::setMode(GraphMode m)
+{
+	Graph *g = plot.current_graph(); if (!g) return false;
+	GraphMode m0 = g->mode();
+	if (m == m0) return true;
+	ut.reg("Change Graph Mode", [this,m0]{ setMode(m0); }, g, 6);
+	g->mode(m);
+	plot.update_axis();
+	redraw();
+	return true;
+}
+
+bool Document::deleteGraph(IDCarrier::OID g_, IDCarrier::OID g_sel)
+{
+	Graph *g = (Graph*)IDCarrier::find(g_); if (!g) return false;
+	const bool cur = (plot.current_graph() == g);
+
+	std::vector<char> data;
+	ArrayWriter w(data);
+	Serializer s(w);
+	g->save(s);
+
+	ut.reg("Delete Graph", [this,data,g_,cur]{ undeleteGraph(data, g_, cur); });
+
+	plot.delete_graph(g); g = NULL;
+	if (g_sel)
+	{
+		Graph *g0 = (Graph*)IDCarrier::find(g_sel);
+		if (g0) plot.set_current_graph(g0);
+	}
+
+	plot.update_axis();
+	redraw();
+	return true;
+}
+bool Document::undeleteGraph(const std::vector<char> &data, IDCarrier::OID g_, bool make_current)
+{
+	ArrayReader w(data);
+	Deserializer s(w);
+	Graph *g = new Graph(plot);
+	g->load(s);
+	g->restore(g_);
+	plot.add_graph(g, make_current);
+	plot.update_axis();
+	redraw();
+	ut.reg("Restore Graph", [this,g_]{ deleteGraph(g_); });
+	return true;
+}
+
+bool Document::addGraph()
+{
+	Graph *g0 = plot.current_graph();
+	Graph *g = plot.add_graph();
+	IDCarrier::OID g_ = g->oid(), g0_ = (g0 ? g0->oid() : 0);
+	plot.update_axis();
+	redraw();
+	ut.reg("Add Graph", [this,g_,g0_]{ deleteGraph(g_, g0_); });
+	return true;
+}
+
+bool Document::selectGraph(int i)
+{
+	int i0 = plot.current_graph_index();
+	if (i == i0) return true;
+	ut.reg("Select Graph", [this,i0]{ selectGraph(i0); }, &plot, 1);
+	plot.set_current_graph(i);
+	return true;
+}
+
+bool Document::toggleGraphVisibility()
+{
+	Graph *g = plot.current_graph(); if (!g) return false;
+	g->options.hidden = !g->options.hidden;
+	plot.update_axis();
+	recalc(g);
+	ut.reg("Change Graph Visibility", [this]{ toggleGraphVisibility(); }, &g->options.hidden, TOGGLE_OP);
+	return true;
+}
+
+//-------------------------------------------------------------
+
+bool Document::deleteParam(IDCarrier::OID p_)
+{
+	Parameter *p = (Parameter*)IDCarrier::find(p_); if (!p) return false;
+	std::vector<char> data;
+	ArrayWriter w(data);
+	Serializer s(w);
+	p->save(s);
+	ut.reg("Delete Parameter", [this,data,p_]{ undeleteParam(data, p_); });
+	std::string nm = p->name();
+	delete p; p = NULL;
+	plot.reparse(nm);
+	recalc(plot);
+	return true;
+}
+
+bool Document::undeleteParam(const std::vector<char> &data, IDCarrier::OID g_)
+{
+	ArrayReader w(data);
+	Deserializer s(w);
+	Parameter *p = new Parameter;
+	p->load(s);
+	p->restore(g_);
+	plot.ns.add(p);
+	plot.reparse(p->name());
+	recalc(plot);
+	ut.reg("Restore Parameter", [this,g_]{ deleteParam(g_); });
+	return true;
+}
+
+bool Document::modifyParam(const std::vector<char> &data, IDCarrier::OID p_)
+{
+	Parameter *p = (Parameter*)IDCarrier::find(p_); if (!p) return false;
+
+	std::vector<char> data2;
+	ArrayWriter w(data2);
+	Serializer s(w);
+	p->save(s);
+
+	ArrayReader ww(data);
+	Deserializer d(ww);
+	p->load(d);
+
+	plot.reparse(p->name());
+	recalc(plot);
+	ut.reg("Modify Parameter", [this,data2,p_]{ modifyParam(data2, p_); });
+	return true;
+}
+
+bool Document::deleteDef(IDCarrier::OID p_)
+{
+	UserFunction *p = (UserFunction*)IDCarrier::find(p_); if (!p) return false;
+	std::vector<char> data;
+	ArrayWriter w(data);
+	Serializer s(w);
+	p->save(s);
+	ut.reg("Delete Definition", [this,data,p_]{ undeleteDef(data, p_); });
+	std::string nm = p->name();
+	delete p; p = NULL;
+	plot.reparse(nm);
+	recalc(plot);
+	return true;
+}
+
+bool Document::undeleteDef(const std::vector<char> &data, IDCarrier::OID g_)
+{
+	ArrayReader w(data);
+	Deserializer s(w);
+	UserFunction *p = new UserFunction;
+	p->load(s);
+	p->restore(g_);
+	plot.ns.add(p);
+	plot.reparse(p->name());
+	recalc(plot);
+	ut.reg("Restore Definition", [this,g_]{ deleteDef(g_); });
+	return true;
+}
+
+bool Document::modifyDef(const std::vector<char> &data, IDCarrier::OID p_)
+{
+	UserFunction *p = (UserFunction*)IDCarrier::find(p_); if (!p) return false;
+
+	std::vector<char> data2;
+	ArrayWriter w(data2);
+	Serializer s(w);
+	p->save(s);
+
+	ArrayReader ww(data);
+	Deserializer d(ww);
+	p->load(d);
+
+	plot.reparse(p->name());
+	recalc(plot);
+	ut.reg("Modify Definition", [this,data2,p_]{ modifyDef(data2, p_); });
+	return true;
+}
+
+
+
+
+#if 0
+
+#endif

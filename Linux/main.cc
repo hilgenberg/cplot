@@ -82,8 +82,15 @@ int main(int argc, char *argv[])
 				{
 					switch (event.key.keysym.sym)
 					{
-						case SDLK_F1: gui.toggle(); w.redraw(); break;
-						case SDLK_ESCAPE: if (gui) { gui.close(); w.redraw(); } break;
+						case SDLK_TAB:
+						case SDLK_SPACE:
+						case SDLK_RETURN:
+							// give new users more options to find the interface
+							if (gui) break;
+							// fallthrough
+						case SDLK_F1:
+						case SDLK_ESCAPE: 
+							gui.toggle(); w.redraw(); break;
 					}
 				}
 

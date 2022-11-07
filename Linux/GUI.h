@@ -1,7 +1,10 @@
 #pragma once
 #include <SDL.h>
 #include "imgui/imgui.h"
+#include "../Engine/cnum.h"
+#include "../Engine/Namespace/ObjectDB.h"
 class PlotWindow;
+class Parameter;
 
 class GUI
 {
@@ -24,13 +27,48 @@ private:
 	PlotWindow &w;
 	bool visible;
 	int  need_redraw;
+
+	#ifdef DEBUG
 	bool show_demo_window = false;
+	#endif
 	
-	bool enabled;
-	bool enable(bool e);
-	void begin_section();
-	void end_section();
+	void  main_menu(), file_menu(), graphs_menu(), params_menu(), defs_menu(),
+	      axis_menu(), settings_menu();
+	void  main_panel(), settings_panel();
+	bool  show_main_panel = true, show_settings_panel = true;
+	float main_panel_height = 0.0f;
 	
-	void main_menu();
-	void settings_window();
+	// Parameter editor and its data
+	void param_editor();
+	bool param_edit = false;
+	IDCarrier::OID param_orig = 0;
+	std::string param_tmp[7];
+	int param_tmp_type;
+	bool param_tmp_rad;
+
+	// UserFunction editor and its data
+	void def_editor();
+	bool def_edit = false;
+	IDCarrier::OID def_orig = 0;
+	std::string def_tmp[1];
+
+	// manage ImGui's BeginDisabled/EndDisabled regions
+	bool enabled = true;
+	void enable(bool e = true);
+
+	// printing and parsing helpers
+	std::string format_double(double x) const;
+	double parse(const std::string &s, const char *desc);
+	std::string format_complex(cnum x) const;
+	cnum cparse(const std::string &s, const char *desc);
+
+	// error and confirmation messages
+	void error(const std::string &msg);
+	void error_panel();
+	std::string error_msg;
+
+	void confirm(bool need_confirmation, const std::string &msg, std::function<void(void)> action);
+	void confirmation_panel();
+	std::string confirm_msg;
+	std::function<void(void)> confirm_action;
 };

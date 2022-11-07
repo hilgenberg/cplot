@@ -2,11 +2,6 @@
 
 #include "Namespace.h"
 
-/**
- * @addtogroup Namespace
- * @{
- */
-
 enum ParameterType
 {
 	Real         = 0,
@@ -127,10 +122,9 @@ public:
 #ifdef DEBUG
 	virtual void dump(std::ostream &o) const{ o << "Parameter " << name(); }
 #endif
-
-protected:
 	virtual Element *copy() const;
 
+protected:
 	cnum v;
 	double m_min, m_max, m_imin, m_imax, m_rmax;
 	ParameterType m_type;
