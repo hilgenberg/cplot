@@ -28,6 +28,11 @@ struct GL_Image : public Serializable, public GL_Resource
 	{
 		check_data();
 	}
+	
+	#ifdef __linux__
+	bool load(const std::string &path);
+	#endif
+	
 	GL_Image &operator=(const GL_Image &x)
 	{
 		_w       = x._w;

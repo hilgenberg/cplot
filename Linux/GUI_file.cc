@@ -40,7 +40,10 @@ void GUI::file_menu()
 				[this]{ w.clear(); redraw(); });
 		}
 		if (ImGui::MenuItem("Open...", "Ctrl+O"))
+		{
 			ifd::FileDialog::Instance().Open("OpenDialog", "Open File", "CPlot files (*.cplot){.cplot},.*", false);
+			need_redraw = 20; // imgui wants to animate dimming the background
+		}
 
 		if (ImGui::MenuItem("Save", "Ctrl+S"))
 		{
@@ -55,7 +58,24 @@ void GUI::file_menu()
 		}
 
 		if (ImGui::MenuItem("Save As...", "Ctrl+Shift+S"))
+		{
 			ifd::FileDialog::Instance().Save("SaveDialog", "Save File", "*.cplot {.cplot}");
+			need_redraw = 20; // imgui wants to animate dimming the background
+		}
+
+		ImGui::Separator();
+
+		static const char *img_filter = "Image file{.bmp,.gif,.hdr,.jpg,.jpeg,.jpe,.pgm,.pic,.png,.ppm,.psd,.tga,.vda,.icb,.vst},.*";
+		if (ImGui::MenuItem("Load Texture..."))
+		{
+			ifd::FileDialog::Instance().Open("OpenTextureDialog", "Open File", img_filter, false);
+			need_redraw = 20; // imgui wants to animate dimming the background
+		}
+		if (ImGui::MenuItem("Open Reflection Texture..."))
+		{
+			ifd::FileDialog::Instance().Open("OpenRTextureDialog", "Open File", img_filter, false);
+			need_redraw = 20; // imgui wants to animate dimming the background
+		}
 		ImGui::Separator();
 		if (ImGui::MenuItem("Quit", "Ctrl+Q")) {
 			SDL_Event e; e.type = SDL_QUIT;
@@ -90,4 +110,24 @@ void GUI::file_menu()
 		}
 		ifd::FileDialog::Instance().Close();
 	}
+
+	if (ifd::FileDialog::Instance().IsDone("OpenTextureDialog"))
+	{
+		if (ifd::FileDialog::Instance().HasResult())
+		{
+			std::string r = ifd::FileDialog::Instance().GetResult().u8string();
+			w.loadTexture(r);
+		}
+		ifd::FileDialog::Instance().Close();
+	}
+	if (ifd::FileDialog::Instance().IsDone("OpenRTextureDialog"))
+	{
+		if (ifd::FileDialog::Instance().HasResult())
+		{
+			std::string r = ifd::FileDialog::Instance().GetResult().u8string();
+			w.loadReflectionTexture(r);
+		}
+		ifd::FileDialog::Instance().Close();
+	}
+
 }

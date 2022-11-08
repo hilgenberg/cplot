@@ -510,6 +510,45 @@ bool Document::setReflectionTexture(GL_Image &v)
 	return true;
 }
 
+bool Document::loadTexture(const std::string &path)
+{
+	Graph *g = plot.current_graph(); if (!g) return false;
+	GL_Image m; if (!m.load(path)) return false;
+	GL_Image &m0 = g->options.texture;
+	GL_ImagePattern v0 = m0.is_pattern();
+	if (v0)
+	{
+		ut.reg("Change Texture", [this,v0]{ setTexture(v0); });
+		m0.swap(m);
+	}
+	else
+	{
+		m0.swap(m);
+		ut.reg("Change Texture", [this,m]() mutable{ setTexture(m); });
+	}
+	g->isColor() ? recalc(g) : redraw();
+	return true;
+}
+bool Document::loadReflectionTexture(const std::string &path)
+{
+	Graph *g = plot.current_graph(); if (!g) return false;
+	GL_Image m; if (!m.load(path)) return false;
+	GL_Image &m0 = g->options.reflection_texture;
+	GL_ImagePattern v0 = m0.is_pattern();
+	if (v0)
+	{
+		ut.reg("Change Reflection Texture", [this,v0]{ setReflectionTexture(v0); });
+		m0.swap(m);
+	}
+	else
+	{
+		m0.swap(m);
+		ut.reg("Change Reflection Texture", [this,m]() mutable{ setReflectionTexture(m); });
+	}
+	g->isColor() ? recalc(g) : redraw();
+	return true;
+}
+
 bool Document::setAxisFont(const std::string &name, float size)
 {
 	GL_Font &f = plot.axis.options.label_font;

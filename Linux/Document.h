@@ -61,6 +61,8 @@ struct Document
 	bool setTexture(GL_ImagePattern v);
 	bool setReflectionTexture(GL_Image &v); // leaves v with the previous value!
 	bool setReflectionTexture(GL_ImagePattern v);
+	bool loadTexture(const std::string &path);
+	bool loadReflectionTexture(const std::string &path);
 	bool setAxisFont(const std::string &name, float size);
 	//-------------------------------------------------------------
 	bool setF1(const std::string &f) { return setF(1, f); }
