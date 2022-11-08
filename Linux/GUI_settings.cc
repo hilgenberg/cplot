@@ -6,6 +6,8 @@
 #include <SDL_opengl.h>
 #include "PlotWindow.h"
 
+static constexpr int slider_flags = ImGuiSliderFlags_AlwaysClamp|ImGuiSliderFlags_NoRoundToFormat|ImGuiSliderFlags_NoInput;
+
 #define CHKBOOL(g, title, value, action) do{\
 	bool on_ = (g), orig = on_ && value, tmp = orig;\
 	enable(on_);\
@@ -16,7 +18,7 @@
 	bool on_ = (g); double v0 = min, v1 = max;\
 	auto orig = on_ ? value : min, tmp = orig;\
 	enable(on_);\
-	ImGui::SliderScalar("##" id, ImGuiDataType_Double, &tmp, &v0, &v1, title);\
+	ImGui::SliderScalar("##" id, ImGuiDataType_Double, &tmp, &v0, &v1, title, slider_flags);\
 	if (enabled && tmp != orig) w.action(tmp); }while(0)
 
 #define SLIDER(g, title, value, min, max, action) SLIDER_WITH_ID(g, title, title, value, min, max, action)
@@ -88,7 +90,7 @@ void GUI::settings_panel()
 			double v0 = 0.0, v1 = 1.0;
 			auto orig = g ? log(g->options.hist_scale*(HISTO_MAX - 2.0) + 1.0)*0.5/log(HISTO_MAX - 1.0) : 0.0, tmp = orig;
 			enable(true);
-			ImGui::SliderScalar("##Histogram Scale", ImGuiDataType_Double, &tmp, &v0, &v1, "Histogram Scale");
+			ImGui::SliderScalar("##Histogram Scale", ImGuiDataType_Double, &tmp, &v0, &v1, "Histogram Scale", slider_flags);
 			if (enabled && tmp != orig) w.setHistoScale((exp(2.0*tmp*log(HISTO_MAX - 1.0)) - 1.0) / (HISTO_MAX - 2.0));
 		}
 	}
@@ -157,7 +159,7 @@ void GUI::settings_panel()
 			enable(true);
 			float v0 = -1.0, v1 = 1.0;
 			float orig = plot.options.clip.distance(), tmp = orig;
-			ImGui::SliderFloat("##Clip Distance", &tmp, v0, v1, "Distance");
+			ImGui::SliderFloat("##Clip Distance", &tmp, v0, v1, "Distance", slider_flags);
 			if (tmp != orig) w.setClipDistance(tmp);
 		}
 	}
