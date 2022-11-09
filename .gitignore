@@ -1,6 +1,7 @@
 *.o
 /cplot
 /TODO
+/stuff/
 
 *.swp
 *.cc_

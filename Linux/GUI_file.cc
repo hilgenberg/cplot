@@ -63,6 +63,9 @@ void GUI::file_menu()
 			need_redraw = 20; // imgui wants to animate dimming the background
 		}
 
+		if (ImGui::MenuItem("Preferences...", "Ctrl+Comma"))
+			show_prefs_panel = true;
+
 		ImGui::Separator();
 
 		static const char *img_filter = "Image file{.bmp,.gif,.hdr,.jpg,.jpeg,.jpe,.pgm,.pic,.png,.ppm,.psd,.tga,.vda,.icb,.vst},.*";

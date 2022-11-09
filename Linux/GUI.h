@@ -36,6 +36,8 @@ private:
 	      axis_menu(), settings_menu();
 	void  main_panel(), settings_panel();
 	bool  show_main_panel = true, show_settings_panel = true;
+	void  prefs_panel(); bool show_prefs_panel = false;
+
 	float main_panel_height = 0.0f;
 	
 	// Parameter editor and its data

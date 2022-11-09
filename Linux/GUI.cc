@@ -5,6 +5,9 @@
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include "PlotWindow.h"
+#include "../Utility/Preferences.h"
+
+static std::string ini_location;
 
 GUI::GUI(SDL_Window* window, SDL_GLContext context, PlotWindow &w)
 : w(w)
@@ -19,7 +22,17 @@ GUI::GUI(SDL_Window* window, SDL_GLContext context, PlotWindow &w)
 	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 	io.ConfigInputTextCursorBlink = false;
 	io.ConfigInputTrickleEventQueue = false;
-	ImGui::StyleColorsDark();
+
+	auto p = Preferences::directory();
+	if (p.empty())
+	{
+		io.IniFilename = NULL;
+	}
+	else {
+		::ini_location = p / "imgui.ini";
+		io.IniFilename = ::ini_location.c_str();
+	}
+	//ImGui::StyleColorsDark();
 	//ImGui::StyleColorsLight();
 	ImGui_ImplSDL2_InitForOpenGL(window, context);
 	ImGui_ImplOpenGL2_Init();
@@ -117,6 +130,7 @@ void GUI::update()
 	if (def_edit)   def_editor();
 	error_panel();
 	confirmation_panel();
+	prefs_panel();
 
 	if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
 

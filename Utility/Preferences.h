@@ -1,4 +1,5 @@
 #pragma once
+#include <filesystem>
 
 /**
  * For getting and setting user preferences.
@@ -8,14 +9,20 @@
 
 namespace Preferences
 {
-	bool flush(); // store changes into registry (for preference dialog)
-	bool reset(); // reread from registry
+	bool flush(); // store changes into registry/ini file
+	bool reset(); // reread from registry/disk
 
 	bool dynamic(); // reduce quality during animation? 
 	void dynamic(bool value);
 
+	#ifdef _WIN32
 	bool slideback(); // delta sliders animate their return to center?
 	void slideback(bool value);
+	#endif
+
+	#ifdef __linux__
+	std::filesystem::path directory();
+	#endif
 
 	bool drawNormals(); // debugging
 	void drawNormals(bool value);

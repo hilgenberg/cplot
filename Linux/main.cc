@@ -1,6 +1,7 @@
 #include <signal.h>
 #include "PlotWindow.h"
 #include "../Utility/System.h"
+#include "../Utility/Preferences.h"
 #include "GUI.h"
 #include <SDL.h>
 #include <SDL_opengl.h>
@@ -12,6 +13,8 @@ int main(int argc, char *argv[])
 {
 	const char *arg0 = argv[0]; // program name without path
 	for (const char *s = arg0; *s; ++s) if (*s == '/') arg0 = s+1;
+	
+	Preferences::reset();
 	
 	struct sigaction sa;
 	memset(&sa, 0, sizeof(struct sigaction));
@@ -163,6 +166,8 @@ int main(int argc, char *argv[])
 	SDL_GL_DeleteContext(gl_context);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
+	
+	Preferences::flush();
 
 	return retcode;
 }
