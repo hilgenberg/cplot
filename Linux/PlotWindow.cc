@@ -238,7 +238,7 @@ bool PlotWindow::handle_key(SDL_Keysym keysym, bool release)
 			keys.insert(key);
 			return true;
 	
-		case SDLK_q: closed = true; return true;
+		case SDLK_q: if (control) closed = true; return true;
 		case SDLK_PERIOD: stop_animations(); return true;
 
 		case SDLK_a: return toggleAxis();
@@ -246,28 +246,19 @@ bool PlotWindow::handle_key(SDL_Keysym keysym, bool release)
 		case SDLK_g: return toggleGrid();
 
 		case SDLK_e: plot.axis.equal_ranges(); plot.recalc(); redraw(); return true;
-		case SDLK_t: view(  0, shift ? -90 : 90); return true;
-		case SDLK_f: view(shift ? 180 : 0,   0); return true;
-		case SDLK_s: view(shift ? 90 : -90,   0); return true;
+		case SDLK_t: view(0, shift ? -90 : 90); return true;
+		case SDLK_f: view(shift ? 180 : 0,  0); return true;
+		case SDLK_s: view(shift ? 90 : -90, 0); return true;
 		
 		case SDLK_z:
-			if (control)
+			if (!control)
 			{
-				ut.undo();
-				return true;
-			}
-			else
-			{
-				plot.axis.reset_center(); plot.recalc(); redraw(); return true;
-			}
-		case SDLK_y:
-			if (control)
-			{
-				ut.redo();
+				plot.axis.reset_center();
+				plot.recalc();
+				redraw();
 				return true;
 			}
 			break;
-
 		case SDLK_v: return cycleVFMode(shift ? -1 : 1);
 
 		/*

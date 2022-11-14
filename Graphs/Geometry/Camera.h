@@ -42,6 +42,9 @@ public:
 	void set_theta(double x){ if (!ortho){ double ph,ps,th; rot.get(ph, ps, th); rot.set(ph, ps, x*DEGREES); } }
 	void set_angles(double ph, double ps, double th){ if (!ortho){ rot.set(ph*DEGREES, ps*DEGREES, th*DEGREES); } }
 	
+	Quaternion quat() const { return rot.quat(); }
+	void quat(const Quaternion &q) { rot.quat(q); }
+
 	// project a point in axis-coordinates the same way that GL will, minus the pixel step, so [-1,1] fills the screen width
 	// returns true if the point is not before the near clipping plane
 	inline bool project(const P3f &p, P2f &pp) const;

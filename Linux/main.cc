@@ -78,26 +78,9 @@ int main(int argc, char *argv[])
 			SDL_Event event;
 			while (!quit && SDL_PollEvent(&event))
 			{
+				if (!w) quit = true;
 				if (gui.handle_event(event)) continue;
 				if (w.handle_event(event)) continue;
-
-				if (event.type == SDL_KEYDOWN)
-				{
-					switch (event.key.keysym.sym)
-					{
-						case SDLK_TAB:
-						case SDLK_SPACE:
-						case SDLK_RETURN:
-							// give new users more options to find the interface
-							if (gui) break;
-							// fallthrough
-						case SDLK_F1:
-						case SDLK_ESCAPE: 
-							gui.toggle(); w.redraw(); break;
-					}
-				}
-
-				if (!w) quit = true;
 			}
 			if (!w) quit = true;
 			if (quit) break;

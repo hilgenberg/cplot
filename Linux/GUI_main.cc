@@ -117,10 +117,12 @@ void GUI::main_panel()
 			"Absolute Value", "Phase", "Implicit", "Color", "Riemann Color", "Histogram" };
 		if (ImGui::BeginCombo("##ModeCombo", modes[g->mode()]))
 		{
+			int i = 0;
 			for (GraphMode m : g->valid_modes())
 			{
+				
 				const bool is_selected = (m == g->mode());
-				if (ImGui::Selectable(modes[m], is_selected)) w.setMode(m);
+				if (ImGui::Selectable(format("F%d: %s", ++i, modes[m]).c_str(), is_selected)) w.setMode(m);
 				if (is_selected) ImGui::SetItemDefaultFocus();
 			}
 			ImGui::EndCombo();

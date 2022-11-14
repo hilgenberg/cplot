@@ -40,13 +40,18 @@ public:
 	typedef std::function<void(void)> Action;
 
 	UndoTracker()
-	: undoing(false), redoing(false), changes(0)
+	: undoing(false), redoing(false), changes(0), all_trivial(true)
 	, last_coalesce_token(NULL), last_op_id(0), num_toggles(0), last_reg_time(-1)
 	{}
 
-	bool have_changes() const { return changes != 0; }
+	bool have_changes(bool non_trivial = true) const
+	{
+		return changes != 0 && (!non_trivial || !all_trivial);
+		// equivalent:
+		//return non_trivial ? (changes != 0 && !all_trivial) : changes != 0;
+	}
 
-	void reg(std::string name, Action a, void *coalesce_token = NULL, int op_id = 0)
+	void reg(std::string name, Action a, void *coalesce_token = NULL, int op_id = 0, bool trivial = false)
 	{
 		assert(!undoing || !redoing); // never both
 		assert(!undoing || !us.empty()); // items are always popped only after calling them!
@@ -57,6 +62,8 @@ public:
 		if (redoing) name = rs.back().name;
 		if (!undoing && !redoing)
 		{
+			if (!trivial) all_trivial = false;
+
 			if (changes < 0)
 				changes = frozen_change_counter;
 			else
@@ -106,6 +113,8 @@ public:
 		}
 		else
 		{
+			if (redoing && !trivial) all_trivial = false;
+			if (undoing && changes <= 0) all_trivial = false;
 			last_coalesce_token = NULL; // never coalesce through undo/redo
 			tgt.emplace_back(name, a);
 			if (changes != frozen_change_counter) undoing ? --changes : ++changes;
@@ -114,14 +123,14 @@ public:
 
 	void file_was_saved() const // const so that Document::save() can be const
 	{
-		changes = 0;
+		changes = 0; all_trivial = true;
 		last_coalesce_token = NULL;
 	}
 	void file_was_loaded()
 	{
 		us.clear();
 		rs.clear();
-		changes = 0;
+		changes = 0; all_trivial = true;
 		last_coalesce_token = NULL;
 	}
 
@@ -209,6 +218,7 @@ private:
 	std::deque<UndoItem> us, rs;
 	bool undoing, redoing;
 	mutable int    changes; // number of changes relative to the loaded/saved/new file
+	mutable bool   all_trivial;
 
 	mutable void  *last_coalesce_token;
 	mutable int    last_op_id, num_toggles;

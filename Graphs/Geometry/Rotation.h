@@ -25,6 +25,9 @@ public:
 	void set(double  phi, double  psi, double  theta); ///< Set from Euler angles
 	void get(double &phi, double &psi, double &theta) const; ///< Get Euler angles
 
+	Quaternion quat() const { return a; }
+	void quat(const Quaternion &q) { a = q; update(); }
+
 private:
 	Quaternion a; ///< Primary storage
 	

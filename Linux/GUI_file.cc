@@ -34,37 +34,11 @@ void GUI::file_menu()
 	init_ImFileDialog();
 	if (ImGui::BeginMenu("File"))
 	{
-		if (ImGui::MenuItem("New"))
-		{
-			confirm(w.ut.have_changes(), "Lose all changes?", 
-				[this]{ w.clear(); redraw(); });
-		}
-		if (ImGui::MenuItem("Open...", "Ctrl+O"))
-		{
-			ifd::FileDialog::Instance().Open("OpenDialog", "Open File", "CPlot files (*.cplot){.cplot},.*", false);
-			need_redraw = 20; // imgui wants to animate dimming the background
-		}
-
-		if (ImGui::MenuItem("Save", "Ctrl+S"))
-		{
-			try
-			{
-				w.save();
-			}
-			catch (std::exception &e)
-			{
-				error(e.what());
-			}
-		}
-
-		if (ImGui::MenuItem("Save As...", "Ctrl+Shift+S"))
-		{
-			ifd::FileDialog::Instance().Save("SaveDialog", "Save File", "*.cplot {.cplot}");
-			need_redraw = 20; // imgui wants to animate dimming the background
-		}
-
-		if (ImGui::MenuItem("Preferences...", "Ctrl+Comma"))
-			show_prefs_panel = true;
+		if (ImGui::MenuItem("New")) confirm(w.ut.have_changes(), "Lose all changes?", [this]{ w.clear(); redraw(); });
+		if (ImGui::MenuItem("Open...", "Ctrl+O")) open_file();
+		if (ImGui::MenuItem("Save", "Ctrl+S")) save();
+		if (ImGui::MenuItem("Save As...", "Ctrl+Shift+S")) save_as();
+		if (ImGui::MenuItem("Preferences...", "Ctrl+Comma")) show_prefs_panel = true;
 
 		ImGui::Separator();
 
@@ -133,4 +107,26 @@ void GUI::file_menu()
 		ifd::FileDialog::Instance().Close();
 	}
 
+}
+
+void GUI::open_file()
+{
+	ifd::FileDialog::Instance().Open("OpenDialog", "Open File", "CPlot files (*.cplot){.cplot},.*", false);
+	need_redraw = 20; // imgui wants to animate dimming the background
+}
+void GUI::save_as()
+{
+	ifd::FileDialog::Instance().Save("SaveDialog", "Save File", "*.cplot {.cplot}");
+	need_redraw = 20; // imgui wants to animate dimming the background
+}
+void GUI::save()
+{
+	try
+	{
+		w.save();
+	}
+	catch (std::exception &e)
+	{
+		error(e.what());
+	}
 }

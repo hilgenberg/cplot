@@ -776,8 +776,51 @@ bool Document::modifyDef(const std::vector<char> &data, IDCarrier::OID p_)
 	return true;
 }
 
+//-------------------------------------------------------------
 
-
+void Document::undoForCam()
+{
+	Camera &cam = plot.camera;
+	Quaternion q0 = cam.quat();
+	double     z0 = cam.zoom();
+	ut.reg("Change View", [this,q0,z0]{ setCam(q0,z0); }, &cam, 1, true);
+}
+bool Document::setCam(const Quaternion &rot, double zoom)
+{
+	Camera &cam = plot.camera;
+	Quaternion q0 = cam.quat();
+	double     z0 = cam.zoom();
+	ut.reg("Change View", [this,q0,z0]{ setCam(q0,z0); }, &cam, 1, true);
+	cam.quat(rot);
+	cam.set_zoom(zoom);
+	return true;
+}
+void Document::undoForAxis()
+{
+	Axis &ax = plot.axis;
+	P3d c0, r0; ax.get_range(c0, r0);
+	ut.reg("Change Axis Range", [this,c0,r0]{ setAxis(c0,r0); }, &ax, 1, true);
+}
+bool Document::setAxis(const P3d &center, const P3d &range)
+{
+	undoForAxis();
+	plot.axis.set_range(center, range);
+	recalc(plot);
+	return true;
+}
+void Document::undoForInRange()
+{
+	Axis &ax = plot.axis;
+	P2d c0, r0; ax.get_inrange(c0, r0);
+	ut.reg("Change Axis Range", [this,c0,r0]{ setInRange(c0,r0); }, &ax, 2, true);
+}
+bool Document::setInRange(const P2d &center, const P2d &range)
+{
+	undoForInRange();
+	plot.axis.set_inrange(center, range);
+	recalc(plot);
+	return true;
+}
 
 #if 0
 

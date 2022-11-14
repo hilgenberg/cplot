@@ -61,29 +61,6 @@ GUI::~GUI()
 	ImGui::DestroyContext();
 }
 
-bool GUI::handle_event(const SDL_Event &event)
-{
-	if (!visible) return false;
-	if (ImGui_ImplSDL2_ProcessEvent(&event)) redraw();
-	ImGuiIO &io = ImGui::GetIO();
-
-	switch (event.type)
-	{
-		case SDL_KEYDOWN:
-		case SDL_KEYUP:
-			if (io.WantCaptureKeyboard) return true;
-			break;
-
-		case SDL_MOUSEMOTION:
-		case SDL_MOUSEBUTTONDOWN:
-		case SDL_MOUSEBUTTONUP:
-		case SDL_MOUSEWHEEL:
-			if (io.WantCaptureMouse) return true;
-			break;
-	}
-	return false;
-}
-
 void GUI::update()
 {
 	if (ImGui::GetIO().MouseDrawCursor != visible)
@@ -162,6 +139,7 @@ void GUI::enable(bool e)
 void GUI::error(const std::string &msg)
 {
 	error_msg = msg;
+	visible = true;
 	redraw();
 	// cannot call OpenPopup here! would cause the IDs to mismatch.
 }
@@ -182,7 +160,12 @@ void GUI::error_panel()
 	if (!ImGui::BeginPopupModal("Error", NULL, ImGuiWindowFlags_AlwaysAutoResize)) return;
 	ImGui::TextWrapped(error_msg.c_str());
 	ImGui::Separator();
+	bool close = false;
 	if (ImGui::Button("OK", ImVec2(120, 0)))
+		close = true;
+	if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyPressed(ImGuiKey_Escape))
+		close = true;
+	if (close)
 	{
 		error_msg.clear();
 		ImGui::CloseCurrentPopup();
@@ -208,6 +191,8 @@ void GUI::confirm(bool c, const std::string &msg, std::function<void(void)> acti
 	}
 	confirm_msg = msg;
 	confirm_action = action;
+	visible = true;
+	redraw();
 }
 void GUI::confirmation_panel()
 {
@@ -226,6 +211,8 @@ void GUI::confirmation_panel()
 	ImGui::TextWrapped(confirm_msg.c_str());
 	ImGui::Separator();
 	bool close = false;
+	if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyPressed(ImGuiKey_Escape))
+		close = true;
 	if (ImGui::Button("Cancel", ImVec2(120, 0))) close = true;
 	ImGui::SameLine();
 	if (ImGui::Button("OK", ImVec2(120, 0)))

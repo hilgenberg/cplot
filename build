@@ -184,6 +184,8 @@ rule link
 		obj = []
 		glsl = []
 		for R,D,F in os.walk('.'):
+			if "stuff" in D: D.remove("stuff")
+			if ".git" in D: D.remove(".git")
 			for f in fnmatch.filter(F, '*.cc'):
 				print(f"build {base}/{f}.o: cc {os.path.join(R, f)}{PCH_DEP}")
 				obj.append(f"{base}/{f}.o")

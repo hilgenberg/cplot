@@ -12,7 +12,7 @@ public:
 	GUI(SDL_Window* window, SDL_GLContext context, PlotWindow &w);
 	~GUI();
 
-	bool handle_event(const SDL_Event &event);
+	bool handle_event(const SDL_Event &event); // GUI_menu.cc
 	bool needs_redraw() const{ return visible && need_redraw > 0; }
 
 	operator bool() const{ return visible; }
@@ -21,7 +21,7 @@ public:
 
 	void update();
 	void draw();
-	void redraw(){ need_redraw = 3; }
+	void redraw(int n_frames = 3){ need_redraw = std::max(n_frames, need_redraw); }
 
 private:
 	PlotWindow &w;
@@ -32,8 +32,7 @@ private:
 	bool show_demo_window = false;
 	#endif
 	
-	void  main_menu(), file_menu(), graphs_menu(), params_menu(), defs_menu(),
-	      axis_menu(), settings_menu();
+	void  main_menu(), file_menu(), graphs_menu(), params_menu(), defs_menu(), settings_menu();
 	void  main_panel(), settings_panel();
 	bool  show_main_panel = true, show_settings_panel = true;
 	void  prefs_panel(); bool show_prefs_panel = false;
@@ -52,7 +51,7 @@ private:
 	void def_editor();
 	bool def_edit = false;
 	IDCarrier::OID def_orig = 0;
-	std::string def_tmp[1];
+	std::string def_tmp;
 
 	// manage ImGui's BeginDisabled/EndDisabled regions
 	bool enabled = true;
@@ -73,4 +72,11 @@ private:
 	void confirmation_panel();
 	std::string confirm_msg;
 	std::function<void(void)> confirm_action;
+
+	//--- actions with hotkeys ------------------------------
+
+	void open_file();
+	void save_as();
+	void save();
+
 };

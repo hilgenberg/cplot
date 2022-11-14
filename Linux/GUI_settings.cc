@@ -39,7 +39,7 @@ static constexpr int slider_flags = ImGuiSliderFlags_AlwaysClamp|ImGuiSliderFlag
 
 void GUI::settings_panel()
 {
-	const Plot &plot = w.plot;
+	Plot &plot = w.plot;
 	if (plot.axis_type() == Axis::Invalid) return;
 
 	ImGuiViewport &screen = *ImGui::GetMainViewport();
@@ -269,6 +269,161 @@ void GUI::settings_panel()
 			enable(hasRef);
 			ImGui::Combo("##ReflectionTextureCombo", &tmp, tex_items+d, IM_ARRAYSIZE(tex_items)-d);
 			if (enabled && tmp != orig) w.setReflectionTexture((GL_ImagePattern)(tmp+d));
+		}
+	}
+
+	ImGui::Spacing();
+	ImGui::Spacing();
+	ImGui::Separator();
+	ImGui::Spacing();
+	ImGui::Spacing();
+
+	//---------------------------------------------------------------------------
+	Axis   &ax = plot.axis;
+	Camera &cam = plot.camera;
+	const bool in3d = (plot.axis_type() != Axis::Rect);
+	static constexpr int flags = ImGuiSliderFlags_AlwaysClamp|ImGuiSliderFlags_NoRoundToFormat;
+	const char *fmt = "%.3g";
+
+	enable();
+	static const char *labels[] = {"x", "y", "z"};
+	for (int i = 0; i < 2+in3d; ++i)
+	{
+		double c0 = ax.center(i), c = c0;
+		double r0 = ax.range(i), r = r0;
+		ImGui::PushID(labels[i]);
+		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.5);
+		ImGui::DragScalar("##center", ImGuiDataType_Double, &c, (float)std::max(1e-6, 0.01*r0), NULL, NULL, fmt, flags);
+		if (c != c0 && defined(c))
+		{
+			w.undoForAxis();
+			plot.axis.center(i, c);
+			w.recalc(plot);
+		}
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+		ImGui::DragScalar("##range", ImGuiDataType_Double, &r, std::max(1e-6, 0.01*r0), NULL, NULL, fmt, flags);
+		if (r != r0 && defined(r))
+		{
+			w.undoForAxis();
+			if (i == 1 && !in3d)
+				plot.axis.range(0, plot.axis.range(0)*r/r0);
+			else
+				plot.axis.range(i, r);
+			w.recalc(plot);
+		}
+		ImGui::PopID();
+	}
+	if (in3d)
+	{
+		double x = 0.0;
+		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+		ImGui::DragScalar("##in_range", ImGuiDataType_Double, &x, 0.01f, NULL, NULL, "axis range", flags|ImGuiSliderFlags_NoInput);
+		if (x != 0.0 && defined(x))
+		{
+			w.undoForAxis();
+			x = exp(x);
+			for (int i = 0; i < 2+in3d; ++i)
+			{
+				ax.range(i, ax.range(i)*x);
+			}
+			w.recalc(plot);
+		}
+	}
+
+	const int nin = g ? g->inRangeDimension() : -1;
+	if (nin > 0)
+	{
+		ImGui::Spacing();
+		ImGui::Spacing();
+		ImGui::Spacing();
+	}
+	static const char *in_labels[] = {"u", "v"};
+	for (int i = 0; i < nin; ++i)
+	{
+		double c0 = ax.in_center(i), c = c0;
+		double r0 = ax.in_range(i), r = r0;
+		ImGui::PushID(in_labels[i]);
+		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.5);
+		ImGui::DragScalar("##center", ImGuiDataType_Double, &c, (float)std::max(1e-6, 0.01*r0), NULL, NULL, fmt, flags);
+		if (c != c0 && defined(c))
+		{
+			w.undoForInRange();
+			plot.axis.in_center(i, c);
+			w.recalc(plot);
+		}
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+		ImGui::DragScalar("##range", ImGuiDataType_Double, &r, std::max(1e-6, 0.01*r0), NULL, NULL, fmt, flags);
+		if (r != r0 && defined(r))
+		{
+			w.undoForInRange();
+			plot.axis.in_range(i, r);
+			w.recalc(plot);
+		}
+		ImGui::PopID();
+	}
+	if (nin > 1)
+	{
+		double x = 0.0;
+		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+		ImGui::DragScalar("##in_range", ImGuiDataType_Double, &x, 0.01f, NULL, NULL, "input range", flags|ImGuiSliderFlags_NoInput);
+		if (x != 0.0 && defined(x))
+		{
+			w.undoForInRange();
+			x = exp(x);
+			for (int i = 0; i < nin; ++i)
+			{
+				ax.in_range(i, ax.in_range(i)*x);
+			}
+			w.recalc(plot);
+		}
+	}
+
+	if (in3d)
+	{
+		ImGui::Spacing();
+		ImGui::Spacing();
+		ImGui::Spacing();
+
+		double v0 = cam.phi(), v = v0;
+		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.33);
+		ImGui::DragScalar("##phi", ImGuiDataType_Double, &v, 1.0f, NULL, NULL, "%.2f", flags);
+		if (v != v0 && defined(v))
+		{
+			w.undoForCam();
+			cam.set_phi(v);
+			w.redraw();
+		}
+		ImGui::SameLine();
+		v0 = cam.psi(); v = v0;
+		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.5);
+		ImGui::DragScalar("##psi", ImGuiDataType_Double, &v, 1.0f, NULL, NULL, "%.2f", flags);
+		if (v != v0 && defined(v))
+		{
+			w.undoForCam();
+			cam.set_psi(v);
+			w.redraw();
+		}
+		ImGui::SameLine();
+		v0 = cam.theta(); v = v0;
+		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+		ImGui::DragScalar("##theta", ImGuiDataType_Double, &v, 1.0f, NULL, NULL, "%.2f", flags);
+		if (v != v0 && defined(v))
+		{
+			w.undoForCam();
+			cam.set_theta(v);
+			w.redraw();
+		}
+
+		v0 = 1.0 / cam.zoom(); v = v0;
+		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
+		ImGui::DragScalar("##zoom", ImGuiDataType_Double, &v, (float)(0.01*v0), NULL, NULL, "zoom", flags|ImGuiSliderFlags_NoInput);
+		if (v != v0 && defined(v) && v > 0)
+		{
+			w.undoForCam();
+			cam.set_zoom(1.0 / v);
+			w.redraw();
 		}
 	}
 

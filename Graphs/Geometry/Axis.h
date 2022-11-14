@@ -113,6 +113,29 @@ public:
 	}
 	#undef COORD_MAX
 	
+	void get_range(P3d &center, P3d &range) const
+	{
+		center.set(m_center[0], m_center[1], m_center[2]);
+		range.set(m_range[0], m_range[1], m_range[2]);
+	}
+	void set_range(const P3d &center, const P3d &range)
+	{
+		memcpy(m_center, (const double*)center, 3*sizeof(double));
+		memcpy(m_range, (const double*)range, 3*sizeof(double));
+		update();
+	}
+	void get_inrange(P2d &center, P2d &range) const
+	{
+		center.set(m_in_center[0], m_in_center[1]);
+		range.set(m_in_range[0], m_in_range[1]);
+	}
+	void set_inrange(const P2d &center, const P2d &range)
+	{
+		memcpy(m_in_center, (const double*)center, 2*sizeof(double));
+		memcpy(m_in_range, (const double*)range, 2*sizeof(double));
+		update();
+	}
+
 private:
 	Type m_type;
 	double m_center[3], m_range[3];       // image: [c-r, c+r] = [min_i, max_i]

@@ -85,6 +85,13 @@ struct Document
 	bool deleteDef(IDCarrier::OID f_);
 	bool undeleteDef(const std::vector<char> &data, IDCarrier::OID f_);
 	bool modifyDef(const std::vector<char> &data, IDCarrier::OID f_);
+	//-------------------------------------------------------------
+	void undoForCam();
+	bool setCam(const Quaternion &rot, double zoom);
+	void undoForAxis();
+	bool setAxis(const P3d &center, const P3d &range);
+	void undoForInRange();
+	bool setInRange(const P2d &center, const P2d &range);
 
 protected:
 	bool need_redraw;

@@ -21,7 +21,7 @@ void GUI::defs_menu()
 			if (ImGui::MenuItem("Edit...", NULL, false, !def_edit))
 			{
 				def_edit = true; def_orig = f->oid();
-				def_tmp[0] = f->formula();
+				def_tmp = f->formula();
 			}
 			if (ImGui::MenuItem("Delete"))
 				w.deleteDef(f->oid());
@@ -34,7 +34,7 @@ void GUI::defs_menu()
 	if (ImGui::MenuItem("New Definition"))
 	{
 		def_edit = true; def_orig = 0;
-		def_tmp[0] = "f(x) = sinx / x";
+		def_tmp = "f(x) = sinx / x";
 	}
 	ImGui::EndMenu();
 }
@@ -48,7 +48,7 @@ void GUI::def_editor()
 	//window_flags |= ImGuiWindowFlags_AlwaysAutoResize;
 	ImGui::Begin(param_orig ? "Edit Definition" : "New Definition", NULL, window_flags);
 
-	ImGui::InputTextMultiline("##Formula", &def_tmp[0]);
+	ImGui::InputTextMultiline("##Formula", &def_tmp);
 
 	bool apply = false, close = false;
 	if (ImGui::Button("OK")) apply = close = true;
@@ -61,7 +61,7 @@ void GUI::def_editor()
 	{
 		Namespace &ns = w.rns;
 		Plot &plot = w.plot;
-		std::string &formula = def_tmp[0];
+		std::string &formula = def_tmp;
 
 		if (formula.empty() || formula == " ")
 		{
