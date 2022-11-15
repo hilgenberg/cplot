@@ -10,12 +10,23 @@ import subprocess
 ##############################################################################
 
 if len(sys.argv) == 3 and sys.argv[1] == "file2str":
+	# usage: build file2str <var_name>
 	print("const char * " + sys.argv[2] + ' = ');
 	while s := sys.stdin.readline():
 		s = s.replace('\\', "\\\\")
 		s = s.replace('"', "\\\"")
 		print("\"" + s.rstrip() + "\\n\"");
 	print(';\n')
+	sys.exit(0)
+
+if len(sys.argv) == 4 and sys.argv[1] == "bin2str":
+	# usage: build bin2str <var_name> <file_path>
+	print("#include <vector>")
+	print("const std::vector<unsigned char> &" + sys.argv[2] + '() {')
+	print("static const std::vector<unsigned char> data = {")
+	with open(sys.argv[3], 'rb') as f:
+		print(",".join([str(x) for x in f.read()]))
+	print("}; return data; }")
 	sys.exit(0)
 
 ##############################################################################
@@ -151,6 +162,10 @@ rule gl
   command = ./build file2str $name <$in >$out
   description = \033[32mGL\033[m $in
 
+rule ttf
+  command = ./build bin2str $name $in >$out
+  description = \033[32mTTF\033[m $in
+
 rule cc
   command = g++ -MD -MF $out.dep $ccflags{pch_flags} -c $in -o $out
   depfile = $out.dep
@@ -194,9 +209,15 @@ rule link
 					name = os.path.basename(f).split('.')[0]
 					print(f"build {base}/{f}.cc: gl {os.path.join(R, f)}")
 					print(f"  name = {name}")
-					print(f"build {base}/{f}.o: cc {base}/{f}.cc")
+					print(f"build {base}/{f}.o: cc {base}/{f}.cc{PCH_DEP}")
 					obj.append(f"{base}/{f}.o")
 					glsl.append(name)
+
+		print(f"build {base}/font_data.cc: ttf Linux/imgui/misc/fonts/Cousine-Regular.ttf")
+		print(f"  name = font_data")
+		print(f"build {base}/font_data.o: cc {base}/font_data.cc{PCH_DEP}")
+		obj.append(f"{base}/font_data.o")
+
 		for f in imgui_cc:
 				f0 = os.path.basename(f)
 				print(f"build {base}/{f0}.o: cc {os.path.join(imgui_dir, f)}{PCH_DEP}")

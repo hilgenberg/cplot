@@ -821,7 +821,18 @@ bool Document::setInRange(const P2d &center, const P2d &range)
 	recalc(plot);
 	return true;
 }
-
-#if 0
-
-#endif
+void Document::undoForParam(Parameter *p)
+{
+	IDCarrier::OID p_ = p->oid();
+	cnum v = p->value();
+	ut.reg("Change Parameter Value", [this,p_,v]{ setParamValue(p_,v); }, p, 1, true);
+}
+bool Document::setParamValue(IDCarrier::OID p_, cnum value)
+{
+	Parameter *p = (Parameter*)IDCarrier::find(p_); if (!p) return false;
+	cnum v = p->value();
+	ut.reg("Change Parameter Value", [this,p_,v]{ setParamValue(p_,v); }, p, 1, true);
+	p->anim_stop();
+	p->value(value);
+	return true;
+}

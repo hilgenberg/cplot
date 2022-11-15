@@ -43,7 +43,7 @@ void GUI::main_menu()
 		#endif
 
 		ImGui::Separator();
-		if (ImGui::MenuItem("Center Axis"))
+		if (ImGui::MenuItem("Center Axis", "Z"))
 		{
 			w.undoForAxis();
 			w.plot.axis.reset_center();
@@ -55,18 +55,24 @@ void GUI::main_menu()
 			w.plot.axis.equal_ranges();
 			w.recalc(w.plot);
 		}
-		auto ChangeView = [this](double a, double b, double c)
+		auto ChangeView = [this](double a, double b)
 		{
+			switch (w.plot.axis_type())
+			{
+				case Axis::Invalid:
+				case Axis::Rect: return;
+				default: break;
+			}
 			w.undoForCam();
-			w.plot.camera.set_angles(a, b, c);
+			w.plot.camera.set_angles(a, b, 0.0);
 			w.redraw();
 		};
-		if (ImGui::MenuItem("View Top"))    { ChangeView(  0.0,  90.0, 0.0); }
-		if (ImGui::MenuItem("View Bottom")) { ChangeView(  0.0, -90.0, 0.0); }
-		if (ImGui::MenuItem("View Front"))  { ChangeView(  0.0,   0.3, 0.0); }
-		if (ImGui::MenuItem("View Back"))   { ChangeView(180.0,   0.3, 0.0); }
-		if (ImGui::MenuItem("View Left"))   { ChangeView( 90.0,   0.3, 0.0); }
-		if (ImGui::MenuItem("View Right"))  { ChangeView(-90.0,   0.3, 0.0); }
+		if (ImGui::MenuItem("View Top",          "T")) { ChangeView(  0.0,  90.0); }
+		if (ImGui::MenuItem("View Bottom", "Shift+T")) { ChangeView(  0.0, -90.0); }
+		if (ImGui::MenuItem("View Front",        "F")) { ChangeView(  0.0,   0.3); }
+		if (ImGui::MenuItem("View Back",   "Shift+F")) { ChangeView(180.0,   0.3); }
+		if (ImGui::MenuItem("View Left",         "S")) { ChangeView( 90.0,   0.3); }
+		if (ImGui::MenuItem("View Right",  "Shift+S")) { ChangeView(-90.0,   0.3); }
 
 		ImGui::EndMenu();
 	}
@@ -99,10 +105,10 @@ bool GUI::handle_event(const SDL_Event &event)
 				}
 				break;
 			case SDLK_z:
-				if (mods == CTRL) { w.ut.undo(); return true; }
+				if (mods == CTRL) { w.ut.undo(); w.redraw(); return true; }
 				break;
 			case SDLK_y:
-				if (mods == CTRL) { w.ut.redo(); return true; }
+				if (mods == CTRL) { w.ut.redo(); w.redraw(); return true; }
 				break;
 			case SDLK_l:
 				if (mods == CTRL)
@@ -132,7 +138,6 @@ bool GUI::handle_event(const SDL_Event &event)
 				}
 				break;
 			case SDLK_TAB:
-			case SDLK_SPACE:
 			case SDLK_RETURN:
 				if (mods || visible) break;
 				activate = handled = true;

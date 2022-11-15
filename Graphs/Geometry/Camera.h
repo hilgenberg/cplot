@@ -49,7 +49,7 @@ public:
 	// returns true if the point is not before the near clipping plane
 	inline bool project(const P3f &p, P2f &pp) const;
 	inline void rotate(const P3f &p, P3f &pp) const;
-	inline bool scalefactor(float pz, float &f) const; // return true if pz is insize the z-clipping range
+	inline bool scalefactor(float pz, float &f) const; // return true if pz is inside the z-clipping range
 	inline P3f view_vector() const; // pointing from the eye into the scene
 	
 private:

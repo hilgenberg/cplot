@@ -16,13 +16,13 @@ void GUI::params_menu()
 		if (!ImGui::BeginMenu((
 			p->name() +
 			std::string(" = ") +
-			to_string(p->value(), w.rns)
+			to_string(p->value(), w.rns) + "###param_" + p->name()
 			).c_str())) continue;
 		ImGui::PushID(p);
 		if (ImGui::MenuItem(p->anim ? "Stop" : "Animate"))
 		{
 			if (p->anim) p->anim_stop();
-			else if (p->anim_start()) {}
+			else if (p->anim_start()) { w.start_animations(); }
 		}
 		if (ImGui::MenuItem("Edit...", NULL, false, !param_edit))
 		{

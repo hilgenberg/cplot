@@ -11,6 +11,7 @@ class PlotWindow : public Document
 public:
 	PlotWindow(SDL_Window* window, GL_Context &context);
 	virtual ~PlotWindow();
+	void load(const std::string &path) override { Document::load(path); redraw(); }
 
 	bool   animating() const{ return tnf > 0.0; }
 	double next_frame_schedule() const{ return tnf; }
@@ -22,22 +23,15 @@ public:
 	void draw();
 	//void redraw(){ need_redraw = true; } --> moved to base class
 
-	void load(const std::string &path) override { Document::load(path); redraw(); }
-
 	void reshape(int w, int h);
 	bool handle_event(const SDL_Event &event);
 	bool handle_key(SDL_Keysym key, bool release);
 
-	enum AnimType{ Linear, Saw, PingPong, Sine };
-	void animate(Parameter &p, const cnum &v0, const cnum &v1, double dt, int reps=-1, AnimType type=Sine);
-	void stop_animations(){ panims.clear(); }
-	void stop_animation(Parameter &p){ panims.erase(p.oid()); }
-
 	int  accum_size() const { return accum; }
 	
+	void start_animations(); // call after Parameter::anim_start()
 protected:
-	void start(); // animating
-	void stop();
+	void stop_animations();
 
 	SDL_Window *window;
 	int         w, h;
@@ -47,15 +41,6 @@ protected:
 	double      tnf;        // scheduled time for next frame
 	double      last_frame; // time of last draw
 	GL_RM       rm;
-
-	struct ParameterAnimation
-	{
-		double dt, t0;
-		cnum v0, v1;
-		AnimType type;
-		int reps; // -1 for forever
-	};
-	std::map<IDCarrier::OID, ParameterAnimation> panims;
 
 	std::map<SDL_Keycode, double> ikeys; // pressed key -> inertia
 	std::set<SDL_Keycode> keys; // pressed keys

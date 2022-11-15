@@ -105,7 +105,7 @@ public:
 		bool   repeat; // don't stop at v1?
 		mutable bool running;
 
-		Animation() : T(UNDEFINED) , v0(UNDEFINED), v1(UNDEFINED), repeat(true) {}
+		Animation() : T(UNDEFINED) , v0(UNDEFINED), v1(UNDEFINED), repeat(true), running(false) {}
 
 		cnum operator()(double t) const;
 		operator bool() const { return running; }

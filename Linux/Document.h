@@ -92,6 +92,8 @@ struct Document
 	bool setAxis(const P3d &center, const P3d &range);
 	void undoForInRange();
 	bool setInRange(const P2d &center, const P2d &range);
+	void undoForParam(Parameter *p);
+	bool setParamValue(IDCarrier::OID p_, cnum value);
 
 protected:
 	bool need_redraw;

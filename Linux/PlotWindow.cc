@@ -35,11 +35,12 @@ PlotWindow::PlotWindow(SDL_Window* window, GL_Context &context)
 }
 PlotWindow::~PlotWindow(){ }
 
-void PlotWindow::stop(){ tnf = -1.0; }
-void PlotWindow::start(){ if (tnf <= 0.0) tnf = now() + 1.0/FPS; }
+void PlotWindow::stop_animations(){ tnf = -1.0; }
+void PlotWindow::start_animations(){ if (tnf <= 0.0) tnf = now() + 1.0/FPS; }
 
 void PlotWindow::animate(double t)
 {
+	// UNDO_OK.
 	assert(tnf > 0.0 && t >= tnf);
 	const double spf = 1.0/FPS;
 	double dt = std::min(std::max(1.0, (t - last_frame)/spf), 5.0);
@@ -78,74 +79,38 @@ void PlotWindow::animate(double t)
 
 	if (!params.empty())
 	{
-		for (int i : params)
-		{
-			change_parameter(i, cnum(idx, -idy));
-		}
+		for (int i : params) change_parameter(i, cnum(idx, -idy));
 	}
 	else
 	{
 		move(dx*dt, dy*dt, dz*dt, true);
 	}
 
-	for (auto i = panims.begin(); i != panims.end(); )
+	int pani = 0;
+	for (Parameter *p : plot.used_parameters())
 	{
-		Parameter *P = (Parameter*)IDCarrier::find(i->first);
-		if (!P)
-		{
-			// Parameter was deleted
-			panims.erase(i++);
-			continue;
-		}
-		auto &a = i->second;
-		double r, p = modf((t-a.t0)/a.dt, &r);
-		if (a.reps > 0 && r >= a.reps)
-		{
-			// finished
-			P->value((a.type == Saw || a.reps & 1) ? a.v1 : 
-			          a.type == Linear ? a.v0+(a.v1-a.v0)*(double)a.reps :
-			          a.v0);
-			panims.erase(i++);
-			continue;
-		}
-
-		switch (a.type)
-		{
-			case Linear: p += r; break;
-			case Saw: break;
-			case Sine:
-				p += r; p /= 2.0; p = modf(p, &r);
-				p = 0.5 - 0.5*cos(2.0*M_PI*p); break;
-			case PingPong:
-				p += r; p /= 2.0; p = modf(p, &r);
-				p *= 2.0; if (p > 1.0) p = 2.0-p; break;
-		}
-		cnum v = a.v1*p + a.v0*(1.0-p);
-		if (P->type() == Integer)
-		{
-			// we don't want rounding here
-			bool f = (a.v0.real() < a.v1.real());
-			v = f ? floor(v.real()) : ceil(v.real());
-		}
-		P->value(a.v1*p + a.v0*(1.0-p));
-		plot.recalc(P);
-		++i;
+		if (!p->anim) continue;
+		p->animate(t);
+		++pani;
+		plot.recalc(p);
 	}
 
 	draw();
 
-	if (panims.empty() && ikeys.empty() && plot.axis_type() != Axis::Invalid)
+	if (!pani && ikeys.empty() && plot.axis_type() != Axis::Invalid)
 	{
-		stop();
+		stop_animations();
 		return;
 	}
 
 	double t1 = std::max(now(), t + spf);
-	while (tnf + spf*0.01 < t1) tnf += spf;
+	//while (tnf + spf*0.01 < t1) tnf += spf;
+	tnf += std::max(0.0, spf * std::ceil((t1-tnf)/spf-0.01));
 }
 
 bool PlotWindow::handle_event(const SDL_Event &e)
 {
+	// UNDO_OK.
 	switch (e.type)
 	{
 		case SDL_QUIT: closed = true; return true;
@@ -190,6 +155,10 @@ bool PlotWindow::handle_event(const SDL_Event &e)
 			{
 				move(-5.0*e.wheel.preciseX, 5.0*e.wheel.preciseY, 0, false, 0);
 			}
+			else if (SDL_GetMouseState(NULL,NULL) & SDL_BUTTON_RMASK)
+			{
+				zoom(-5.0*(e.wheel.x + e.wheel.y), Axis);
+			}
 			else
 			{
 				move(0, 0, -5.0*(e.wheel.x + e.wheel.y), false, 0);
@@ -210,17 +179,27 @@ bool PlotWindow::handle_event(const SDL_Event &e)
 
 bool PlotWindow::handle_key(SDL_Keysym keysym, bool release)
 {
+	// UNDO_OK.
 	auto key = keysym.sym;
-	bool shift = keysym.mod & (KMOD_LSHIFT|KMOD_RSHIFT);
-	bool control = keysym.mod & (KMOD_LCTRL|KMOD_RCTRL);
-	auto view   = [this](double x, double y)
+	auto m   = keysym.mod;
+	constexpr int SHIFT = 1, CTRL = 2, ALT = 4;
+	const int  shift = (m & (KMOD_LSHIFT|KMOD_RSHIFT)) ? SHIFT : 0;
+	const int  ctrl  = (m & (KMOD_LCTRL|KMOD_RCTRL)) ? CTRL : 0;
+	const int  alt   = (m & (KMOD_LALT|KMOD_RALT)) ? ALT : 0;
+	const int  mods  = shift + ctrl + alt;
+
+	auto view = [this](double x, double y)
 	{
 		switch (plot.axis_type())
 		{
 			case Axis::Invalid:
 			case Axis::Rect: return false;
-			default: plot.camera.set_angles(x, y, 0.0); redraw(); return true;
+			default: break;
 		}
+		undoForCam();
+		plot.camera.set_angles(x, y, 0.0);
+		redraw();
+		return true;
 	};
 
 	if (!release) switch (key)
@@ -229,7 +208,7 @@ bool PlotWindow::handle_key(SDL_Keysym keysym, bool release)
 		case SDLK_UP:   case SDLK_DOWN:
 		case SDLK_PLUS: case SDLK_MINUS:
 			if (!ikeys.count(key)) ikeys[key] = 0.0;
-			start();
+			start_animations();
 			return true;
 	
 		case SDLK_0: case SDLK_1: case SDLK_2: case SDLK_3: case SDLK_4:
@@ -237,41 +216,63 @@ bool PlotWindow::handle_key(SDL_Keysym keysym, bool release)
 			if (!keys.count(key)) redraw();
 			keys.insert(key);
 			return true;
-	
-		case SDLK_q: if (control) closed = true; return true;
-		case SDLK_PERIOD: stop_animations(); return true;
 
-		case SDLK_a: return toggleAxis();
-		case SDLK_c: return toggleClip();
-		case SDLK_g: return toggleGrid();
-
-		case SDLK_e: plot.axis.equal_ranges(); plot.recalc(); redraw(); return true;
-		case SDLK_t: view(0, shift ? -90 : 90); return true;
-		case SDLK_f: view(shift ? 180 : 0,  0); return true;
-		case SDLK_s: view(shift ? 90 : -90, 0); return true;
-		
-		case SDLK_z:
-			if (!control)
+		case SDLK_SPACE:
+		{
+			if (keys.empty()) return true;
+			std::set<Parameter*> aps(plot.used_parameters());
+			if (aps.empty()) return true;
+			std::vector<Parameter*> ps(aps.begin(), aps.end());
+			std::sort(ps.begin(), ps.end(), [&](Parameter *a, Parameter *b)->bool{ return a->name() < b->name(); });
+			for (auto k : keys)
 			{
-				plot.axis.reset_center();
-				plot.recalc();
-				redraw();
-				return true;
+				int i = (k == SDLK_0 ? 9 : k-SDLK_1);
+				if (i < 0 || i > 9) continue;
+				if (i >= ps.size()) continue;
+				Parameter *p = ps[i];
+				if (p->anim) p->anim_stop();
+				else if (p->anim_start())
+				{
+					undoForParam(p);
+					start_animations();
+				}
 			}
-			break;
+			return true;
+		}
+
+		case SDLK_q: if (mods == CTRL) closed = true; return true;
+		case SDLK_PERIOD:
+			for (Parameter *p : rns.all_parameters(true))
+			{
+				if (!p->anim) continue;
+				p->anim_stop();
+				plot.recalc(p);
+			}
+			return true;
+
+		case SDLK_a: return !mods && toggleAxis();
+		case SDLK_g: return !mods && toggleGrid();
 		case SDLK_v: return cycleVFMode(shift ? -1 : 1);
+		case SDLK_d: return !mods && toggleDisco();
+		case SDLK_c:
+			if (!mods) return toggleClip();
+			if (mods == shift) return toggleClipCustom();
+			break;
+		case SDLK_l:
+			if (!mods) return toggleClipLock();
+			if (mods == shift) return resetClipLock();
+			break;
 
-		/*
-		case SDLK_d: [settingsBox toggle:settingsBox.disco];      return;
-		case SDLK_C: [settingsBox toggle:settingsBox.clipCustom]; return;
-		case SDLK_l: [settingsBox toggle:settingsBox.clipLock];   return;
-		case SDLK_L: [settingsBox   push:settingsBox.clipReset];  return;
-			
-		case SDLK_t: [settingsBox  cycle:settingsBox.textureMode direction:+1]; return;
-		case SDLK_T: [settingsBox  cycle:settingsBox.textureMode direction:-1]; return;
+		case SDLK_t: view(0.0, shift ? -90.0 : 90.0); return true;
+		case SDLK_f: view(shift ? 180.0 : 0.0,  0.3); return true;
+		case SDLK_s: view(shift ? 90.0 : -90.0, 0.3); return true;
 
-		case SDLK_e: [axisBox equalRanges]; return;
-		case SDLK_z: [axisBox  centerAxis]; return;*/
+		case SDLK_z:
+			if (mods) break;
+			undoForAxis();
+			plot.axis.reset_center();
+			recalc(plot);
+			return true;
 	}
 	else switch (key)
 	{
@@ -338,17 +339,17 @@ void PlotWindow::draw()
 		glEnd();
 
 		need_redraw = false;
-		start();
+		start_animations();
 		return;
 	}
 	
 
-	bool dynamic = true; // todo: from pref
+	bool dynamic = Preferences::dynamic();
 	bool anim = dynamic && (!ikeys.empty() || SDL_GetMouseState(NULL,NULL) & (SDL_BUTTON_LMASK|SDL_BUTTON_RMASK|SDL_BUTTON_MMASK));
 	if (!anim && !plot.at_full_quality()) plot.update(CH_UNKNOWN);
 	GL_CHECK;
 
-	int nt = -1; // todo: pref
+	int nt = Preferences::threads();
 	if (nt < 1 || nt > 256) nt = n_cores;
 	plot.draw(rm, nt, accum, anim);
 	GL_CHECK;
@@ -363,7 +364,7 @@ static inline double absmax(double a, double b){ return fabs(a) > fabs(b) ? a : 
 
 void PlotWindow::move(double dx, double dy, double dz, bool kbd, int buttons)
 {
-	//if (dx*dx+dy*dy+dz*dz < 1.0) return;
+	// UNDO_OK.
 	auto axis = plot.axis.type();
 	if (axis == Axis::Invalid) return;
 	double pixel = plot.pixel_size();
@@ -397,6 +398,7 @@ void PlotWindow::move(double dx, double dy, double dz, bool kbd, int buttons)
 				// move (dx,dy), zoom dz
 				dx *= pixel;
 				dy *= pixel;
+				undoForAxis();
 				plot.axis.move(-dx, dy, 0.0);
 				plot.update(CH_AXIS_RANGE);
 				zoom(dz, Axis);
@@ -408,11 +410,13 @@ void PlotWindow::move(double dx, double dy, double dz, bool kbd, int buttons)
 			}
 			else if (mods == ALT+SHIFT)
 			{
+				undoForInRange();
 				plot.axis.in_zoom(exp(absmax(dx, dy) * 0.01));
 				plot.update(CH_IN_RANGE);
 			}
 			else if (mods == ALT)
 			{
+				undoForInRange();
 				dx *= pixel;
 				dy *= pixel;
 				plot.axis.in_move(dx, -dy);
@@ -426,8 +430,9 @@ void PlotWindow::move(double dx, double dy, double dz, bool kbd, int buttons)
 		{
 			if (!mods)
 			{
+				undoForCam();
 				plot.camera.rotate(0.01 * dy, 0, 0.01 * dx);
-				zoom(dz, Camera);
+				zoom(dz, Camera); // undo should coalesce with above
 				redraw();
 			}
 			else if (mods == SHIFT)
@@ -440,6 +445,7 @@ void PlotWindow::move(double dx, double dy, double dz, bool kbd, int buttons)
 			}
 			else if (mods == CTRL)
 			{
+				undoForCam();
 				float f;
 				plot.camera.scalefactor(0, f);
 				dx /= f; dy /= f;
@@ -453,15 +459,34 @@ void PlotWindow::move(double dx, double dy, double dz, bool kbd, int buttons)
 			}
 			else if (mods == ALT)
 			{
+				undoForInRange();
 				plot.axis.in_move(dx*0.01, -dy*0.01);
 				plot.update(CH_IN_RANGE);
 				redraw();
 			}
 		}
+		else if (b2)
+		{
+			undoForCam();
+			float f;
+			plot.camera.scalefactor(0, f);
+			dx /= f; dy /= f;
+			plot.camera.move(plot.axis, -dx*pixel, dy*pixel, 0);
+			plot.update(CH_AXIS_RANGE);
+			redraw();
+		}
+		else if (b3)
+		{
+			undoForInRange();
+			plot.axis.in_move(dx*0.01, -dy*0.01);
+			plot.update(CH_IN_RANGE);
+			redraw();
+		}
 	}
 }
 void PlotWindow::zoom(double d, PlotWindow::Zoom what, int mx, int my)
 {
+	// UNDO_OK.
 	if (fabs(d) < 0.001) return;
 	double f = exp(-d * 0.02);
 	redraw();
@@ -470,11 +495,13 @@ void PlotWindow::zoom(double d, PlotWindow::Zoom what, int mx, int my)
 	{
 		if (what == Inrange)
 		{
+			undoForInRange();
 			plot.axis.in_zoom(1.0/f);
 			plot.update(CH_IN_RANGE);
 		}
 		else
 		{
+			undoForAxis();
 			auto &axis = plot.axis;
 			double x0 = 2.0 * mx / w - 1.0; // [-1,1]
 			double y0 = 2.0 * my / h - 1.0;
@@ -495,14 +522,17 @@ void PlotWindow::zoom(double d, PlotWindow::Zoom what, int mx, int my)
 		switch (what)
 		{
 			case Inrange:
+				undoForInRange();
 				plot.axis.in_zoom(1.0/f);
 				plot.update(CH_IN_RANGE);
 				break;
 			case Axis:
+				undoForAxis();
 				plot.axis.zoom(f);
 				plot.update(CH_AXIS_RANGE);
 				break;
 			case Camera:
+				undoForCam();
 				plot.camera.zoom(f);
 				break;
 		}
@@ -511,14 +541,18 @@ void PlotWindow::zoom(double d, PlotWindow::Zoom what, int mx, int my)
 
 void PlotWindow::change_parameter(int i, cnum delta)
 {
+	// UNDO_OK.
 	if (i < 0) return;
 	std::set<Parameter*> aps(plot.used_parameters());
 	if ((size_t)i >= aps.size()) return;
 	std::vector<Parameter*> ps(aps.begin(), aps.end());
 	std::sort(ps.begin(), ps.end(), [&](Parameter *a, Parameter *b)->bool{ return a->name() < b->name(); });
 	Parameter *p = ps[i];
+	if (p->anim) return;
 
-	static double last_param_change = -1.0;
+	undoForParam(p);
+
+	static double last_param_change = -1.0; // increment integers every 0.25 seconds only
 	switch (p->type())
 	{
 		case Angle:
@@ -623,15 +657,3 @@ void PlotWindow::status()
 	glMatrixMode(GL_MODELVIEW);  glPopMatrix();
 	labelCache.finish();
 }
-
-void PlotWindow::animate(Parameter &p, const cnum &v0, const cnum &v1, double dt, int reps, AnimType type)
-{
-	if (dt < 0.0) return;
-	ParameterAnimation &a = panims[p.oid()];
-	a.v0 = v0; a.v1 = v1; a.dt = dt;
-	a.reps = reps;
-	a.type = type;
-	a.t0 = now();
-	start();
-}
-

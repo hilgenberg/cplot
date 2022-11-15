@@ -25,6 +25,7 @@ void Parameter::load(Deserializer &s)
 	s.double_(m_imax);
 	s.double_(m_rmax);
 	s.bool_(radians);
+	anim.running = false;
 }
 Parameter &Parameter::operator=(const Parameter &p0)
 {
