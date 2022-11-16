@@ -22,7 +22,7 @@
 #define LNAME(n) e->displayName(PS_LaTeX, n)
 #define HNAME(n) e->displayName(PS_HTML, n)
 #define HDNAME(n) e->displayName(PS_Head, n)
-#define STORE(x) (Element*&)x = e
+#define STORE(x) memcpy((char*)&x, (char*)&e, sizeof(Element*))
 #define store(x) Element *x = e
 #define DIFF(cpx, ...) ((Function*)e)->gradient(std::vector<std::string>({__VA_ARGS__}), cpx)
 #define POWER(p) ((Function*)e)->set_power(p)

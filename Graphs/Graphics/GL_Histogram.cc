@@ -228,7 +228,7 @@ void GL_Histogram::update(int nthreads, double quality)
 	kx |= 1; ky |= 1; // odd numbers are better on real functions (and this ensures kx,ky > 0)
 	const unsigned kk = kx * ky;
 	
-	std::unique_ptr<AtomicCount> _counts(new AtomicCount[kk+1]); // 0 is number of undefined points
+	std::unique_ptr<AtomicCount[]> _counts(new AtomicCount[kk+1]); // 0 is number of undefined points
 	AtomicCount *counts = _counts.get();
 	for (size_t i = 0, n = kk+1; i < n; ++i) counts[i] = 0;
 	++counts; // so undefineds get index -1

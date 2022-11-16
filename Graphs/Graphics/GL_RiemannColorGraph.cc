@@ -33,7 +33,7 @@ static void update(ThreadInfo &ti, int data_index, GL_Mesh &m, double th, const 
 	P3f    *n = m.normals() + nv * data_index;
 	P2f    *t = m.texture() + nv * data_index;
 	
-	std::unique_ptr<bool> def0(new bool[nv]);
+	std::unique_ptr<bool[]> def0(new bool[nv]);
 	bool *def = def0.get();
 	
 	/* A = 0

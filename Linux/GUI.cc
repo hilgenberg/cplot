@@ -94,7 +94,9 @@ void GUI::update()
 	confirmation_panel();
 	prefs_panel();
 
+	#ifdef DEBUG
 	if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
+	#endif
 
 	//ImGui::SetColorEditOptions(ImGuiColorEditFlags_Float | ImGuiColorEditFlags_HDR | ImGuiColorEditFlags_PickerHueWheel);
 

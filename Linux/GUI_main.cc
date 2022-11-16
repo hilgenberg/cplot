@@ -65,18 +65,20 @@ void GUI::main_panel()
 			"R >> R²", "R >> R³", "S¹ >> R²", "S¹ >> R³",
 			"R² >> R³", "S² >> R³",
 			"R³ >> R", "R² >> R²", "R³ >> R³"};
+		assert(IM_ARRAYSIZE(dom_asc) == N);
+		#if 0
 		static const char *dom_utf[] = {
 			"R \u2192 R", "R\u00b2 \u2192 R", "C \u2192 C", 
 			"R \u2192 R\u00b2", "R \u2192 R\u00b3",  "S\u00b9 \u2192 R\u00b2", "S\u00b9 \u2192 R\u00b3", 
 			"R\u00b2 \u2192 R\u00b3", "S\u00b2 \u2192 R\u00b3", 
 			"R\u00b3 \u2192 R", "R\u00b2 \u2192 R\u00b2", "R\u00b3 \u2192 R\u00b3"};
+		assert(IM_ARRAYSIZE(dom_utf) == N);
+		#endif
 		static GraphType dom_val[] = {
 			R_R, R2_R, C_C,
 			R_R2, R_R3, S1_R2, S1_R3,
 			R2_R3, S2_R3,
 			R3_R, R2_R2, R3_R3};
-		assert(IM_ARRAYSIZE(dom_asc) == N);
-		assert(IM_ARRAYSIZE(dom_utf) == N);
 		assert(IM_ARRAYSIZE(dom_val) == N);
 		
 		int orig = -1;

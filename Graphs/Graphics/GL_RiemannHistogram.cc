@@ -324,7 +324,7 @@ void GL_RiemannHistogram::update(int nthreads, double quality)
 	k |= 1; // odd numbers are better on real functions (and this ensures k > 0)
 	const unsigned kk = k*k;
 	
-	std::unique_ptr<AtomicCount> _counts(new AtomicCount[kk*6+1]); // 0 is number of undefined points
+	std::unique_ptr<AtomicCount[]> _counts(new AtomicCount[kk*6+1]); // 0 is number of undefined points
 	AtomicCount *counts = _counts.get();
 	//for (size_t i = 0, n = k*k*6+1; i < n; ++i) atomic_init(counts+i, (Count)0);
 	for (size_t i = 0, n = kk*6+1; i < n; ++i) counts[i] = 0;
