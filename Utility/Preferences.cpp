@@ -127,7 +127,12 @@ namespace Preferences
 	bool depthSort() { return prefs[PREF_DSORT].int_value; }
 	void depthSort(bool value) { prefs[PREF_DSORT].set(!!value); }
 	
-	int  threads() { int n = prefs[PREF_THREADS].int_value; return (n <= 0 || n > 256) ? -1 : n; }
+	int  threads(int effective)
+	{
+		int n = prefs[PREF_THREADS].int_value;
+		if (!effective) return n;
+		return (n <= 0 || n > 256) ? -1 : n;
+	}
 	void threads(int n) { prefs[PREF_THREADS].set(n); }
 
 	bool flush() { return prefs.flush(); }

@@ -86,7 +86,7 @@ bool Document::toggleAxis()
 	if (plot.axis_type() == Axis::Invalid) return false;
 	toggle(plot.axis.options.hidden);
 	redraw();
-	ut.reg("Toggle Axis", [this]{ toggleAxis(); }, &plot.axis.options.hidden, TOGGLE_OP);
+	ut.trivial("Toggle Axis", [this]{ toggleAxis(); }, &plot.axis.options.hidden, TOGGLE_OP);
 	return true;
 }
 
@@ -95,7 +95,7 @@ bool Document::toggleDisco()
 	Graph *g = plot.current_graph(); if (!g) return false;
 	toggle(g->options.disco);
 	recalc(g);
-	ut.reg("Toggle Discontinuities", [this]{ toggleDisco(); }, &g->options.disco, TOGGLE_OP);
+	ut.trivial("Toggle Discontinuities", [this]{ toggleDisco(); }, &g->options.disco, TOGGLE_OP);
 	return true;
 }
 
@@ -104,7 +104,7 @@ bool Document::toggleClip()
 	Graph *g = plot.current_graph(); if (!g) return false;
 	g->clipping(!g->clipping());
 	recalc(g);
-	ut.reg("Toggle Clipping", [this]{ toggleClip(); }, &g->options.clip_graph_to_axis, TOGGLE_OP);
+	ut.trivial("Toggle Clipping", [this]{ toggleClip(); }, &g->options.clip_graph_to_axis, TOGGLE_OP);
 	return true;
 }
 
@@ -112,14 +112,14 @@ bool Document::toggleClipCustom()
 {
 	plot.options.clip.on(!plot.options.clip.on());
 	recalc(plot);
-	ut.reg("Toggle Custom Clipping Plane", [this]{ toggleClipCustom(); }, &plot.options.clip, TOGGLE_OP);
+	ut.trivial("Toggle Custom Clipping Plane", [this]{ toggleClipCustom(); }, &plot.options.clip, TOGGLE_OP);
 	return true;
 }
 bool Document::toggleClipLock()
 {
 	bool v0 = plot.options.clip.locked();
 	P3f  n0 = plot.options.clip.normal();
-	ut.reg("Change Custom Clipping Plane", [this,n0,v0]{ setClipLock(v0,n0); }, &plot.options.clip, 1);
+	ut.trivial("Change Custom Clipping Plane", [this,n0,v0]{ setClipLock(v0,n0); }, &plot.options.clip, 1);
 	plot.options.clip.locked(!v0);
 	redraw();
 	return true;
@@ -128,7 +128,7 @@ bool Document::setClipLock(bool lock, const P3f &normal)
 {
 	bool v0 = plot.options.clip.locked();
 	P3f n0 = plot.options.clip.normal();
-	ut.reg("Change Custom Clipping Plane", [this,n0,v0]{ setClipLock(v0,n0); }, &plot.options.clip, 1);
+	ut.trivial("Change Custom Clipping Plane", [this,n0,v0]{ setClipLock(v0,n0); }, &plot.options.clip, 1);
 	plot.options.clip.locked(lock);
 	plot.options.clip.normal(normal);
 	recalc(plot);
@@ -138,7 +138,7 @@ bool Document::resetClipLock()
 {
 	bool v0 = plot.options.clip.locked();
 	P3f n0 = plot.options.clip.normal();
-	ut.reg("Change Custom Clipping Plane", [this,n0,v0]{ setClipLock(v0,n0); }, &plot.options.clip, 1);
+	ut.trivial("Change Custom Clipping Plane", [this,n0,v0]{ setClipLock(v0,n0); }, &plot.options.clip, 1);
 	plot.options.clip.locked(true);
 	plot.options.clip.normal(plot.camera.view_vector());
 	recalc(plot);
@@ -150,7 +150,7 @@ bool Document::setClipDistance(float v)
 	if (fabs(v-v0) < 1e-12) return true;
 	plot.options.clip.distance(v);
 	recalc(plot);
-	ut.reg("Change Clip Distance", [this,v0]{ setClipDistance(v0); }, &plot.options.clip, 2);
+	ut.trivial("Change Clip Distance", [this,v0]{ setClipDistance(v0); }, &plot.options.clip, 2);
 	return true;
 }
 
@@ -161,7 +161,7 @@ bool Document::setGrid(GridStyle v)
 	if (v0 == v) return true;
 	g->options.grid_style = v;
 	recalc(g);
-	ut.reg("Change Grid", [this,v0]{ setGrid(v0); }, &g->options.grid_style);
+	ut.trivial("Change Grid", [this,v0]{ setGrid(v0); }, &g->options.grid_style);
 	return true;
 }
 bool Document::toggleGrid()
@@ -171,9 +171,9 @@ bool Document::toggleGrid()
 	g->options.grid_style = (g->options.grid_style == Grid_Off ? Grid_On : Grid_Off);
 	recalc(g);
 	if (v0 == Grid_Full)
-		ut.reg("Change Grid", [this,v0]{ setGrid(v0); }, &g->options.grid_style);
+		ut.trivial("Change Grid", [this,v0]{ setGrid(v0); }, &g->options.grid_style);
 	else
-		ut.reg("Toggle Grid", [this]{ toggleGrid(); }, &g->options.grid_style, TOGGLE_OP);
+		ut.trivial("Toggle Grid", [this]{ toggleGrid(); }, &g->options.grid_style, TOGGLE_OP);
 	return true;
 }
 
@@ -214,7 +214,7 @@ bool Document::setHistoScale(double v)
 	if (fabs(v-v0) < 1e-12) return true;
 	g->options.hist_scale = v;
 	recalc(g);
-	ut.reg("Change Histogram Scale", [this,v0]{ setHistoScale(v0); }, &g->options.hist_scale);
+	ut.trivial("Change Histogram Scale", [this,v0]{ setHistoScale(v0); }, &g->options.hist_scale);
 	return true;
 }
 
@@ -297,7 +297,7 @@ bool Document::setFog(double v)
 	if (fabs(v-v0) < 1e-12) return true;
 	plot.options.fog = v;
 	redraw();
-	ut.reg("Change Fog Strength", [this,v0]{ setFog(v0); }, &plot.options.fog);
+	ut.trivial("Change Fog Strength", [this,v0]{ setFog(v0); }, &plot.options.fog);
 	return true;
 }
 
@@ -308,7 +308,7 @@ bool Document::setLineWidth(double v)
 	if (fabs(v-v0) < 1e-12) return true;
 	(g->usesLineColor() ? g->options.line_width : g->options.gridline_width) = v;
 	redraw();
-	ut.reg("Change Line Width", [this,v0]{ setLineWidth(v0); }, &(g->usesLineColor() ? g->options.line_width : g->options.gridline_width));
+	ut.trivial("Change Line Width", [this,v0]{ setLineWidth(v0); }, &(g->usesLineColor() ? g->options.line_width : g->options.gridline_width));
 	return true;
 }
 
@@ -351,7 +351,7 @@ bool Document::setAAMode(AntialiasMode m)
 	if (m0 == m) return true;
 	plot.options.aa_mode = m;
 	redraw();
-	ut.reg("Change Antialiasing", [this,m0]{ setAAMode(m0); }, &plot.options.aa_mode);
+	ut.trivial("Change Antialiasing", [this,m0]{ setAAMode(m0); }, &plot.options.aa_mode);
 	return true;
 }
 
@@ -604,7 +604,7 @@ bool Document::setMode(GraphMode m)
 	Graph *g = plot.current_graph(); if (!g) return false;
 	GraphMode m0 = g->mode();
 	if (m == m0) return true;
-	ut.reg("Change Graph Mode", [this,m0]{ setMode(m0); }, g, 6);
+	ut.trivial("Change Graph Mode", [this,m0]{ setMode(m0); }, g, 6);
 	g->mode(m);
 	plot.update_axis();
 	redraw();
@@ -724,7 +724,7 @@ bool Document::modifyParam(const std::vector<char> &data, IDCarrier::OID p_)
 
 	plot.reparse(p->name());
 	recalc(plot);
-	ut.reg("Modify Parameter", [this,data2,p_]{ modifyParam(data2, p_); });
+	ut.trivial("Modify Parameter", [this,data2,p_]{ modifyParam(data2, p_); });
 	return true;
 }
 
@@ -783,14 +783,12 @@ void Document::undoForCam()
 	Camera &cam = plot.camera;
 	Quaternion q0 = cam.quat();
 	double     z0 = cam.zoom();
-	ut.reg("Change View", [this,q0,z0]{ setCam(q0,z0); }, &cam, 1, true);
+	ut.trivial("Change View", [this,q0,z0]{ setCam(q0,z0); }, &cam, 1);
 }
 bool Document::setCam(const Quaternion &rot, double zoom)
 {
+	undoForCam();
 	Camera &cam = plot.camera;
-	Quaternion q0 = cam.quat();
-	double     z0 = cam.zoom();
-	ut.reg("Change View", [this,q0,z0]{ setCam(q0,z0); }, &cam, 1, true);
 	cam.quat(rot);
 	cam.set_zoom(zoom);
 	return true;
@@ -799,7 +797,7 @@ void Document::undoForAxis()
 {
 	Axis &ax = plot.axis;
 	P3d c0, r0; ax.get_range(c0, r0);
-	ut.reg("Change Axis Range", [this,c0,r0]{ setAxis(c0,r0); }, &ax, 1, true);
+	ut.trivial("Change Axis Range", [this,c0,r0]{ setAxis(c0,r0); }, &ax, 1);
 }
 bool Document::setAxis(const P3d &center, const P3d &range)
 {
@@ -812,7 +810,7 @@ void Document::undoForInRange()
 {
 	Axis &ax = plot.axis;
 	P2d c0, r0; ax.get_inrange(c0, r0);
-	ut.reg("Change Axis Range", [this,c0,r0]{ setInRange(c0,r0); }, &ax, 2, true);
+	ut.reg("Change Input Range", [this,c0,r0]{ setInRange(c0,r0); }, &ax, 2);
 }
 bool Document::setInRange(const P2d &center, const P2d &range)
 {
@@ -825,13 +823,13 @@ void Document::undoForParam(Parameter *p)
 {
 	IDCarrier::OID p_ = p->oid();
 	cnum v = p->value();
-	ut.reg("Change Parameter Value", [this,p_,v]{ setParamValue(p_,v); }, p, 1, true);
+	ut.trivial("Change Parameter Value", [this,p_,v]{ setParamValue(p_,v); }, p, 1);
 }
 bool Document::setParamValue(IDCarrier::OID p_, cnum value)
 {
 	Parameter *p = (Parameter*)IDCarrier::find(p_); if (!p) return false;
 	cnum v = p->value();
-	ut.reg("Change Parameter Value", [this,p_,v]{ setParamValue(p_,v); }, p, 1, true);
+	ut.trivial("Change Parameter Value", [this,p_,v]{ setParamValue(p_,v); }, p, 1);
 	p->anim_stop();
 	p->value(value);
 	return true;

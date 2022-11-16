@@ -48,14 +48,17 @@ void GUI::def_editor()
 	//window_flags |= ImGuiWindowFlags_AlwaysAutoResize;
 	ImGui::Begin(param_orig ? "Edit Definition" : "New Definition", NULL, window_flags);
 
-	ImGui::InputTextMultiline("##Formula", &def_tmp);
+	ImGui::InputTextMultiline("##Formula", &def_tmp, 
+		ImVec2(ImGui::GetContentRegionAvail().x, 
+		       ImGui::GetContentRegionAvail().y - ImGui::GetFrameHeightWithSpacing()));
+	ImGui::PopTextWrapPos();
 
 	bool apply = false, close = false;
-	if (ImGui::Button("OK")) apply = close = true;
+	if (ImGui::Button("OK", ImVec2(ImGui::GetContentRegionAvail().x*0.33,0))) apply = close = true;
 	ImGui::SameLine();
-	if (ImGui::Button("Apply")) apply = true;
+	if (ImGui::Button("Apply", ImVec2(ImGui::GetContentRegionAvail().x*0.5,0))) apply = true;
 	ImGui::SameLine();
-	if (ImGui::Button("Cancel")) close = true;
+	if (ImGui::Button("Cancel", ImVec2(ImGui::GetContentRegionAvail().x,0))) close = true;
 
 	if (apply)
 	{

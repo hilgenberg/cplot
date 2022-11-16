@@ -28,6 +28,7 @@ public:
 	bool handle_key(SDL_Keysym key, bool release);
 
 	int  accum_size() const { return accum; }
+	float status_height() const { return current_status_height; }
 	
 	void start_animations(); // call after Parameter::anim_start()
 protected:
@@ -51,6 +52,7 @@ protected:
 	void change_parameter(int i, cnum delta);
 
 	void status(); // draw status bar
+	float current_status_height = 0.0f;
 	mutable GL_StringCache labelCache;
 };
 

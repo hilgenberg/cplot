@@ -51,6 +51,10 @@ public:
 		//return non_trivial ? (changes != 0 && !all_trivial) : changes != 0;
 	}
 
+	void trivial(std::string name, Action a, void *coalesce_token = NULL, int op_id = 0)
+	{
+		reg(name, a, coalesce_token, op_id, true);
+	}
 	void reg(std::string name, Action a, void *coalesce_token = NULL, int op_id = 0, bool trivial = false)
 	{
 		assert(!undoing || !redoing); // never both

@@ -30,6 +30,6 @@ namespace Preferences
 	bool depthSort();
 	void depthSort(bool value);
 
-	int  threads(); // number of threads, -1 for num threads = num cores
+	int  threads(bool effective = true); // number of threads, -1 for num threads = num cores
 	void threads(int n);
 };

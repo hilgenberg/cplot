@@ -1,9 +1,5 @@
 #include "GUI.h"
 #include "imgui/imgui.h"
-#include "imgui/backends/imgui_impl_sdl.h"
-#include "imgui/backends/imgui_impl_opengl2.h"
-#include <SDL.h>
-#include <SDL_opengl.h>
 #include "PlotWindow.h"
 
 static constexpr int slider_flags = ImGuiSliderFlags_AlwaysClamp|ImGuiSliderFlags_NoRoundToFormat|ImGuiSliderFlags_NoInput;
@@ -44,7 +40,7 @@ void GUI::settings_panel()
 
 	ImGuiViewport &screen = *ImGui::GetMainViewport();
 	ImGui::SetNextWindowPos(ImVec2(screen.WorkPos.x, screen.WorkPos.y+main_panel_height));
-	ImGui::SetNextWindowSize(ImVec2(0.0f, screen.WorkSize.y-main_panel_height));
+	ImGui::SetNextWindowSize(ImVec2(0.0f, screen.WorkSize.y-main_panel_height-w.status_height()));
 	ImGui::SetNextWindowBgAlpha(0.7f);
 	ImGuiWindowFlags window_flags = 0;
 	window_flags |= ImGuiWindowFlags_NoTitleBar;
@@ -318,7 +314,7 @@ void GUI::settings_panel()
 	{
 		double x = 0.0;
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-		ImGui::DragScalar("##in_range", ImGuiDataType_Double, &x, 0.01f, NULL, NULL, "axis range", flags|ImGuiSliderFlags_NoInput);
+		ImGui::DragScalar("##range", ImGuiDataType_Double, &x, 0.01f, NULL, NULL, "axis range", flags|ImGuiSliderFlags_NoInput);
 		if (x != 0.0 && defined(x))
 		{
 			w.undoForAxis();

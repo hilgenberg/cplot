@@ -1,10 +1,6 @@
 #include "GUI.h"
 #include "imgui/imgui.h"
-#include "imgui/backends/imgui_impl_sdl.h"
-#include "imgui/backends/imgui_impl_opengl2.h"
 #include "imgui/misc/cpp/imgui_stdlib.h"
-#include <SDL.h>
-#include <SDL_opengl.h>
 #include "PlotWindow.h"
 #include "../Engine/Namespace/Expression.h"
 

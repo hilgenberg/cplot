@@ -14,6 +14,12 @@ int main(int argc, char *argv[])
 	const char *arg0 = argv[0]; // program name without path
 	for (const char *s = arg0; *s; ++s) if (*s == '/') arg0 = s+1;
 	
+	if (argc > 2 || (argc == 2 && (!strcasecmp(argv[1], "--help") || !strcasecmp(argv[1], "-h"))))
+	{
+		printf("Usage: %s [FILE]\n", arg0);
+		return 1;
+	}
+
 	Preferences::reset();
 	
 	struct sigaction sa;

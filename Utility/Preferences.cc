@@ -57,7 +57,11 @@ namespace Preferences
 	bool depthSort() { return depthSort_; }
 	void depthSort(bool value) { SET(depthSort_); }
 
-	int  threads() { return threads_ <= 0 ? n_cores : threads_; }
+	int  threads(bool effective)
+	{
+		if (!effective) return threads_;
+		return threads_ <= 0 ? n_cores : threads_;
+	}
 	void threads(int value) { SET(threads_); }
 };
 

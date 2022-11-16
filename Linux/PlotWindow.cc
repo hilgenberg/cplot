@@ -1,15 +1,11 @@
 #include "PlotWindow.h"
+#include "Document.h"
 #include "../Utility/StringFormatting.h"
 #include "../Utility/System.h"
 #include "../Graphs/Plot.h"
 #include "../Graphs/Geometry/Axis.h"
 #include "../Graphs/Geometry/Camera.h"
-#include "Document.h"
-#include <vector>
-#include <set>
-#include <algorithm>
 #include "../Engine/Namespace/all.h"
-#include <cassert>
 
 #define ScrollUpButton    5
 #define ScrollDownButton  4
@@ -138,6 +134,7 @@ bool PlotWindow::handle_event(const SDL_Event &e)
 
 		case SDL_MOUSEMOTION:
 		{
+			if (plot.axis.type() == Axis::Invalid) return true;
 			auto buttons = e.motion.state;
 			if (!(buttons & (SDL_BUTTON_LMASK|SDL_BUTTON_RMASK|SDL_BUTTON_MMASK)))
 				return true;
@@ -150,18 +147,33 @@ bool PlotWindow::handle_event(const SDL_Event &e)
 			return true;
 		case SDL_MOUSEWHEEL:
 		{
+			if (plot.axis.type() == Axis::Invalid) return true;
 			//printf("SCRL %g %g - %d %d - %d\n", e.wheel.preciseX, e.wheel.preciseY, e.wheel.x, e.wheel.y, e.wheel.which);
 			if (e.wheel.preciseX != e.wheel.x || e.wheel.preciseY != e.wheel.y)
 			{
 				move(-5.0*e.wheel.preciseX, 5.0*e.wheel.preciseY, 0, false, 0);
 			}
-			else if (SDL_GetMouseState(NULL,NULL) & SDL_BUTTON_RMASK)
-			{
-				zoom(-5.0*(e.wheel.x + e.wheel.y), Axis);
-			}
 			else
 			{
-				move(0, 0, -5.0*(e.wheel.x + e.wheel.y), false, 0);
+				auto b = SDL_GetMouseState(NULL,NULL);
+				double dz = -5.0*(e.wheel.x + e.wheel.y);
+				bool twoD = (plot.axis.type() == Axis::Rect);
+				
+				if (b & SDL_BUTTON_RMASK)
+				{
+					zoom(dz, twoD || (b & SDL_BUTTON_LMASK) ? Inrange : Axis);
+				}
+				else
+				{
+					SDL_Keymod m = SDL_GetModState();
+					bool ctrl = (m & (KMOD_LCTRL|KMOD_RCTRL));
+					bool alt  = (m & (KMOD_LALT|KMOD_RALT));
+					
+					if (twoD)
+						zoom(dz, (ctrl||alt) ? Inrange : Axis);
+					else
+						zoom(dz, ctrl ? Axis : alt ? Inrange : Camera);
+				}
 			}
 			return true;
 		}
@@ -391,7 +403,16 @@ void PlotWindow::move(double dx, double dy, double dz, bool kbd, int buttons)
 
 	if (axis == Axis::Rect)
 	{
-		if (kbd || b1 || b0)
+		if (b2 && !kbd)
+		{
+			undoForInRange();
+			dx *= pixel;
+			dy *= pixel;
+			plot.axis.in_move(dx, -dy);
+			plot.update(CH_IN_RANGE);
+			redraw();
+		}
+		else if (kbd || b1 || b0)
 		{
 			if (!mods)
 			{
@@ -408,25 +429,35 @@ void PlotWindow::move(double dx, double dy, double dz, bool kbd, int buttons)
 			{
 				zoom(0.5*absmax(dx, dy), Axis);
 			}
-			else if (mods == ALT+SHIFT)
+			else if (mods == ALT+SHIFT || mods == CTRL+SHIFT)
 			{
 				undoForInRange();
 				plot.axis.in_zoom(exp(absmax(dx, dy) * 0.01));
 				plot.update(CH_IN_RANGE);
+				redraw();
 			}
-			else if (mods == ALT)
+			else if (mods == ALT || mods == CTRL)
 			{
 				undoForInRange();
 				dx *= pixel;
 				dy *= pixel;
 				plot.axis.in_move(dx, -dy);
 				plot.update(CH_IN_RANGE);
+				zoom(dz, Inrange);
+				redraw();
 			}
 		}
 	}
 	else
 	{
-		if (kbd || b1 || b0)
+		if (b1 && b2 && !kbd)
+		{
+			undoForInRange();
+			plot.axis.in_move(dx*0.01, -dy*0.01);
+			plot.update(CH_IN_RANGE);
+			redraw();
+		}
+		else if (kbd || b1 || b0)
 		{
 			if (!mods)
 			{
@@ -445,12 +476,13 @@ void PlotWindow::move(double dx, double dy, double dz, bool kbd, int buttons)
 			}
 			else if (mods == CTRL)
 			{
-				undoForCam();
+				undoForAxis();
 				float f;
 				plot.camera.scalefactor(0, f);
 				dx /= f; dy /= f;
 				plot.camera.move(plot.axis, -dx*pixel, dy*pixel, 0);
 				plot.update(CH_AXIS_RANGE);
+				zoom(dz, Axis);
 				redraw();
 			}
 			else if (mods == ALT+SHIFT)
@@ -462,6 +494,7 @@ void PlotWindow::move(double dx, double dy, double dz, bool kbd, int buttons)
 				undoForInRange();
 				plot.axis.in_move(dx*0.01, -dy*0.01);
 				plot.update(CH_IN_RANGE);
+				zoom(dz, Inrange);
 				redraw();
 			}
 		}
@@ -584,6 +617,7 @@ void PlotWindow::change_parameter(int i, cnum delta)
 
 void PlotWindow::status()
 {
+	current_status_height = 0.0f;
 	std::set<Parameter*> aps(plot.used_parameters());
 	if (aps.empty()) return;
 	std::vector<Parameter*> ps(aps.begin(), aps.end());
@@ -641,6 +675,8 @@ void PlotWindow::status()
 	glVertex2d(0, h);
 	#endif
 	glEnd();
+
+	current_status_height = (float)(rows*lh+vspace*(rows+1));
 
 	x = hspace; double y = vspace;
 	for (GL_String *s : labels)
