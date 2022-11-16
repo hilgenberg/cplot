@@ -4,6 +4,7 @@ double now(); ///< Must be in seconds since some reference date. Higher resoluti
 
 void sleep(double dt);
 
+#ifdef _WINDOWS
 class Timer
 {
 public:
@@ -21,3 +22,4 @@ private:
 	#endif
 	double dt_;
 };
+#endif

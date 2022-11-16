@@ -1,7 +1,6 @@
 #include "GUI.h"
 #include "imgui/imgui.h"
 #include "../Utility/Preferences.h"
-#include "../Utility/System.h"
 
 void GUI::prefs_panel()
 {

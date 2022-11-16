@@ -1,7 +1,7 @@
 #include "Preferences.h"
-#include "System.h"
 #include "StringFormatting.h"
 #include <pwd.h>
+#include <thread>
 using namespace std::filesystem;
 static bool load();
 static bool save();
@@ -11,6 +11,7 @@ static bool normals_   = false;
 static bool dynamic_   = true;
 static bool depthSort_ = true;
 static int  threads_   = -1;
+const int n_cores = (int)std::thread::hardware_concurrency();
 
 namespace Preferences
 {

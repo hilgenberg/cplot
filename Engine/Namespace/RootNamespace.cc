@@ -5,7 +5,6 @@
 #include "Operator.h"
 #include "Constant.h"
 #include "../Parser/Simplifier/Pattern.h"
-#include "../../Utility/System.h"
 
 #include <cmath>
 #include <string>
@@ -374,7 +373,7 @@ const std::vector<Rule> &RootNamespace::rules(const Element *head) const
 	if (m_rules.empty())
 	{
 		std::vector<Rule> R;
-		::load(rules_file_path(), R, *const_cast<RootNamespace*>(this));
+		//::load(rules_file_path(), R, *const_cast<RootNamespace*>(this));
 		for (Rule &r : R)
 		{
 			const Element *e = r.head();

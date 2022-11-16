@@ -1,6 +1,6 @@
 #include "GL_AreaGraph.h"
 #include "../Threading/ThreadInfo.h"
-#include "../../Utility/System.h"
+#include "../../Utility/Preferences.h"
 #include "../OpenGL/GL_Context.h"
 #include <GL/gl.h>
 #include <vector>

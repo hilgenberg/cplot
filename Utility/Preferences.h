@@ -7,6 +7,8 @@
  * Setters should be persistent.
  */
 
+extern const int n_cores;
+
 namespace Preferences
 {
 	bool flush(); // store changes into registry/ini file

@@ -1,7 +1,7 @@
 #include "PlotWindow.h"
 #include "Document.h"
 #include "../Utility/StringFormatting.h"
-#include "../Utility/System.h"
+#include "../Utility/Preferences.h"
 #include "../Graphs/Plot.h"
 #include "../Graphs/Geometry/Axis.h"
 #include "../Graphs/Geometry/Camera.h"

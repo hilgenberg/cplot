@@ -1,7 +1,8 @@
 #include "Plot.h"
 #include "OpenGL/GL_Color.h"
 #include "OpenGL/GL_Font.h"
-#include "../Utility/System.h"
+#include "../Utility/Timer.h"
+#include "../Utility/Preferences.h"
 #include "../Engine/Namespace/RootNamespace.h"
 #include "OpenGL/GL_Context.h"
 #include <GL/gl.h>

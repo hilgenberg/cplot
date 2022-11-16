@@ -1,6 +1,8 @@
 #include "Preferences.h"
-#include "System.h"
+#include <thread>
 #define PATH "5GL\\CPlot\\"
+
+const int n_cores = (int)std::thread::hardware_concurrency();
 
 struct Pref
 {

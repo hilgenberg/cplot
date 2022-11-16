@@ -1,6 +1,5 @@
 #include <signal.h>
 #include "PlotWindow.h"
-#include "../Utility/System.h"
 #include "../Utility/Preferences.h"
 #include "GUI.h"
 #include <SDL.h>

@@ -2,7 +2,7 @@
 #include "Info.h"
 #include "../Threading/ThreadMap.h"
 #include "VisibilityFlags.h"
-#include "../../Utility/System.h"
+#include "../../Utility/Preferences.h"
 #include <GL/gl.h>
 
 //----------------------------------------------------------------------------------------------------------------------
