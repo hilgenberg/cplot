@@ -44,7 +44,7 @@ shaders = False   # translate all .glsl files to .c code?
 # name => additional [cflags, lflags]
 variants = {
 		"debug":   ['-Og -DDEBUG -D_DEBUG -g', ''],
-		"release": ['-O3 -s -DNDEBUG',         '-s'],
+		"release": ['-O3 -s -DNDEBUG',         '-s -zrelro -znow'],
 		"profile": ['-O3 -s -DNDEBUG -pg',     '-s -pg']
 }
 
@@ -67,9 +67,9 @@ def getf(cmd):
 	if r.returncode != 0: sys.exit(cmd + " failed!")
 	return r.stdout.strip()
 
-# add pangocairo library
+# add pangocairo library (remove unused libs to keep namcap happy)
 cflags += " " + getf('pkg-config --cflags pangocairo')
-lflags += " " + getf('pkg-config --libs   pangocairo')
+lflags += " " + getf('pkg-config --libs   pangocairo').replace("-lharfbuzz","").replace("-lglib-2.0","")
 # add SDL2
 cflags += " " + getf('sdl2-config --cflags')
 lflags += " " + getf('sdl2-config --libs')
@@ -201,6 +201,9 @@ rule link
 		for R,D,F in os.walk('.'):
 			if "stuff" in D: D.remove("stuff")
 			if ".git" in D: D.remove(".git")
+			for v in variants:
+				if f"build_{v}" in D: D.remove(f"build_{v}")
+
 			for f in fnmatch.filter(F, '*.cc'):
 				print(f"build {base}/{f}.o: cc {os.path.join(R, f)}{PCH_DEP}")
 				obj.append(f"{base}/{f}.o")
