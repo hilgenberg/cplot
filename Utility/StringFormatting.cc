@@ -10,8 +10,8 @@ std::string format(const char *fmt, ...)
 	va_list  ap;
 	va_start(ap, fmt);
 
-	char              buf1[1024]; // avoid heap allocation most of the time
-	std::vector<char> buf2;       // use this if buf1 is too small
+	char              buf1[512]; // avoid heap allocation most of the time
+	std::vector<char> buf2;      // use this if buf1 is too small
 	size_t            size = sizeof(buf1);
 	char             *buf  = buf1;
 	int               n;
