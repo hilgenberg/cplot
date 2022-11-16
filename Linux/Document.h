@@ -36,14 +36,16 @@ struct Document
 	bool toggleGrid();
 	bool setQuality(double v);
 	bool setGridDensity(double v);
-	bool setMeshDensity(double v);
 	bool setHistoScale(double v);
 	bool setDisplayMode(ShadingMode m);
 	bool setVFMode(VectorfieldMode m);
 	bool cycleVFMode(int d);
 	bool setAxisGrid(AxisOptions::AxisGridMode m);
-	bool setMeshMode(MaskStyle m);
 	bool setHistoMode(HistogramMode m);
+	bool setMaskParam(double v);
+	bool loadCustomMask(const std::string &path);
+	bool setMask(MaskStyle m);
+	bool setMask(GL_Mask &v); // leaves v with the previous value!
 	//-------------------------------------------------------------
 	bool setFog(double v);
 	bool setLineWidth(double v);

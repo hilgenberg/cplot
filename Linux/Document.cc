@@ -197,16 +197,7 @@ bool Document::setGridDensity(double v)
 	ut.reg("Change Grid Density", [this,v0]{ setGridDensity(v0); }, &g->options.grid_density);
 	return true;
 }
-bool Document::setMeshDensity(double v)
-{
-	Graph *g = plot.current_graph(); if (!g) return false;
-	auto v0 = g->options.mask.density();
-	if (fabs(v-v0) < 1e-12) return true;
-	g->options.mask.density(v);
-	redraw();
-	ut.reg("Change Mesh Density", [this,v0]{ setMeshDensity(v0); }, &g->options.mask);
-	return true;
-}
+
 bool Document::setHistoScale(double v)
 {
 	Graph *g = plot.current_graph(); if (!g) return false;
@@ -266,19 +257,6 @@ bool Document::setHistoMode(HistogramMode m)
 	return true;
 }
 
-bool Document::setMeshMode(MaskStyle m)
-{
-	Graph *g = plot.current_graph(); if (!g) return false;
-	auto m0 = g->options.mask.style();
-	if (m == Mask_Custom) return false;
-	if (m == m0) return true;
-	if (m0 == Mask_Custom) return false; // todo: needs different undo
-	g->options.mask.style(m);
-	redraw();
-	ut.reg("Change Mesh", [this,m0]{ setMeshMode(m0); });
-	return true;
-}
-
 bool Document::setAxisGrid(AxisOptions::AxisGridMode m)
 {
 	auto m0 = plot.axis.options.axis_grid;
@@ -286,6 +264,77 @@ bool Document::setAxisGrid(AxisOptions::AxisGridMode m)
 	plot.axis.options.axis_grid = m;
 	redraw();
 	ut.reg("Change Axis Grid", [this,m0]{ setAxisGrid(m0); });
+	return true;
+}
+
+bool Document::setMaskParam(double v)
+{
+	Graph *g = plot.current_graph(); if (!g) return false;
+	auto v0 = g->options.mask.density();
+	if (fabs(v-v0) < 1e-12) return true;
+	g->options.mask.density(v);
+	redraw();
+	ut.reg("Change Alpha Mask Cutoff", [this,v0]{ setMaskParam(v0); }, &g->options.mask);
+	return true;
+}
+
+bool Document::loadCustomMask(const std::string &path)
+{
+	Graph *g = plot.current_graph(); if (!g) return false;
+	GL_Mask m; if (!m.load(path)) return false;
+	GL_Mask &m0 = g->options.mask;
+	MaskStyle v0 = m0.style();
+	if (v0 != Mask_Custom)
+	{
+		ut.reg("Change Alpha Mask", [this,v0]{ setMask(v0); });
+		m0.swap(m);
+	}
+	else
+	{
+		m0.swap(m);
+		ut.reg("Change Alpha Mask", [this,m]() mutable{ setMask(m); });
+	}
+	redraw();
+	return true;
+}
+
+bool Document::setMask(MaskStyle v)
+{
+	Graph *g = plot.current_graph(); if (!g) return false;
+	GL_Mask &m0 = g->options.mask;
+	auto v0 = m0.style();
+	if (v == Mask_Custom) return false;
+	if (v0 == Mask_Custom)
+	{
+		GL_Mask tmp; tmp.style(v); tmp.density(m0.density()); tmp.swap(m0);
+		ut.reg("Change Alpha Mask", [this,tmp]() mutable { setMask(tmp); });
+	}
+	else
+	{
+		if (v == v0) return true;
+		ut.reg("Change Alpha Mask", [this,v0]{ setMask(v0); }, &m0);
+		m0.style(v);
+	}
+	redraw();
+	return true;
+}
+
+bool Document::setMask(GL_Mask &v)
+{
+	Graph *g = plot.current_graph(); if (!g) return false;
+	GL_Mask &m0 = g->options.mask;
+	MaskStyle v0 = m0.style();
+	if (v0 != Mask_Custom)
+	{
+		ut.reg("Change Alpha Mask", [this,v0]{ setMask(v0); });
+		m0.swap(v);
+	}
+	else
+	{
+		m0.swap(v);
+		ut.reg("Change Alpha Mask", [this,v]() mutable{ setMask(v); });
+	}
+	redraw();
 	return true;
 }
 

@@ -97,40 +97,36 @@ void GUI::settings_panel()
 		{
 			POPUP(sel, "##Grid", GridStyle, g->options.grid_style, setGrid, "Hide Grid", "Draw Grid", "Full Grid");
 			bool on = g && !histo && g->hasFill();
-			if (g && g->options.mask.style() == Mask_Custom)
+			static const char *items[] = {
+				"Mesh Off", "Chess", "HLines", "VLines", "Circles", "Squares",
+				"Triangles", "Rounded Rect", "Rings", "Fan", "Static", "Hexagon",
+				"Custom"
+			};
+			static const MaskStyle order[] = {
+				Mask_Off, Mask_Chessboard, Mask_HLines, Mask_VLines, Mask_Circles, Mask_Squares,
+				Mask_Triangles, Mask_Rounded_Rect, Mask_Rings, Mask_Fan, Mask_Static, Mask_Hexagon,
+				Mask_Custom
+			};
+			static const int index[] = {0, 4, 5, 6, 7, 1, 2, 3, 8, 10, 9, 11, 12};
+			int N = IM_ARRAYSIZE(items);
+			assert(IM_ARRAYSIZE(items) == IM_ARRAYSIZE(order));
+			assert(IM_ARRAYSIZE(index) == IM_ARRAYSIZE(order));
+			#ifndef NDEBUG
+			for (int i = 0; i < N-1; ++i) 
 			{
-				ImGui::Text("TODO: Custom Mesh UI");
+				assert(index[order[i]] == i);
+				assert(order[index[i]] == i);
 			}
-			else
-			{
-				static const char *items[] = {
-					"Mesh Off", "Chess", "HLines", "VLines", "Circles", "Squares",
-					"Triangles", "Rounded Rect", "Rings", "Fan", "Static", "Hexagon"
-				};
-				static const MaskStyle order[] = {
-					Mask_Off, Mask_Chessboard, Mask_HLines, Mask_VLines, Mask_Circles, Mask_Squares,
-					Mask_Triangles, Mask_Rounded_Rect, Mask_Rings, Mask_Fan, Mask_Static, Mask_Hexagon
-				};
-				static const int index[] = {0, 4, 5, 6, 7, 1, 2, 3, 8, 10, 9, 11};
-
-				assert(IM_ARRAYSIZE(items) == IM_ARRAYSIZE(order));
-				assert(IM_ARRAYSIZE(index) == IM_ARRAYSIZE(order));
-				#ifndef NDEBUG
-				for (int i = 0; i < IM_ARRAYSIZE(index); ++i) 
-				{
-					assert(index[order[i]] == i);
-					assert(order[index[i]] == i);
-				}
-				#endif
-
-				int orig = on ? index[g->options.mask.style()] : 0, tmp = orig;
-				enable(on);
-				ImGui::Combo("##Mesh", &tmp, items, IM_ARRAYSIZE(items));
-				if (enabled && tmp != orig) w.setMeshMode(order[tmp]);
-			}
+			#endif
+			bool custom = g->options.mask.style() == Mask_Custom;
+			if (!custom) --N; // hide last entry
+			int orig = on ? (custom ? 12 : index[g->options.mask.style()]) : 0, tmp = orig;
+			enable(on);
+			ImGui::Combo("##Mesh", &tmp, items, N);
+			if (enabled && tmp != orig) w.setMask(order[tmp]);
 		}
 		if (g && g->hasFill() && g->options.mask.style() != Mask_Off)
-			SLIDER(1, "Mesh density", g->options.mask.density(), 0.0, 1.0, setMeshDensity);
+			SLIDER(1, "Alpha Mask Cutoff", g->options.mask.density(), 0.0, 1.0, setMaskParam);
 	}
 
 	ImGui::Spacing();

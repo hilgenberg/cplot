@@ -68,6 +68,21 @@ public:
 		return *this;
 	}
 
+	#ifdef __linux__
+	bool load(const std::string &path);
+	#endif
+
+	GL_Mask &swap(GL_Mask &x)
+	{
+		std::swap(_style, x._style);
+		std::swap(_w, x._w);
+		std::swap(_h, x._h);
+		std::swap(data_, x.data_);
+		std::swap(_update, x._update);
+		modify(); x.modify();
+		return *this;
+	}
+
 	bool operator== (const GL_Mask &x) const
 	{
 		if (_style != x._style || fabs(_density - x._density) > 1e-12) return false;

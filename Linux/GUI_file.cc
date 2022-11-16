@@ -53,6 +53,11 @@ void GUI::file_menu()
 			ifd::FileDialog::Instance().Open("OpenRTextureDialog", "Open File", img_filter, false);
 			need_redraw = 20; // imgui wants to animate dimming the background
 		}
+		if (ImGui::MenuItem("Open Alpha Mask..."))
+		{
+			ifd::FileDialog::Instance().Open("OpenMaskDialog", "Open File", img_filter, false);
+			need_redraw = 20; // imgui wants to animate dimming the background
+		}
 		ImGui::Separator();
 		if (ImGui::MenuItem("Quit", "Ctrl+Q")) {
 			SDL_Event e; e.type = SDL_QUIT;
@@ -103,6 +108,15 @@ void GUI::file_menu()
 		{
 			std::string r = ifd::FileDialog::Instance().GetResult().u8string();
 			w.loadReflectionTexture(r);
+		}
+		ifd::FileDialog::Instance().Close();
+	}
+	if (ifd::FileDialog::Instance().IsDone("OpenMaskDialog"))
+	{
+		if (ifd::FileDialog::Instance().HasResult())
+		{
+			std::string r = ifd::FileDialog::Instance().GetResult().u8string();
+			w.loadCustomMask(r);
 		}
 		ifd::FileDialog::Instance().Close();
 	}

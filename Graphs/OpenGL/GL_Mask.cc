@@ -54,6 +54,33 @@ void GL_Mask::load(Deserializer &s)
 	s.double_(_density);
 }
 
+#ifdef __linux__
+#include "../../Linux/stb/stb_image.h"
+
+bool GL_Mask::load(const std::string &path)
+{
+	int x,y,n;
+	unsigned char *d1 = stbi_load(path.c_str(), &x, &y, &n, 1);
+	if (!d1)
+	{
+		fprintf(stderr, "Error loading %s: %s\n", path.c_str(), stbi_failure_reason());
+		return false;
+	}
+	if (x <= 0 || y <= 0 || n <= 0)
+	{
+		stbi_image_free(d1);
+		return false;
+	}
+
+	unsigned char *d2 = redim(x, y);
+	if (!d2) return false;
+	memcpy(d2, d1, x*y);
+	stbi_image_free(d1);
+	_update = false;
+	return true;
+}
+#endif
+
 #define ALPHA(A) \
 do{ \
 	unsigned char *dp = data_.data(); \
