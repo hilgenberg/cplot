@@ -1,6 +1,5 @@
 #pragma once
 #include "Graph.h"
-#include "Properties.h"
 #include "Geometry/Axis.h"
 #include "Geometry/Camera.h"
 #include "../Persistence/Serializer.h"
@@ -23,9 +22,6 @@ struct PlotOptions : public Serializable
 };
 
 struct Plot : public Serializable
-#ifndef _WINDOWS
-	, public PropertyList
-#endif
 {
 	Plot(Namespace &ns) : ns(ns), gl_axis(axis, camera), current(0), anim_qf(0.75), last_update_was_full_quality(false){ }
 	Plot(const Plot &p); // allocates an independent RootNamespace, which must be deleted by the caller!
@@ -102,12 +98,6 @@ struct Plot : public Serializable
 	}
 	bool needs_update() const{ for (Graph *g : graphs) if (!g->options.hidden && g->needs_update()) return true; return false; }
 	bool at_full_quality() const{ return last_update_was_full_quality; }
-
-#ifndef _WINDOWS
-protected:
-	virtual void init_properties();
-	virtual const Namespace &pns() const { return ns; }
-#endif
 
 private:
 	std::vector<Graph*> graphs;

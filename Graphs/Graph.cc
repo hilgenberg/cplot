@@ -129,9 +129,6 @@ Graph::Graph(Plot &p)
 
 Graph::Graph(const Graph &g)
 : plot(g.plot)
-#ifndef _WINDOWS
-, PropertyList()
-#endif
 , options(g.options)
 , m_f1(g.m_f1), m_f2(g.m_f2), m_f3(g.m_f3)
 , m_type(g.m_type)

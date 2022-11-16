@@ -1,5 +1,4 @@
 #pragma once
-#include "Properties.h"
 #include "../Engine/Namespace/Namespace.h"
 #include "Geometry/Axis.h"
 #include "OpenGL/GL_Color.h"
@@ -169,9 +168,6 @@ struct GraphOptions : public Serializable
 };
 
 class Graph : public Serializable, public IDCarrier
-#ifndef _WINDOWS
-	, public PropertyList
-#endif
 {
 public:
 	Graph(Plot &plot);
@@ -315,12 +311,6 @@ public:
 	
 #ifdef DEBUG
 	virtual void dump(std::ostream &o) const{ o << "Graph " << description_line(); }
-#endif
-
-#ifndef _WINDOWS
-protected:
-	virtual void init_properties();
-	virtual const Namespace &pns() const;
 #endif
 
 private:

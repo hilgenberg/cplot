@@ -31,9 +31,6 @@ void PlotOptions::load(Deserializer &s)
 
 Plot::Plot(const Plot &p)
 : ns(*new RootNamespace)
-#ifndef _WINDOWS
-, PropertyList()
-#endif
 , options(p.options)
 , axis(p.axis)
 , camera(p.camera)
