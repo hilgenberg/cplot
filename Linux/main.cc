@@ -5,6 +5,10 @@
 #include <SDL.h>
 #include <SDL_opengl.h>
 
+static const char *
+	#include "../version.h"
+;
+
 volatile bool quit = false;
 static void signalHandler(int)
 {
@@ -17,10 +21,19 @@ int main(int argc, char *argv[])
 	const char *arg0 = argv[0]; // program name without path
 	for (const char *s = arg0; *s; ++s) if (*s == '/') arg0 = s+1;
 	
-	if (argc > 2 || (argc == 2 && (!strcasecmp(argv[1], "--help") || !strcasecmp(argv[1], "-h"))))
+	if (argc > 2 || (argc == 2 && (!strcasecmp(argv[1], "--help") || !strcmp(argv[1], "-h"))))
 	{
 		printf("Usage: %s [FILE]\n", arg0);
 		return 1;
+	}
+	if (argc == 2 && (!strcmp(argv[1], "--version") || !strcmp(argv[1], "-v")))
+	{
+		printf("%s %s"
+			#ifdef DEBUG
+			" (debug build)"
+			#endif
+			"\n", arg0, VERSION);
+		return 0;
 	}
 
 	Preferences::reset();
