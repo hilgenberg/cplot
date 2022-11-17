@@ -83,11 +83,9 @@ int main(int argc, char *argv[])
 			SDL_Event event;
 			while (!quit && SDL_PollEvent(&event))
 			{
-				if (!w) quit = true;
 				if (gui.handle_event(event)) continue;
 				if (w.handle_event(event)) continue;
 			}
-			if (!w) quit = true;
 			if (quit) break;
 
 			GL_CHECK;

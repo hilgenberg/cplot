@@ -6,6 +6,7 @@
 #include "../Graphs/Geometry/Axis.h"
 #include "../Graphs/Geometry/Camera.h"
 #include "../Engine/Namespace/all.h"
+extern volatile bool quit;
 
 #define ScrollUpButton    5
 #define ScrollDownButton  4
@@ -14,6 +15,8 @@
 
 #define FPS 90
 
+static inline double absmax(double a, double b){ return fabs(a) > fabs(b) ? a : b; }
+
 PlotWindow::PlotWindow(SDL_Window* window, GL_Context &context)
 : tnf(-1.0)
 , last_frame(-1.0)
@@ -21,7 +24,6 @@ PlotWindow::PlotWindow(SDL_Window* window, GL_Context &context)
 , accum(0)
 , w(0), h(0)
 , window(window)
-, closed(false)
 {
 	int n = 0;
 	SDL_GL_GetAttribute(SDL_GL_ACCUM_RED_SIZE, &accum);
@@ -36,7 +38,6 @@ void PlotWindow::start_animations(){ if (tnf <= 0.0) tnf = now() + 1.0/FPS; }
 
 void PlotWindow::animate(double t)
 {
-	// UNDO_OK.
 	assert(tnf > 0.0 && t >= tnf);
 	const double spf = 1.0/FPS;
 	double dt = std::min(std::max(1.0, (t - last_frame)/spf), 5.0);
@@ -79,7 +80,28 @@ void PlotWindow::animate(double t)
 	}
 	else
 	{
-		move(dx*dt, dy*dt, dz*dt, true);
+		dx *= dt; dy *= dt; dz *= dt;
+		auto type = plot.axis.type();
+
+		SDL_Keymod m = SDL_GetModState();
+		bool shift   = (m & (KMOD_LSHIFT|KMOD_RSHIFT));
+		bool ctrl    = (m & (KMOD_LCTRL|KMOD_RCTRL));
+		bool alt     = (m & (KMOD_LALT|KMOD_RALT));
+		
+		if (shift)
+		{
+			dz = absmax(dx, dy);
+			dx = dy = 0.0;
+		}
+
+		if (type == Axis::Rect)
+		{
+			translate(dx, dy, dz, ctrl|alt ? Inrange : Axis);
+		}
+		else if (type != Axis::Invalid)
+		{
+			translate(dx, dy, dz, ctrl ? Axis : alt ? Inrange : Camera);
+		}
 	}
 
 	int pani = 0;
@@ -100,23 +122,22 @@ void PlotWindow::animate(double t)
 	}
 
 	double t1 = std::max(now(), t + spf);
-	//while (tnf + spf*0.01 < t1) tnf += spf;
 	tnf += std::max(0.0, spf * std::ceil((t1-tnf)/spf-0.01));
 }
 
 bool PlotWindow::handle_event(const SDL_Event &e)
 {
-	// UNDO_OK.
 	switch (e.type)
 	{
-		case SDL_QUIT: closed = true; return true;
 		case SDL_WINDOWEVENT:
 			switch (e.window.event)
 			{
 				case SDL_WINDOWEVENT_CLOSE:
 					if (e.window.windowID == SDL_GetWindowID(window))
 					{
-						closed = true;
+						// TODO: get SDL to ask before closing, so we can
+						// confirm if file was changed!
+						quit = true;
 						return true;
 					}
 					break;
@@ -134,12 +155,36 @@ bool PlotWindow::handle_event(const SDL_Event &e)
 
 		case SDL_MOUSEMOTION:
 		{
-			if (plot.axis.type() == Axis::Invalid) return true;
+			auto type = plot.axis.type();
+			if (type == Axis::Invalid) return false;
 			auto buttons = e.motion.state;
-			if (!(buttons & (SDL_BUTTON_LMASK|SDL_BUTTON_RMASK|SDL_BUTTON_MMASK)))
-				return true;
-			int dx = e.motion.xrel, dy = e.motion.yrel;
-			move(dx, dy, 0.0, false, buttons);
+			if (!(buttons & (SDL_BUTTON_LMASK|SDL_BUTTON_RMASK|SDL_BUTTON_MMASK))) return true;
+			bool b1 = buttons & SDL_BUTTON_LMASK;
+			bool b2 = buttons & SDL_BUTTON_RMASK;
+			bool b3 = buttons & SDL_BUTTON_MMASK;
+			if (b1 && b2) { b3 = true; b1 = b2 = false; }
+			
+			double dx = e.motion.xrel, dy = e.motion.yrel, dz = 0.0;
+
+			SDL_Keymod m = SDL_GetModState();
+			bool shift   = (m & (KMOD_LSHIFT|KMOD_RSHIFT));
+			bool ctrl    = (m & (KMOD_LCTRL|KMOD_RCTRL));
+			bool alt     = (m & (KMOD_LALT|KMOD_RALT));
+			
+			if (shift)
+			{
+				dz = absmax(dx, dy);
+				dx = dy = 0.0;
+			}
+
+			if (type == Axis::Rect)
+				translate(dx, dy, dz, (b2||b3||alt||ctrl) ? Inrange : Axis);
+			else if (b3)
+				translate(dx, dy, dz, Inrange);
+			else if (b2)
+				translate(dx, dy, dz, (ctrl || alt) ? Inrange : Axis);
+			else
+				translate(dx, dy, dz, ctrl ? Axis : alt ? Inrange : Camera);
 			return true;
 		}
 		case SDL_MOUSEBUTTONDOWN:
@@ -147,32 +192,63 @@ bool PlotWindow::handle_event(const SDL_Event &e)
 			return true;
 		case SDL_MOUSEWHEEL:
 		{
-			if (plot.axis.type() == Axis::Invalid) return true;
-			//printf("SCRL %g %g - %d %d - %d\n", e.wheel.preciseX, e.wheel.preciseY, e.wheel.x, e.wheel.y, e.wheel.which);
+			auto type = plot.axis.type();
+			if (type == Axis::Invalid) return false;
+
+			SDL_Keymod m = SDL_GetModState();
+			bool shift   = (m & (KMOD_LSHIFT|KMOD_RSHIFT));
+			bool ctrl    = (m & (KMOD_LCTRL|KMOD_RCTRL));
+			bool alt     = (m & (KMOD_LALT|KMOD_RALT));
+
 			if (e.wheel.preciseX != e.wheel.x || e.wheel.preciseY != e.wheel.y)
 			{
-				move(-5.0*e.wheel.preciseX, 5.0*e.wheel.preciseY, 0, false, 0);
+				double dx = -5.0*e.wheel.preciseX, dy = 5.0*e.wheel.preciseY, dz = 0.0;
+
+				int mx = -1, my = -1; SDL_GetMouseState(&mx, &my);
+
+				if (shift)
+				{
+					dz = absmax(dx, dy);
+					dx = dy = 0.0;
+				}
+
+				if (type == Axis::Rect)
+				{
+					translate(dx, dy, dz, ctrl|alt ? Inrange : Axis, mx, my);
+				}
+				else if (type != Axis::Invalid)
+				{
+					translate(dx, dy, dz, ctrl ? Axis : alt ? Inrange : Camera);
+				}
 			}
 			else
 			{
-				auto b = SDL_GetMouseState(NULL,NULL);
-				double dz = -5.0*(e.wheel.x + e.wheel.y);
-				bool twoD = (plot.axis.type() == Axis::Rect);
-				
-				if (b & SDL_BUTTON_RMASK)
+				int mx = -1, my = -1;
+				auto buttons = SDL_GetMouseState(&mx, &my);
+				bool b1 = buttons & SDL_BUTTON_LMASK;
+				bool b2 = buttons & SDL_BUTTON_RMASK;
+
+				double dx = -5.0*e.wheel.x, dy = -5.0*e.wheel.y;
+
+				if (type == Axis::Rect)
 				{
-					zoom(dz, twoD || (b & SDL_BUTTON_LMASK) ? Inrange : Axis);
+					translate(0, 0, dy, (b1 || b2 || ctrl || alt) ? Inrange : Axis, mx, my);
+					translate(0, 0, dx, (b1 || b2 || ctrl || alt) ? Axis : Inrange, mx, my);
+				}
+				else if (b2 || ctrl)
+				{
+					translate(0, 0, dy, Axis);
+					translate(0, 0, dx, Inrange);
+				}
+				else if (b1 || alt)
+				{
+					translate(0, 0, dy, Inrange);
+					translate(0, 0, dx, Axis);
 				}
 				else
 				{
-					SDL_Keymod m = SDL_GetModState();
-					bool ctrl = (m & (KMOD_LCTRL|KMOD_RCTRL));
-					bool alt  = (m & (KMOD_LALT|KMOD_RALT));
-					
-					if (twoD)
-						zoom(dz, (ctrl||alt) ? Inrange : Axis);
-					else
-						zoom(dz, ctrl ? Axis : alt ? Inrange : Camera);
+					translate(0, 0, dy, Camera);
+					translate(0, 0, dx, Axis);
 				}
 			}
 			return true;
@@ -182,7 +258,7 @@ bool PlotWindow::handle_event(const SDL_Event &e)
 			// UNTESTED: my trackpad does not send these...
 			auto &g = e.mgesture;
 			printf("MULT %g %g - %g %g\n", g.x, g.y, g.dDist, g.dTheta);
-			move(0, 0, -5.0*e.mgesture.dDist, false, 0);
+			//move(0, 0, -5.0*e.mgesture.dDist, 0);
 			return true;
 		}
 	}
@@ -191,7 +267,6 @@ bool PlotWindow::handle_event(const SDL_Event &e)
 
 bool PlotWindow::handle_key(SDL_Keysym keysym, bool release)
 {
-	// UNDO_OK.
 	auto key = keysym.sym;
 	auto m   = keysym.mod;
 	constexpr int SHIFT = 1, CTRL = 2, ALT = 4;
@@ -252,7 +327,6 @@ bool PlotWindow::handle_key(SDL_Keysym keysym, bool release)
 			return true;
 		}
 
-		case SDLK_q: if (mods == CTRL) closed = true; return true;
 		case SDLK_PERIOD:
 			for (Parameter *p : rns.all_parameters(true))
 			{
@@ -372,209 +446,83 @@ void PlotWindow::draw()
 	need_redraw = !plot.at_full_quality();
 }
 
-static inline double absmax(double a, double b){ return fabs(a) > fabs(b) ? a : b; }
-
-void PlotWindow::move(double dx, double dy, double dz, bool kbd, int buttons)
+void PlotWindow::translate(double dx, double dy, double dz, PlotWindow::Zoom what, int mx, int my)
 {
-	// UNDO_OK.
-	auto axis = plot.axis.type();
-	if (axis == Axis::Invalid) return;
+	if (fabs(dx) < 1e-8 && fabs(dy) < 1e-8 && fabs(dz) < 1e-8) return;
+	
+	auto type = plot.axis.type();
+	if (type == Axis::Invalid) return;
+
+	redraw();
+
+	double f = exp(-dz * 0.02);
 	double pixel = plot.pixel_size();
-
-	SDL_Keymod m = SDL_GetModState();
-	//fprintf(stderr, "move %g %g %g %d %d\n", dx, dy, dz, (int)kbd, buttons);
-	const int SHIFT=1, CTRL=2, ALT=4;
-	int  shift   = (m & (KMOD_LSHIFT|KMOD_RSHIFT)) ? SHIFT : 0;
-	int  ctrl    = (m & (KMOD_LCTRL|KMOD_RCTRL)) ? CTRL : 0;
-	int  alt     = (m & (KMOD_LALT|KMOD_RALT)) ? ALT : 0; // alt|altGr
-	int  mods    = shift + ctrl + alt;
-	bool b0      = !kbd && !buttons; // scrollwheel or trackpad
-	bool b1      = buttons & SDL_BUTTON_LMASK;
-	bool b2      = buttons & SDL_BUTTON_RMASK;
-	bool b3      = buttons & SDL_BUTTON_MMASK;
 	
-	#if 0
-	#define M(i) (modifiers & Mod ## i ## Mask)
-	fprintf(stderr, "mods: %d %d %d %d %d\n", M(1), M(2), M(3), M(4), M(5));
-	#undef M
-	#endif
-	
-	(void)b2; (void)b3;
-
-	if (axis == Axis::Rect)
+	if (type == Axis::Rect)
 	{
-		if (b2 && !kbd)
+		if (what == Inrange)
 		{
 			undoForInRange();
 			dx *= pixel;
 			dy *= pixel;
 			plot.axis.in_move(dx, -dy);
-			plot.update(CH_IN_RANGE);
-			redraw();
-		}
-		else if (kbd || b1 || b0)
-		{
-			if (!mods)
-			{
-				// move (dx,dy), zoom dz
-				dx *= pixel;
-				dy *= pixel;
-				undoForAxis();
-				plot.axis.move(-dx, dy, 0.0);
-				plot.update(CH_AXIS_RANGE);
-				zoom(dz, Axis);
-				redraw();
-			}
-			else if (mods == SHIFT)
-			{
-				zoom(0.5*absmax(dx, dy), Axis);
-			}
-			else if (mods == ALT+SHIFT || mods == CTRL+SHIFT)
-			{
-				undoForInRange();
-				plot.axis.in_zoom(exp(absmax(dx, dy) * 0.01));
-				plot.update(CH_IN_RANGE);
-				redraw();
-			}
-			else if (mods == ALT || mods == CTRL)
-			{
-				undoForInRange();
-				dx *= pixel;
-				dy *= pixel;
-				plot.axis.in_move(dx, -dy);
-				plot.update(CH_IN_RANGE);
-				zoom(dz, Inrange);
-				redraw();
-			}
-		}
-	}
-	else
-	{
-		if (b1 && b2 && !kbd)
-		{
-			undoForInRange();
-			plot.axis.in_move(dx*0.01, -dy*0.01);
-			plot.update(CH_IN_RANGE);
-			redraw();
-		}
-		else if (kbd || b1 || b0)
-		{
-			if (!mods)
-			{
-				undoForCam();
-				plot.camera.rotate(0.01 * dy, 0, 0.01 * dx);
-				zoom(dz, Camera); // undo should coalesce with above
-				redraw();
-			}
-			else if (mods == SHIFT)
-			{
-				zoom(0.5*absmax(dx,dy), Camera);
-			}
-			else if (mods == SHIFT+CTRL)
-			{
-				zoom(0.5*absmax(dx,dy), Axis);
-			}
-			else if (mods == CTRL)
-			{
-				undoForAxis();
-				float f;
-				plot.camera.scalefactor(0, f);
-				dx /= f; dy /= f;
-				plot.camera.move(plot.axis, -dx*pixel, dy*pixel, 0);
-				plot.update(CH_AXIS_RANGE);
-				zoom(dz, Axis);
-				redraw();
-			}
-			else if (mods == ALT+SHIFT)
-			{
-				zoom(-0.5*absmax(dx, dy), Inrange);
-			}
-			else if (mods == ALT)
-			{
-				undoForInRange();
-				plot.axis.in_move(dx*0.01, -dy*0.01);
-				plot.update(CH_IN_RANGE);
-				zoom(dz, Inrange);
-				redraw();
-			}
-		}
-		else if (b2)
-		{
-			undoForCam();
-			float f;
-			plot.camera.scalefactor(0, f);
-			dx /= f; dy /= f;
-			plot.camera.move(plot.axis, -dx*pixel, dy*pixel, 0);
-			plot.update(CH_AXIS_RANGE);
-			redraw();
-		}
-		else if (b3)
-		{
-			undoForInRange();
-			plot.axis.in_move(dx*0.01, -dy*0.01);
-			plot.update(CH_IN_RANGE);
-			redraw();
-		}
-	}
-}
-void PlotWindow::zoom(double d, PlotWindow::Zoom what, int mx, int my)
-{
-	// UNDO_OK.
-	if (fabs(d) < 0.001) return;
-	double f = exp(-d * 0.02);
-	redraw();
-	
-	if (plot.axis.type() == Axis::Rect)
-	{
-		if (what == Inrange)
-		{
-			undoForInRange();
 			plot.axis.in_zoom(1.0/f);
 			plot.update(CH_IN_RANGE);
 		}
-		else
+		else // Axis or Camera
 		{
-			undoForAxis();
 			auto &axis = plot.axis;
-			double x0 = 2.0 * mx / w - 1.0; // [-1,1]
-			double y0 = 2.0 * my / h - 1.0;
+			undoForAxis();
+			dx *= pixel;
+			dy *= pixel;
+			axis.move(-dx, dy, 0.0);
+ 
+			// zoom with dz, but keep (mx,my) where it is
+			double x0 = 2.0 * mx / (w-1) - 1.0; // [-1,1]
+			double y0 = 2.0 * (h-1-my) / (h-1) - 1.0;
 			double x1 = (x0 * axis.range(0)) + axis.center(0);
 			double y1 = (y0 * axis.range(1)) + axis.center(1);
 			axis.zoom(f);
-			if (mx >= 0 && my >= 0)
+			if (w > 1 && h > 1 && mx >= 0 && my >= 0 && mx < w && my < h)
 			{
 				double x2 = (x0 * axis.range(0)) + axis.center(0);
 				double y2 = (y0 * axis.range(1)) + axis.center(1);
 				axis.move(x1-x2, y1-y2, 0.0);
 			}
+
 			plot.update(CH_AXIS_RANGE);
 		}
 	}
-	else
+	else switch (what)
 	{
-		switch (what)
+		case Inrange:
+			undoForInRange();
+			plot.axis.in_move(dx*0.01, -dy*0.01);
+			plot.axis.in_zoom(1.0/f);
+			plot.update(CH_IN_RANGE);
+			break;
+
+		case Camera:
+			undoForCam();
+			plot.camera.rotate(0.01 * dy, 0, 0.01 * dx);
+			plot.camera.zoom(f);
+			break;
+
+		case Axis:
 		{
-			case Inrange:
-				undoForInRange();
-				plot.axis.in_zoom(1.0/f);
-				plot.update(CH_IN_RANGE);
-				break;
-			case Axis:
-				undoForAxis();
-				plot.axis.zoom(f);
-				plot.update(CH_AXIS_RANGE);
-				break;
-			case Camera:
-				undoForCam();
-				plot.camera.zoom(f);
-				break;
+			undoForAxis();
+			float f2; plot.camera.scalefactor(0, f2);
+			dx /= f2; dy /= f2;
+			plot.camera.move(plot.axis, -dx*pixel, dy*pixel, 0);
+			plot.axis.zoom(f);
+			plot.update(CH_AXIS_RANGE);
+			break;
 		}
 	}
 }
 
 void PlotWindow::change_parameter(int i, cnum delta)
 {
-	// UNDO_OK.
 	if (i < 0) return;
 	std::set<Parameter*> aps(plot.used_parameters());
 	if ((size_t)i >= aps.size()) return;

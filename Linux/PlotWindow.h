@@ -18,8 +18,6 @@ public:
 	void   animate(double now);
 	bool   needs_redraw() const{ return need_redraw; }
 
-	operator bool() const{ return !closed; }
-
 	void draw();
 	//void redraw(){ need_redraw = true; } --> moved to base class
 
@@ -37,7 +35,6 @@ protected:
 	SDL_Window *window;
 	int         w, h;
 	int         accum;      // accumulation buffer size
-	bool        closed;     // should window close?
    
 	double      tnf;        // scheduled time for next frame
 	double      last_frame; // time of last draw
@@ -46,9 +43,8 @@ protected:
 	std::map<SDL_Keycode, double> ikeys; // pressed key -> inertia
 	std::set<SDL_Keycode> keys; // pressed keys
 
-	void move(double dx, double dy, double dz, bool kbd, int buttons=0);
 	enum Zoom{ Axis, Camera, Inrange }; 
-	void zoom(double d, Zoom what, int mx = -1, int my = -1);
+	void translate(double dx, double dy, double dz, Zoom what, int mx = -1, int my = -1);
 	void change_parameter(int i, cnum delta);
 
 	void status(); // draw status bar
