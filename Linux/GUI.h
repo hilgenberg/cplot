@@ -1,82 +1,85 @@
 #pragma once
 #include <SDL.h>
 #include "imgui/imgui.h"
-#include "../Engine/cnum.h"
-#include "../Engine/Namespace/ObjectDB.h"
 class PlotWindow;
-class Parameter;
+class GUI;
+
+struct GUI_Menu
+{
+	GUI_Menu(GUI &gui) : gui(gui) {}
+	virtual ~GUI_Menu() {}
+	virtual void operator()() = 0; // update/draw, called every frame that the gui is visible
+	virtual bool handle(const SDL_Event &event) { return false; }
+	GUI &gui;
+};
+struct GUI_Panel
+{
+	GUI_Panel(GUI &gui) : gui(gui) {}
+	virtual ~GUI_Panel() {}
+	virtual void operator()() = 0;
+	virtual bool handle(const SDL_Event &event) { return false; }
+	GUI &gui;
+};
+
+struct EnableGuard
+{
+	EnableGuard() : enabled(true) {}
+	~EnableGuard() { if (!enabled) ImGui::EndDisabled(); }
+	void operator()(bool e)
+	{
+		if (e) { if (!enabled) ImGui::EndDisabled();   } 
+		else   { if ( enabled) ImGui::BeginDisabled(); }
+		enabled = e;
+	}
+	[[nodiscard]] operator bool() const { return enabled; }
+private:
+	bool enabled;
+};
 
 class GUI
 {
 public:
+	friend struct GUI_ViewMenu;
+	friend struct GUI_FileMenu;
+
 	GUI(SDL_Window* window, SDL_GLContext context, PlotWindow &w);
 	~GUI();
 
-	bool handle_event(const SDL_Event &event); // GUI_menu.cc
-	bool needs_redraw() const{ return visible && need_redraw > 0; }
-
-	operator bool() const{ return visible; }
-	void toggle() { visible = !visible; redraw(); }
-	void close() { visible = false; }
-
-	void update();
-	void draw();
+	void show() { if (!visible) redraw(); visible = true; }
 	void redraw(int n_frames = 3){ need_redraw = std::max(n_frames, need_redraw); }
+	bool needs_redraw() const{ return visible && need_redraw > 0; }
+	
+	bool handle_event(const SDL_Event &event);
+	void update(); // call this first (before waiting for the next frame)
+	void draw(); // call this second
+
+	void error(const std::string &msg);
+	void confirm(bool need_confirmation, const std::string &msg, std::function<void(void)> action);
+
+	PlotWindow &w;
 
 private:
-	PlotWindow &w;
 	bool visible;
-	int  need_redraw;
+	int  need_redraw; // imgui assumes a continuous render loop, but we only draw if
+	                  // we have to, so this is some number of frames and not a single
+	                  // bool to allow it to run its animations
 
+	bool show_top_panel = true, show_side_panel = true;
+	bool show_prefs_panel = false;
 	#ifdef DEBUG
 	bool show_demo_window = false;
 	#endif
+	float top_panel_height = 0.0f;
 	
-	void  main_menu(), file_menu(), graphs_menu(), params_menu(), defs_menu(), settings_menu();
-	void  main_panel(), settings_panel();
-	bool  show_main_panel = true, show_settings_panel = true;
-	void  prefs_panel(); bool show_prefs_panel = false;
+	std::vector<std::unique_ptr<GUI_Menu>>  menus;
+	//std::vector<std::unique_ptr<GUI_Panel>> panels;
 
-	float main_panel_height = 0.0f;
+	void  top_panel(), side_panel(), prefs_panel(); 
 	
-	// Parameter editor and its data
-	void param_editor();
-	bool param_edit = false;
-	IDCarrier::OID param_orig = 0;
-	std::string param_tmp[7];
-	int param_tmp_type;
-	bool param_tmp_rad;
-
-	// UserFunction editor and its data
-	void def_editor();
-	bool def_edit = false;
-	IDCarrier::OID def_orig = 0;
-	std::string def_tmp;
-
-	// manage ImGui's BeginDisabled/EndDisabled regions
-	bool enabled = true;
-	void enable(bool e = true);
-
-	// printing and parsing helpers
-	std::string format_double(double x) const;
-	double parse(const std::string &s, const char *desc);
-	std::string format_complex(cnum x) const;
-	cnum cparse(const std::string &s, const char *desc);
-
-	// error and confirmation messages
-	void error(const std::string &msg);
 	void error_panel();
 	std::string error_msg;
 
-	void confirm(bool need_confirmation, const std::string &msg, std::function<void(void)> action);
 	void confirmation_panel();
 	std::string confirm_msg;
 	std::function<void(void)> confirm_action;
-
-	//--- actions with hotkeys ------------------------------
-
-	void open_file();
-	void save_as();
-	void save();
-
 };

@@ -4,7 +4,7 @@
 #include "PlotWindow.h"
 #include "../Engine/Namespace/Expression.h"
 
-void GUI::main_panel()
+void GUI::top_panel()
 {
 	const Plot &plot = w.plot;
 	const Graph *g = plot.current_graph();
@@ -24,7 +24,7 @@ void GUI::main_panel()
 	window_flags |= ImGuiWindowFlags_NoCollapse;
 	window_flags |= ImGuiWindowFlags_NoSavedSettings;
 
-	ImGui::Begin("Graph Definition", &show_main_panel, window_flags);
+	ImGui::Begin("Graph Definition", &show_top_panel, window_flags);
 
 	if (ImGui::BeginTable("##Layout", 2))
 	{
@@ -176,7 +176,7 @@ void GUI::main_panel()
 		}
 	}
 
-	main_panel_height = ImGui::GetWindowHeight();
+	top_panel_height = ImGui::GetWindowHeight();
 
 	ImGui::End();
 }

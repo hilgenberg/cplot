@@ -3,144 +3,206 @@
 #include "ImFileDialog/ImFileDialog.h"
 #include "PlotWindow.h"
 
-static void init_ImFileDialog()
+
+struct GUI_FileMenu : public GUI_Menu
 {
-	static bool done = false;
-	if (done) return;
-	done = true;
-
-	// ImFileDialog requires you to set the CreateTexture and DeleteTexture
-	ifd::FileDialog::Instance().CreateTexture = [](uint8_t* data, int w, int h, char fmt) -> void* {
-		GLuint tex;
-		glGenTextures(1, &tex);
-		glBindTexture(GL_TEXTURE_2D, tex);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, (fmt == 0) ? GL_BGRA : GL_RGBA, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, 0);
-		return (void*)(uintptr_t)tex;
-	};
-	ifd::FileDialog::Instance().DeleteTexture = [](void* tex) {
-		GLuint texID = (GLuint)(uintptr_t)tex;
-		glDeleteTextures(1, &texID);
-	};
-}
-
-void GUI::file_menu()
-{
-	init_ImFileDialog();
-	if (ImGui::BeginMenu("File"))
+	GUI_FileMenu(GUI &gui) : GUI_Menu(gui)
 	{
-		if (ImGui::MenuItem("New")) confirm(w.ut.have_changes(), "Lose all changes?", [this]{ w.clear(); redraw(); });
-		if (ImGui::MenuItem("Open...", "Ctrl+O")) open_file();
-		if (ImGui::MenuItem("Save", "Ctrl+S")) save();
-		if (ImGui::MenuItem("Save As...", "Ctrl+Shift+S")) save_as();
-		if (ImGui::MenuItem("Preferences...", "Ctrl+Comma")) show_prefs_panel = true;
-
-		ImGui::Separator();
-
-		static const char *img_filter = "Image file{.bmp,.gif,.hdr,.jpg,.jpeg,.jpe,.pgm,.pic,.png,.ppm,.psd,.tga,.vda,.icb,.vst},.*";
-		if (ImGui::MenuItem("Load Texture..."))
+		static bool init_done = false;
+		if (!init_done)
 		{
-			ifd::FileDialog::Instance().Open("OpenTextureDialog", "Open File", img_filter, false);
-			need_redraw = 20; // imgui wants to animate dimming the background
+			ifd::FileDialog::Instance().CreateTexture = [](uint8_t* data, int w, int h, char fmt) -> void* {
+				GLuint tex;
+				glGenTextures(1, &tex);
+				glBindTexture(GL_TEXTURE_2D, tex);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, (fmt == 0) ? GL_BGRA : GL_RGBA, GL_UNSIGNED_BYTE, data);
+				glGenerateMipmap(GL_TEXTURE_2D);
+				glBindTexture(GL_TEXTURE_2D, 0);
+				return (void*)(uintptr_t)tex;
+			};
+			ifd::FileDialog::Instance().DeleteTexture = [](void* tex) {
+				GLuint texID = (GLuint)(uintptr_t)tex;
+				glDeleteTextures(1, &texID);
+			};
+			init_done = true;
 		}
-		if (ImGui::MenuItem("Open Reflection Texture..."))
-		{
-			ifd::FileDialog::Instance().Open("OpenRTextureDialog", "Open File", img_filter, false);
-			need_redraw = 20; // imgui wants to animate dimming the background
-		}
-		if (ImGui::MenuItem("Open Alpha Mask..."))
-		{
-			ifd::FileDialog::Instance().Open("OpenMaskDialog", "Open File", img_filter, false);
-			need_redraw = 20; // imgui wants to animate dimming the background
-		}
-		ImGui::Separator();
-		if (ImGui::MenuItem("Quit", "Ctrl+Q")) {
-			SDL_Event e; e.type = SDL_QUIT;
-			SDL_PushEvent(&e);
-		}
-		ImGui::EndMenu();
 	}
-	
-	if (ifd::FileDialog::Instance().IsDone("OpenDialog"))
+	void operator()()
 	{
-		if (ifd::FileDialog::Instance().HasResult())
+		if (ImGui::BeginMenu("File"))
 		{
-			std::string r = ifd::FileDialog::Instance().GetResult().u8string();
-			confirm(w.ut.have_changes(), "Document has unsaved changes. Continue?", 
-				[this,r]{ w.load(r); redraw(); });
-		}
-		ifd::FileDialog::Instance().Close();
-	}
-	if (ifd::FileDialog::Instance().IsDone("SaveDialog"))
-	{
-		if (ifd::FileDialog::Instance().HasResult())
-		{
-			std::string r = ifd::FileDialog::Instance().GetResult().u8string();
-			try
+			if (ImGui::MenuItem("New")) gui.confirm(gui.w.ut.have_changes(), "Lose all changes?", [this]{ gui.w.clear(); gui.redraw(); });
+			if (ImGui::MenuItem("Open...", "Ctrl+O")) open_file();
+			if (ImGui::MenuItem("Save", "Ctrl+S")) save();
+			if (ImGui::MenuItem("Save As...", "Ctrl+Shift+S")) save_as();
+			if (ImGui::MenuItem("Preferences...", "Ctrl+Comma"))
 			{
-				w.saveAs(r);
+				gui.show_prefs_panel = true;
+				gui.show();
 			}
-			catch (std::exception &e)
+
+			ImGui::Separator();
+
+			static const char *img_filter = "Image file{.bmp,.gif,.hdr,.jpg,.jpeg,.jpe,.pgm,.pic,.png,.ppm,.psd,.tga,.vda,.icb,.vst},.*";
+			if (ImGui::MenuItem("Load Texture..."))
 			{
-				error(e.what());
+				ifd::FileDialog::Instance().Open("OpenTextureDialog", "Open File", img_filter, false);
+				gui.redraw(20); // imgui wants to animate dimming the background
 			}
+			if (ImGui::MenuItem("Open Reflection Texture..."))
+			{
+				ifd::FileDialog::Instance().Open("OpenRTextureDialog", "Open File", img_filter, false);
+				gui.redraw(20); // imgui wants to animate dimming the background
+			}
+			if (ImGui::MenuItem("Open Alpha Mask..."))
+			{
+				ifd::FileDialog::Instance().Open("OpenMaskDialog", "Open File", img_filter, false);
+				gui.redraw(20); // imgui wants to animate dimming the background
+			}
+			ImGui::Separator();
+			if (ImGui::MenuItem("Quit", "Ctrl+Q"))
+			{
+				SDL_Event e; e.type = SDL_QUIT;
+				SDL_PushEvent(&e);
+			}
+			ImGui::EndMenu();
 		}
-		ifd::FileDialog::Instance().Close();
+		
+		if (ifd::FileDialog::Instance().IsDone("OpenDialog"))
+		{
+			if (ifd::FileDialog::Instance().HasResult())
+			{
+				std::string r = ifd::FileDialog::Instance().GetResult().u8string();
+				gui.confirm(gui.w.ut.have_changes(), "Document has unsaved changes. Continue?", 
+					[this,r]{ gui.w.load(r); gui.redraw(); });
+			}
+			ifd::FileDialog::Instance().Close();
+		}
+		if (ifd::FileDialog::Instance().IsDone("SaveDialog"))
+		{
+			if (ifd::FileDialog::Instance().HasResult())
+			{
+				std::string r = ifd::FileDialog::Instance().GetResult().u8string();
+				try
+				{
+					gui.w.saveAs(r);
+				}
+				catch (std::exception &e)
+				{
+					gui.error(e.what());
+				}
+			}
+			ifd::FileDialog::Instance().Close();
+		}
+
+		if (ifd::FileDialog::Instance().IsDone("OpenTextureDialog"))
+		{
+			if (ifd::FileDialog::Instance().HasResult())
+			{
+				std::string r = ifd::FileDialog::Instance().GetResult().u8string();
+				gui.w.loadTexture(r);
+			}
+			ifd::FileDialog::Instance().Close();
+		}
+		if (ifd::FileDialog::Instance().IsDone("OpenRTextureDialog"))
+		{
+			if (ifd::FileDialog::Instance().HasResult())
+			{
+				std::string r = ifd::FileDialog::Instance().GetResult().u8string();
+				gui.w.loadReflectionTexture(r);
+			}
+			ifd::FileDialog::Instance().Close();
+		}
+		if (ifd::FileDialog::Instance().IsDone("OpenMaskDialog"))
+		{
+			if (ifd::FileDialog::Instance().HasResult())
+			{
+				std::string r = ifd::FileDialog::Instance().GetResult().u8string();
+				gui.w.loadCustomMask(r);
+			}
+			ifd::FileDialog::Instance().Close();
+		}
 	}
 
-	if (ifd::FileDialog::Instance().IsDone("OpenTextureDialog"))
+	void open_file()
 	{
-		if (ifd::FileDialog::Instance().HasResult())
-		{
-			std::string r = ifd::FileDialog::Instance().GetResult().u8string();
-			w.loadTexture(r);
-		}
-		ifd::FileDialog::Instance().Close();
+		ifd::FileDialog::Instance().Open("OpenDialog", "Open File", "CPlot files (*.cplot){.cplot},.*", false);
+		gui.redraw(20); // imgui wants to animate dimming the background
 	}
-	if (ifd::FileDialog::Instance().IsDone("OpenRTextureDialog"))
+	void save_as()
 	{
-		if (ifd::FileDialog::Instance().HasResult())
-		{
-			std::string r = ifd::FileDialog::Instance().GetResult().u8string();
-			w.loadReflectionTexture(r);
-		}
-		ifd::FileDialog::Instance().Close();
+		ifd::FileDialog::Instance().Save("SaveDialog", "Save File", "*.cplot {.cplot}");
+		gui.redraw(20); // imgui wants to animate dimming the background
 	}
-	if (ifd::FileDialog::Instance().IsDone("OpenMaskDialog"))
+	void save()
 	{
-		if (ifd::FileDialog::Instance().HasResult())
+		try
 		{
-			std::string r = ifd::FileDialog::Instance().GetResult().u8string();
-			w.loadCustomMask(r);
+			gui.w.save();
 		}
-		ifd::FileDialog::Instance().Close();
+		catch (std::exception &e)
+		{
+			gui.error(e.what());
+		}
 	}
 
-}
+	bool handle(const SDL_Event &event)
+	{
+		if (event.type != SDL_KEYDOWN) return false;
 
-void GUI::open_file()
-{
-	ifd::FileDialog::Instance().Open("OpenDialog", "Open File", "CPlot files (*.cplot){.cplot},.*", false);
-	need_redraw = 20; // imgui wants to animate dimming the background
-}
-void GUI::save_as()
-{
-	ifd::FileDialog::Instance().Save("SaveDialog", "Save File", "*.cplot {.cplot}");
-	need_redraw = 20; // imgui wants to animate dimming the background
-}
-void GUI::save()
-{
-	try
-	{
-		w.save();
+		auto key = event.key.keysym.sym;
+		auto m   = event.key.keysym.mod;
+		constexpr int SHIFT = 1, CTRL = 2, ALT = 4;
+		const int  shift = (m & (KMOD_LSHIFT|KMOD_RSHIFT)) ? SHIFT : 0;
+		const int  ctrl  = (m & (KMOD_LCTRL|KMOD_RCTRL)) ? CTRL : 0;
+		const int  alt   = (m & (KMOD_LALT|KMOD_RALT)) ? ALT : 0;
+		const int  mods  = shift + ctrl + alt;
+
+		switch (key)
+		{
+			case SDLK_q:
+				if (mods == CTRL)
+				{
+					SDL_Event e; e.type = SDL_QUIT;
+					SDL_PushEvent(&e);
+					return true;
+				}
+				break;
+			case SDLK_COMMA:
+				if (mods == CTRL)
+				{
+					gui.show_prefs_panel = true;
+					gui.show();
+					return true;
+				}
+				break;
+			case SDLK_s:
+				if (mods == CTRL+SHIFT)
+				{
+					save_as();
+					gui.show();
+					return true;
+				}
+				else if (mods == CTRL)
+				{
+					save();
+					return true;
+				}
+				break;
+			case SDLK_o:
+				if (mods == CTRL)
+				{
+					open_file();
+					gui.show();
+					return true;
+				}
+				break;
+		}
+		return false;
 	}
-	catch (std::exception &e)
-	{
-		error(e.what());
-	}
-}
+};
+GUI_Menu *new_file_menu(GUI &gui) { return new GUI_FileMenu(gui); }

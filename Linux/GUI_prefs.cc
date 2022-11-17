@@ -7,7 +7,6 @@ void GUI::prefs_panel()
 	if (!show_prefs_panel) return;
 
 	ImGui::Begin("Preferences", &show_prefs_panel);
-	assert(enabled);
 
 	ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
 
@@ -36,7 +35,6 @@ void GUI::prefs_panel()
 	if (i != i0) Preferences::threads(i);
 
 	ImGui::PopItemWidth();
-	enable();
 	ImGui::Spacing();
 	ImGui::Spacing();
 	ImGui::Spacing();

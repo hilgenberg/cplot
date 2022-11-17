@@ -6,7 +6,11 @@
 #include <SDL_opengl.h>
 
 volatile bool quit = false;
-static void signalHandler(int){ quit = true; }
+static void signalHandler(int)
+{
+	SDL_Event e; e.type = SDL_QUIT;
+	SDL_PushEvent(&e);
+}
 
 int main(int argc, char *argv[])
 {

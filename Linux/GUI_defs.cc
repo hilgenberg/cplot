@@ -5,53 +5,108 @@
 #include "../Engine/Namespace/UserFunction.h"
 #include "../Engine/Namespace/Expression.h"
 
-void GUI::defs_menu()
+struct GUI_DefsMenu;
+
+struct DefEditor : public GUI_Panel
 {
-	if (!ImGui::BeginMenu("Definitions")) return;
+	DefEditor(GUI_DefsMenu &parent, UserFunction *p);
+	void operator()() override;
+	bool handle(const SDL_Event &event) override;
 
-	std::set<UserFunction*> afs(w.rns.all_functions(true));
-	std::vector<UserFunction*> fs(afs.begin(), afs.end());
-	std::sort(fs.begin(), fs.end(), [&](const UserFunction *a, const UserFunction *b)->bool{ return a->formula() < b->formula(); });
+	GUI_DefsMenu &parent;
+	IDCarrier::OID orig = 0;
+	std::string tmp;
+	int  tmp_type;
+	bool tmp_rad;
 
-	for (UserFunction *f : fs)
+	std::string format_double(double x) const;
+	double parse(const std::string &s, const char *desc);
+	std::string format_complex(cnum x) const;
+	cnum cparse(const std::string &s, const char *desc);
+};
+
+struct GUI_DefsMenu : public GUI_Menu
+{
+	GUI_DefsMenu(GUI &gui) : GUI_Menu(gui) {}
+
+	std::unique_ptr<DefEditor> ed;
+	void close_editor() { ed = nullptr; gui.redraw(); }
+
+	bool handle(const SDL_Event &event)
 	{
-		ImGui::PushID(f);
-		if (ImGui::BeginMenu(f->formula().c_str()))
+		if (!ed) return false;
+		return ed->handle(event);
+	}
+
+	void operator()()
+	{
+		if (ImGui::BeginMenu("Definitions"))
 		{
-			if (ImGui::MenuItem("Edit...", NULL, false, !def_edit))
+			auto &w = gui.w;
+			std::set<UserFunction*> afs(w.rns.all_functions(true));
+			std::vector<UserFunction*> fs(afs.begin(), afs.end());
+			std::sort(fs.begin(), fs.end(), [&](const UserFunction *a, const UserFunction *b)->bool{ return a->formula() < b->formula(); });
+
+			for (UserFunction *f : fs)
 			{
-				def_edit = true; def_orig = f->oid();
-				def_tmp = f->formula();
+				ImGui::PushID(f);
+				if (ImGui::BeginMenu(f->formula().c_str()))
+				{
+					if (ImGui::MenuItem("Edit...", NULL, false, !ed))
+					{
+						ed.reset(new DefEditor(*this, f));
+						gui.redraw();
+					}
+					if (ImGui::MenuItem("Delete"))
+						w.deleteDef(f->oid());
+					ImGui::EndMenu();
+				}
+				ImGui::PopID();
 			}
-			if (ImGui::MenuItem("Delete"))
-				w.deleteDef(f->oid());
+			if (!fs.empty()) ImGui::Separator();
+
+			if (ImGui::MenuItem("New Definition", NULL, false, !ed))
+			{
+				ed.reset(new DefEditor(*this, NULL));
+				gui.redraw();
+			}
 			ImGui::EndMenu();
 		}
-		ImGui::PopID();
-	}
-	if (!fs.empty()) ImGui::Separator();
 
-	if (ImGui::MenuItem("New Definition"))
-	{
-		def_edit = true; def_orig = 0;
-		def_tmp = "f(x) = sinx / x";
+		if (ed) (*ed)();
 	}
-	ImGui::EndMenu();
+};
+GUI_Menu *new_defs_menu(GUI &gui) { return new GUI_DefsMenu(gui); }
+
+//----------------------------------------------------------------------------
+// ParamEditor implementation
+//----------------------------------------------------------------------------
+
+DefEditor::DefEditor(GUI_DefsMenu &parent, UserFunction *f)
+: parent(parent), GUI_Panel(parent.gui)
+{
+	if (f)
+	{
+		orig = f->oid();
+		tmp = f->formula();
+	}
+	else
+	{
+		orig = 0;
+		tmp = "f(x) = sinx / x";
+	}
 }
 
-void GUI::def_editor()
+void DefEditor::operator()()
 {
-	if (!def_edit) return;
-
 	ImGuiWindowFlags window_flags = 0;
 	window_flags |= ImGuiWindowFlags_NoCollapse;
 	//window_flags |= ImGuiWindowFlags_AlwaysAutoResize;
-	ImGui::Begin(param_orig ? "Edit Definition" : "New Definition", NULL, window_flags);
+	ImGui::Begin(orig ? "Edit Definition" : "New Definition", NULL, window_flags);
 
-	ImGui::InputTextMultiline("##Formula", &def_tmp, 
+	ImGui::InputTextMultiline("##Formula", &tmp, 
 		ImVec2(ImGui::GetContentRegionAvail().x, 
 		       ImGui::GetContentRegionAvail().y - ImGui::GetFrameHeightWithSpacing()));
-	ImGui::PopTextWrapPos();
 
 	bool apply = false, close = false;
 	if (ImGui::Button("OK", ImVec2(ImGui::GetContentRegionAvail().x*0.33,0))) apply = close = true;
@@ -62,13 +117,13 @@ void GUI::def_editor()
 
 	if (apply)
 	{
-		Namespace &ns = w.rns;
-		Plot &plot = w.plot;
-		std::string &formula = def_tmp;
+		Namespace &ns = gui.w.rns;
+		Plot &plot = gui.w.plot;
+		std::string &formula = tmp;
 
 		if (formula.empty() || formula == " ")
 		{
-			error("Error: Empty definition");
+			gui.error("Error: Empty definition");
 			ImGui::End();
 			return;
 		}
@@ -84,13 +139,13 @@ void GUI::def_editor()
 			Expression *ex = f->expression();
 			if (!ex)
 			{
-				error("Syntax Error : Expected <name>(p₁, …, pᵣ) = <definition>");
+				gui.error("Syntax Error : Expected <name>(p₁, …, pᵣ) = <definition>");
 				ns.remove(tns);
 				return;
 			}
 			else if (!ex->result().ok)
 			{
-				error(ex->result().info);
+				gui.error(ex->result().info);
 				ns.remove(tns);
 				return;
 			}
@@ -98,57 +153,68 @@ void GUI::def_editor()
 		catch (...)
 		{
 			assert(false);
-			error("Unexpected exception");
+			gui.error("Unexpected exception");
 			ns.remove(tns);
 			return;
 		}
 		ns.remove(tns); tns = NULL;
 
 		// parsing was ok - add it
-		std::unique_ptr<UserFunction> tmp;
+		std::unique_ptr<UserFunction> ftmp;
 		UserFunction *f = NULL;
-		if (!def_orig)
+		if (!orig)
 		{
-			tmp.reset(new UserFunction);
-			f = tmp.get();
+			ftmp.reset(new UserFunction);
+			f = ftmp.get();
 		}
 		else
 		{
-			f = (UserFunction*)IDCarrier::find(def_orig);
+			f = (UserFunction*)IDCarrier::find(orig);
 			assert(f);
 		}
 		if (!f)
 		{
-			error("Definition not found!");
+			gui.error("Definition not found!");
 			ImGui::End();
 			return;
 		}
 
-		if (def_orig)
+		if (orig)
 		{
 			std::vector<char> data2;
 			ArrayWriter ww(data2);
 			Serializer s(ww);
 			f->save(s);
-			auto p_ = def_orig;
-			w.ut.reg("Modify Definition", [this,data2,p_]{ w.modifyDef(data2, p_); });
+			auto p_ = orig;
+			gui.w.ut.reg("Modify Definition", [this,data2,p_]{ gui.w.modifyDef(data2, p_); });
 			plot.reparse(f->name()); // reparse for old name
 		}
 
 		f->formula(formula);
 
-		if (!def_orig)
+		if (!orig)
 		{
-			ns.add(f); tmp.release();
-			def_orig = f->oid();
-			auto oid = def_orig;
-			w.ut.reg("Add Definition", [this,oid]{ w.deleteDef(oid); });
+			ns.add(f); ftmp.release();
+			orig = f->oid();
+			auto oid = orig;
+			gui.w.ut.reg("Add Definition", [this,oid]{ gui.w.deleteDef(oid); });
 		}
 
 		plot.reparse(f->name()); // reparse for new name
-		w.recalc(plot);
+		gui.w.recalc(plot);
 	}
-	if (close) def_edit = false;
+	if (close) parent.close_editor();
 	ImGui::End();
 }
 
+bool DefEditor::handle(const SDL_Event &event)
+{
+	if (event.type != SDL_KEYDOWN) return false;
+	auto key = event.key.keysym.sym;
+	if (key == SDLK_ESCAPE)
+	{
+		parent.close_editor();
+		return true;
+	}
+	return false;
+}

@@ -5,14 +5,21 @@
 #include "PlotWindow.h"
 #include "../Utility/Preferences.h"
 
+extern volatile bool quit;
 extern const std::vector<unsigned char> &font_data();
 static std::string ini_location;
+
+extern GUI_Menu *new_file_menu(GUI &gui);
+extern GUI_Menu *new_edit_menu(GUI &gui);
+extern GUI_Menu *new_graphs_menu(GUI &gui);
+extern GUI_Menu *new_params_menu(GUI &gui);
+extern GUI_Menu *new_defs_menu(GUI &gui);
+extern GUI_Menu *new_view_menu(GUI &gui);
 
 GUI::GUI(SDL_Window* window, SDL_GLContext context, PlotWindow &w)
 : w(w)
 , visible(false)
 , need_redraw(1)
-, enabled(true)
 {
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -23,11 +30,7 @@ GUI::GUI(SDL_Window* window, SDL_GLContext context, PlotWindow &w)
 	io.ConfigInputTrickleEventQueue = false;
 
 	auto p = Preferences::directory();
-	if (p.empty())
-	{
-		io.IniFilename = NULL;
-	}
-	else {
+	if (p.empty()) io.IniFilename = NULL; else {
 		::ini_location = p / "imgui.ini";
 		io.IniFilename = ::ini_location.c_str();
 	}
@@ -37,6 +40,13 @@ GUI::GUI(SDL_Window* window, SDL_GLContext context, PlotWindow &w)
 	auto &fd = font_data();
 	ImFontConfig fc; fc.FontDataOwnedByAtlas = false;
 	io.Fonts->AddFontFromMemoryTTF((void*)fd.data(), (int)fd.size(), 17.0f, &fc);
+
+	menus.emplace_back(new_file_menu(*this));
+	menus.emplace_back(new_edit_menu(*this));
+	menus.emplace_back(new_graphs_menu(*this));
+	menus.emplace_back(new_params_menu(*this));
+	menus.emplace_back(new_defs_menu(*this));
+	menus.emplace_back(new_view_menu(*this));
 }
 
 GUI::~GUI()
@@ -54,10 +64,11 @@ void GUI::update()
 
 		if (!visible)
 		{
+			// if gui is visible, regular drawing will apply the cursor state,
+			// but if not, draw one empty frame to update the state
 			ImGui_ImplOpenGL2_NewFrame();
 			ImGui_ImplSDL2_NewFrame();
 			ImGui::NewFrame();
-
 			ImGui::Render();
 			ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
 			ImGui::EndFrame();
@@ -71,9 +82,6 @@ void GUI::update()
 		w.plot.axis_type() == Axis::Invalid ||
 		w.plot.axis.options.background_color.lightness() < 0.55;
 	if (dark) ImGui::StyleColorsDark(); else ImGui::StyleColorsLight();
-	/*ImVec4* colors = ImGui::GetStyle().Colors;
-	float w0 = colors[ImGuiCol_WindowBg].w;
-	colors[ImGuiCol_WindowBg].w = 0.7f;*/
 
 	ImGui_ImplOpenGL2_NewFrame();
 	ImGui_ImplSDL2_NewFrame();
@@ -81,15 +89,18 @@ void GUI::update()
 
 	ImGui::GetStyle().FrameBorderSize = dark ? 0.0f : 1.0f;
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-	main_menu();
-	main_panel_height = 0.0f;
-	if (show_main_panel) main_panel();
-	if (show_settings_panel) settings_panel();
-	ImGui::PopStyleVar(); // draw other windows with border
-	//colors[ImGuiCol_WindowBg].w = w0;
 
-	if (param_edit) param_editor();
-	if (def_edit)   def_editor();
+	if (ImGui::BeginMainMenuBar())
+	{
+		for (auto &m : menus) (*m)();
+		ImGui::EndMainMenuBar();
+	}
+
+	top_panel_height = 0.0f;
+	if (show_top_panel) top_panel();
+	if (show_side_panel) side_panel();
+	ImGui::PopStyleVar(); // draw other windows with border
+
 	error_panel();
 	confirmation_panel();
 	prefs_panel();
@@ -97,11 +108,6 @@ void GUI::update()
 	#ifdef DEBUG
 	if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
 	#endif
-
-	//ImGui::SetColorEditOptions(ImGuiColorEditFlags_Float | ImGuiColorEditFlags_HDR | ImGuiColorEditFlags_PickerHueWheel);
-
-	//ImGui::Text("counter = %d", counter);
-	//ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 }
 
 void GUI::draw()
@@ -113,52 +119,12 @@ void GUI::draw()
 	if (need_redraw > 0) --need_redraw;
 }
 
-void GUI::enable(bool e)
-{
-	if (e) {
-		if (!enabled) ImGui::EndDisabled();
-	} else {
-		if (enabled) ImGui::BeginDisabled();
-	}
-	enabled = e;
-}
-
 void GUI::error(const std::string &msg)
 {
 	error_msg = msg;
 	visible = true;
 	redraw();
 	// cannot call OpenPopup here! would cause the IDs to mismatch.
-}
-
-void GUI::error_panel()
-{
-	static bool showing = false;
-	if (error_msg.empty()) return;
-	if (!showing)
-	{
-		showing = true;
-		ImGui::OpenPopup("Error");
-		need_redraw = 20; // imgui wants to animate dimming the background
-	}
-	// Always center this window when appearing
-	ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-	ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-	if (!ImGui::BeginPopupModal("Error", NULL, ImGuiWindowFlags_AlwaysAutoResize)) return;
-	ImGui::TextWrapped(error_msg.c_str());
-	ImGui::Separator();
-	bool close = false;
-	if (ImGui::Button("OK", ImVec2(120, 0)))
-		close = true;
-	if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyPressed(ImGuiKey_Escape))
-		close = true;
-	if (close)
-	{
-		error_msg.clear();
-		ImGui::CloseCurrentPopup();
-		showing = false;
-	}
-	ImGui::EndPopup();
 }
 
 void GUI::confirm(bool c, const std::string &msg, std::function<void(void)> action)
@@ -181,45 +147,92 @@ void GUI::confirm(bool c, const std::string &msg, std::function<void(void)> acti
 	visible = true;
 	redraw();
 }
-void GUI::confirmation_panel()
+
+bool GUI::handle_event(const SDL_Event &event)
 {
-	static bool showing = false;
-	if (!confirm_action) return;
-	if (!showing)
+	bool h = ImGui_ImplSDL2_ProcessEvent(&event);
+	if (visible && h) redraw();
+	ImGuiIO &io = ImGui::GetIO();
+
+	bool activate = false, handled = false;
+
+	for (auto &m : menus) if (m->handle(event)) { handled = true; break; }
+
+	if (handled)
+	{}
+	else if (event.type == SDL_QUIT)
 	{
-		showing = true;
-		ImGui::OpenPopup("Confirmation");
-		need_redraw = 20; // imgui wants to animate dimming the background
+		confirm(w.ut.have_changes(), "Document has unsaved changes. Continue?",
+		[]{ quit = true; });
+		return true;
 	}
-	// Always center this window when appearing
-	ImVec2 center = ImGui::GetMainViewport()->GetCenter();
-	ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-	if (!ImGui::BeginPopupModal("Confirmation", NULL, ImGuiWindowFlags_AlwaysAutoResize)) return;
-	ImGui::TextWrapped(confirm_msg.c_str());
-	ImGui::Separator();
-	bool close = false;
-	if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyPressed(ImGuiKey_Escape))
-		close = true;
-	if (ImGui::Button("Cancel", ImVec2(120, 0))) close = true;
-	ImGui::SameLine();
-	if (ImGui::Button("OK", ImVec2(120, 0)))
+	else if (event.type == SDL_KEYDOWN)
 	{
-		try
+		auto key = event.key.keysym.sym;
+		auto m   = event.key.keysym.mod;
+		constexpr int SHIFT = 1, CTRL = 2, ALT = 4;
+		const int  shift = (m & (KMOD_LSHIFT|KMOD_RSHIFT)) ? SHIFT : 0;
+		const int  ctrl  = (m & (KMOD_LCTRL|KMOD_RCTRL)) ? CTRL : 0;
+		const int  alt   = (m & (KMOD_LALT|KMOD_RALT)) ? ALT : 0;
+		const int  mods  = shift + ctrl + alt;
+
+		switch (key)
 		{
-			confirm_action();
+			case SDLK_l:
+				if (mods == CTRL)
+				{
+					ImGui::SetWindowFocus("Graph Definition");
+					// TODO: focus the input field
+					activate = handled = true;
+				}
+				break;
+			case SDLK_TAB:
+			case SDLK_RETURN:
+				if (mods || visible) break;
+				activate = handled = true;
+				break;
+			case SDLK_F1: case SDLK_F2: case SDLK_F3: case SDLK_F4:
+			case SDLK_F5: case SDLK_F6: case SDLK_F7: case SDLK_F8:
+			case SDLK_F9: case SDLK_F10: case SDLK_F11: case SDLK_F12:
+			{
+				int i = key - SDLK_F1; assert(i >= 0 && i < 12);
+				if (mods == 0)
+				{
+					const Plot &plot = w.plot;
+					const Graph *g = plot.current_graph(); if (!g) break;
+					auto M = g->valid_modes();
+					if (i < M.size()) w.setMode(M[i]);
+					handled = true;
+				}
+				break;
+			}
+
+			case SDLK_ESCAPE:
+				if (mods || ImGui::IsPopupOpen("", ImGuiPopupFlags_AnyPopupId + ImGuiPopupFlags_AnyPopupLevel))
+					break;
+				visible = !visible;
+				redraw();
+				w.redraw();
+				return true;
 		}
-		catch (std::exception &e)
-		{
-			error(e.what());
-		}
-		close = true;
 	}
-	if (close)
+
+	if (activate)
 	{
-		confirm_msg.clear();
-		confirm_action = nullptr;
-		ImGui::CloseCurrentPopup();
-		showing = false;
+		if (!visible) ImGui_ImplSDL2_ProcessEvent(&event);
+		visible = true;
+		redraw();
 	}
-	ImGui::EndPopup();
+
+	if (visible) switch (event.type)
+	{
+		case SDL_KEYDOWN: case SDL_KEYUP:
+			if (io.WantCaptureKeyboard) return true;
+			break;
+		case SDL_MOUSEMOTION: case SDL_MOUSEBUTTONDOWN:
+		case SDL_MOUSEBUTTONUP: case SDL_MOUSEWHEEL:
+			if (io.WantCaptureMouse) return true;
+			break;
+	}
+	return handled;
 }

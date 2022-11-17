@@ -8,14 +8,14 @@ static constexpr int slider_flags = ImGuiSliderFlags_AlwaysClamp|ImGuiSliderFlag
 	bool on_ = (g), orig = on_ && value, tmp = orig;\
 	enable(on_);\
 	ImGui::Checkbox(title, &tmp);\
-	if (enabled && tmp != orig) w.action(); }while(0)
+	if (enable && tmp != orig) w.action(); }while(0)
 
 #define SLIDER_WITH_ID(g, id, title, value, min, max, action) do{\
 	bool on_ = (g); double v0 = min, v1 = max;\
 	auto orig = on_ ? value : min, tmp = orig;\
 	enable(on_);\
 	ImGui::SliderScalar("##" id, ImGuiDataType_Double, &tmp, &v0, &v1, title, slider_flags);\
-	if (enabled && tmp != orig) w.action(tmp); }while(0)
+	if (enable && tmp != orig) w.action(tmp); }while(0)
 
 #define SLIDER(g, title, value, min, max, action) SLIDER_WITH_ID(g, title, title, value, min, max, action)
 
@@ -24,23 +24,23 @@ static constexpr int slider_flags = ImGuiSliderFlags_AlwaysClamp|ImGuiSliderFlag
 	bool on_ = (g); enable(on_);\
 	int orig = on_ ? value : 0, tmp = orig;\
 	ImGui::Combo(title, &tmp, items, IM_ARRAYSIZE(items));\
-	if (enabled && tmp != orig) w.action((T)tmp); }while(0)
+	if (enable && tmp != orig) w.action((T)tmp); }while(0)
 
 #define COLOR(g, title, value, action) do{\
 	bool on_ = (g);\
 	GL_Color orig = on_ ? value : GL_Color(0.4), tmp = orig;\
 	enable(on_);\
 	ImGui::ColorEdit4(title, tmp.v, colorEditFlags);\
-	if (enabled && tmp != orig) w.action(tmp); }while(0)
+	if (enable && tmp != orig) w.action(tmp); }while(0)
 
-void GUI::settings_panel()
+void GUI::side_panel()
 {
 	Plot &plot = w.plot;
 	if (plot.axis_type() == Axis::Invalid) return;
 
 	ImGuiViewport &screen = *ImGui::GetMainViewport();
-	ImGui::SetNextWindowPos(ImVec2(screen.WorkPos.x, screen.WorkPos.y+main_panel_height));
-	ImGui::SetNextWindowSize(ImVec2(0.0f, screen.WorkSize.y-main_panel_height-w.status_height()));
+	ImGui::SetNextWindowPos(ImVec2(screen.WorkPos.x, screen.WorkPos.y+top_panel_height));
+	ImGui::SetNextWindowSize(ImVec2(0.0f, screen.WorkSize.y-top_panel_height-w.status_height()));
 	ImGui::SetNextWindowBgAlpha(0.7f);
 	ImGuiWindowFlags window_flags = 0;
 	window_flags |= ImGuiWindowFlags_NoTitleBar;
@@ -57,9 +57,10 @@ void GUI::settings_panel()
 	const bool histo  = g && g->isHistogram();
 	const bool twoD   = plot.axis_type() == Axis::Rect;
 	const bool points = g && g->options.shading_mode == Shading_Points;
+	
+	EnableGuard enable;
 
-	ImGui::Begin("Settings", &show_settings_panel, window_flags);
-	assert(enabled);
+	ImGui::Begin("Settings", &show_side_panel, window_flags);
 
 	ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
 	if (!vf && (!color || g->mode() == GM_RiemannColor))
@@ -87,7 +88,7 @@ void GUI::settings_panel()
 			auto orig = g ? log(g->options.hist_scale*(HISTO_MAX - 2.0) + 1.0)*0.5/log(HISTO_MAX - 1.0) : 0.0, tmp = orig;
 			enable(true);
 			ImGui::SliderScalar("##Histogram Scale", ImGuiDataType_Double, &tmp, &v0, &v1, "Histogram Scale", slider_flags);
-			if (enabled && tmp != orig) w.setHistoScale((exp(2.0*tmp*log(HISTO_MAX - 1.0)) - 1.0) / (HISTO_MAX - 2.0));
+			if (enable && tmp != orig) w.setHistoScale((exp(2.0*tmp*log(HISTO_MAX - 1.0)) - 1.0) / (HISTO_MAX - 2.0));
 		}
 	}
 
@@ -123,7 +124,7 @@ void GUI::settings_panel()
 			int orig = on ? (custom ? 12 : index[g->options.mask.style()]) : 0, tmp = orig;
 			enable(on);
 			ImGui::Combo("##Mesh", &tmp, items, N);
-			if (enabled && tmp != orig) w.setMask(order[tmp]);
+			if (enable && tmp != orig) w.setMask(order[tmp]);
 		}
 		if (g && g->hasFill() && g->options.mask.style() != Mask_Off)
 			SLIDER(1, "Alpha Mask Cutoff", g->options.mask.density(), 0.0, 1.0, setMaskParam);
@@ -200,7 +201,7 @@ void GUI::settings_panel()
 		if (g && orig < 0) { orig = n; }
 		int tmp = orig;
 		ImGui::Combo("##BlendingMode", &tmp, items, std::max(n, orig+1));
-		if (enabled && tmp != orig) w.setTransparencyMode(tm[tmp].mode);
+		if (enable && tmp != orig) w.setTransparencyMode(tm[tmp].mode);
 	}
 
 	if (w.accum_size() > 0)
@@ -245,7 +246,7 @@ void GUI::settings_panel()
 			int tmp = orig;
 			enable(hasTex);
 			ImGui::Combo("##TextureCombo", &tmp, tex_items+d, IM_ARRAYSIZE(tex_items)-d);
-			if (enabled && tmp != orig) w.setTexture((GL_ImagePattern)(tmp+d));
+			if (enable && tmp != orig) w.setTexture((GL_ImagePattern)(tmp+d));
 		}
 		if (color) POPUP(1, "##TextureMode", TextureProjection, g->options.texture_projection, setTextureMode, 
 			"Tiled Texture", "Centered  Texture", "Riemann Texture", "Spherical Texture");
@@ -260,7 +261,7 @@ void GUI::settings_panel()
 			int tmp = orig;
 			enable(hasRef);
 			ImGui::Combo("##ReflectionTextureCombo", &tmp, tex_items+d, IM_ARRAYSIZE(tex_items)-d);
-			if (enabled && tmp != orig) w.setReflectionTexture((GL_ImagePattern)(tmp+d));
+			if (enable && tmp != orig) w.setReflectionTexture((GL_ImagePattern)(tmp+d));
 		}
 	}
 
@@ -277,7 +278,7 @@ void GUI::settings_panel()
 	static constexpr int flags = ImGuiSliderFlags_AlwaysClamp|ImGuiSliderFlags_NoRoundToFormat;
 	const char *fmt = "%.3g";
 
-	enable();
+	enable(true);
 	static const char *labels[] = {"x", "y", "z"};
 	for (int i = 0; i < 2+in3d; ++i)
 	{
@@ -419,7 +420,7 @@ void GUI::settings_panel()
 		}
 	}
 
-	enable();
+	enable(true);
 	ImGui::PopItemWidth();
 	ImGui::End();
 }
