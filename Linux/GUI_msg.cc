@@ -20,8 +20,10 @@ void GUI::error_panel()
 	bool close = false;
 	if (ImGui::Button("OK", ImVec2(120, 0)))
 		close = true;
-	if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyPressed(ImGuiKey_Escape))
+	if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && 
+		(ImGui::IsKeyPressed(ImGuiKey_Escape) || ImGui::IsKeyPressed(ImGuiKey_Enter)))
 		close = true;
+
 	if (close)
 	{
 		error_msg.clear();
@@ -48,12 +50,16 @@ void GUI::confirmation_panel()
 	if (!ImGui::BeginPopupModal("Confirmation", NULL, ImGuiWindowFlags_AlwaysAutoResize)) return;
 	ImGui::TextWrapped(confirm_msg.c_str());
 	ImGui::Separator();
-	bool close = false;
+	bool confirm = false, close = false;
 	if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyPressed(ImGuiKey_Escape))
 		close = true;
+	if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyPressed(ImGuiKey_Enter))
+		confirm = close = true;
 	if (ImGui::Button("Cancel", ImVec2(120, 0))) close = true;
 	ImGui::SameLine();
-	if (ImGui::Button("OK", ImVec2(120, 0)))
+	if (ImGui::Button("OK", ImVec2(120, 0))) confirm = close = true;
+
+	if (confirm)
 	{
 		try
 		{
