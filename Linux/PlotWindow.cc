@@ -511,8 +511,7 @@ void PlotWindow::translate(double dx, double dy, double dz, PlotWindow::Zoom wha
 		case Axis:
 		{
 			undoForAxis();
-			float f2; plot.camera.scalefactor(0, f2);
-			dx /= f2; dy /= f2;
+			pixel *= plot.camera.scalefactor();
 			plot.camera.move(plot.axis, -dx*pixel, dy*pixel, 0);
 			plot.axis.zoom(f);
 			plot.update(CH_AXIS_RANGE);

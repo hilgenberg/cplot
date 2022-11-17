@@ -49,7 +49,8 @@ public:
 	// returns true if the point is not before the near clipping plane
 	inline bool project(const P3f &p, P2f &pp) const;
 	inline void rotate(const P3f &p, P3f &pp) const;
-	inline bool scalefactor(float pz, float &f) const; // return true if pz is inside the z-clipping range
+	inline double scalefactor() const { return ortho ? 1.0 : z; }
+
 	inline P3f view_vector() const; // pointing from the eye into the scene
 	
 private:
@@ -102,13 +103,6 @@ inline void Camera::rotate(const P3f &p, P3f &pp) const // p = pp is ok
 		// next we apply the 90° rotation (which inverts y, then swaps y and z)
 		pp.set(q.x, q.z, -q.y);
 	}
-}
-inline bool Camera::scalefactor(float pz, float &f) const
-{
-	if (ortho){ f = 1.0f; return true; }
-	double qz = -pz + z*zf;
-	f = (float)(zf / qz);
-	return (qz > znear && qz < zfar);
 }
 
 P3f Camera::view_vector() const

@@ -495,9 +495,7 @@ void PlotView::move(double dx, double dy, int flags)
 		default:
 			if (alt)
 			{
-				float f;
-				camera.scalefactor(0, f);
-				pixel /= f;
+				pixel *= camera.scalefactor();
 				camera.move(axis, -dx*pixel, dy*pixel, 0);
 				plot.update(CH_AXIS_RANGE);
 			}
