@@ -624,7 +624,7 @@ void PlotWindow::status()
 	std::sort(ps.begin(), ps.end(), [&](Parameter *a, Parameter *b)->bool{ return a->name() < b->name(); });
 
 	bool dark = plot.axis.options.background_color.lightness() < 0.55;
-	double fs = 20.0f;
+	double fs = 17.0f;
 	std::vector<GL_Font> fonts;
 	fonts.push_back(GL_Font("sans regular", fs));
 	fonts.push_back(fonts[0]);
