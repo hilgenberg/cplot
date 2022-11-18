@@ -13,18 +13,13 @@ Copy boost headers to Windows/boost/, open CPlot.sln in Visual Studio 2017, and 
 ### Linux build:
 
 ```Shell
-sudo pacman -S git python ninja boost
-sudo pacman -S zlib sdl2 libgl glu glew pango cairo
+sudo pacman -S --needed git python ninja boost zlib sdl2 libgl glu glew pango cairo
 git clone https://github.com/hilgenberg/cplot
 cd cplot
 git submodule update --init --recursive
-./build [debug|release]
+./build
 ./cplot test.cplot
 ```
 
 Press Escape to show/hide the GUI.
-Press 1 + left/right arrows to change n, press 1 + space to toggle animation of n.
-Control + arrows, control + plus/minus to change the axis range.
-Alt + same for the input range of parametric functions.
-
-TODO: add documentation to GUI!
+Documentation is available from the menu under View > Show Help.

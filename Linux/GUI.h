@@ -65,7 +65,7 @@ private:
 	                  // bool to allow it to run its animations
 
 	bool show_top_panel = true, show_side_panel = true;
-	bool show_prefs_panel = false;
+	bool show_prefs_panel = false, show_help_panel = false;
 	#ifdef DEBUG
 	bool show_demo_window = false;
 	#endif
@@ -74,7 +74,7 @@ private:
 	std::vector<std::unique_ptr<GUI_Menu>>  menus;
 	//std::vector<std::unique_ptr<GUI_Panel>> panels;
 
-	void  top_panel(), side_panel(), prefs_panel(); 
+	void  top_panel(), side_panel(), prefs_panel(), help_panel();
 	
 	void error_panel();
 	std::string error_msg;

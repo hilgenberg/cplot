@@ -6,17 +6,31 @@ struct GUI_ViewMenu : public GUI_Menu
 {
 	GUI_ViewMenu(GUI &gui) : GUI_Menu(gui) {}
 
+	void view(double a, double b)
+	{
+		auto &w = gui.w;
+		switch (w.plot.axis_type())
+		{
+			case Axis::Invalid:
+			case Axis::Rect: return;
+			default: break;
+		}
+		w.undoForCam();
+		w.plot.camera.set_angles(a, b, 0.0);
+		w.redraw();
+	};
+
 	void operator()()
 	{
 		if (!ImGui::BeginMenu("View")) return;
 		auto &w = gui.w;
 	
-		ImGui::MenuItem("Show Top Panel", "CTRL-F1", &gui.show_top_panel);
+		ImGui::MenuItem("Show Top Panel",  "CTRL-F1", &gui.show_top_panel);
 		ImGui::MenuItem("Show Side Panel", "CTRL-F2", &gui.show_side_panel);
+		ImGui::MenuItem("Show Help",       "CTRL-F3", &gui.show_help_panel);
 
 		#ifdef DEBUG
-		ImGui::Separator();
-		ImGui::MenuItem("Demo Window", NULL, &gui.show_demo_window);
+		ImGui::MenuItem("Show Demo Window", NULL, &gui.show_demo_window);
 		#endif
 
 		ImGui::Separator();
@@ -33,25 +47,12 @@ struct GUI_ViewMenu : public GUI_Menu
 			w.recalc(w.plot);
 		}
 
-		auto ChangeView = [this](double a, double b)
-		{
-			auto &w = gui.w;
-			switch (w.plot.axis_type())
-			{
-				case Axis::Invalid:
-				case Axis::Rect: return;
-				default: break;
-			}
-			w.undoForCam();
-			w.plot.camera.set_angles(a, b, 0.0);
-			w.redraw();
-		};
-		if (ImGui::MenuItem("View Top",          "T")) { ChangeView(  0.0,  90.0); }
-		if (ImGui::MenuItem("View Bottom", "Shift+T")) { ChangeView(  0.0, -90.0); }
-		if (ImGui::MenuItem("View Front",        "F")) { ChangeView(  0.0,   0.3); }
-		if (ImGui::MenuItem("View Back",   "Shift+F")) { ChangeView(180.0,   0.3); }
-		if (ImGui::MenuItem("View Left",         "S")) { ChangeView( 90.0,   0.3); }
-		if (ImGui::MenuItem("View Right",  "Shift+S")) { ChangeView(-90.0,   0.3); }
+		if (ImGui::MenuItem("View Top",          "T")) { view(  0.0,  90.0); }
+		if (ImGui::MenuItem("View Bottom", "Shift+T")) { view(  0.0, -90.0); }
+		if (ImGui::MenuItem("View Front",        "F")) { view(  0.0,   0.3); }
+		if (ImGui::MenuItem("View Back",   "Shift+F")) { view(180.0,   0.3); }
+		if (ImGui::MenuItem("View Left",         "S")) { view( 90.0,   0.3); }
+		if (ImGui::MenuItem("View Right",  "Shift+S")) { view(-90.0,   0.3); }
 
 		ImGui::EndMenu();
 	}
@@ -60,6 +61,7 @@ struct GUI_ViewMenu : public GUI_Menu
 	{
 		if (event.type != SDL_KEYDOWN) return false;
 
+		auto &w = gui.w;
 		auto key = event.key.keysym.sym;
 		auto m   = event.key.keysym.mod;
 		constexpr int SHIFT = 1, CTRL = 2, ALT = 4;
@@ -70,18 +72,32 @@ struct GUI_ViewMenu : public GUI_Menu
 
 		switch (key)
 		{
-			case SDLK_F1: case SDLK_F2:
+			case SDLK_F1: case SDLK_F2: case SDLK_F3:
 			{
-				int i = key - SDLK_F1; assert(i >= 0 && i < 2);
-				if (mods == CTRL)
+				if (mods != CTRL) break;
+				bool *b = NULL;
+				switch (key)
 				{
-					bool &b = (i == 0 ? gui.show_top_panel : gui.show_side_panel);
-					if (gui.visible) b = !b;
-					gui.show();
-					return true;
+					case SDLK_F1: b = &gui.show_top_panel; break;
+					case SDLK_F2: b = &gui.show_side_panel; break;
+					case SDLK_F3: b = &gui.show_help_panel; break;
 				}
-				break;
+				if (!gui.visible) { *b = true; gui.show(); return true; }
+				if (b) *b = !*b;
+				gui.redraw();
+				return true;
 			}
+
+			case SDLK_t: if (ctrl||alt) return false; view(0.0, shift ? -90.0 : 90.0); return true;
+			case SDLK_f: if (ctrl||alt) return false; view(shift ? 180.0 : 0.0,  0.3); return true;
+			case SDLK_s: if (ctrl||alt) return false; view(shift ? 90.0 : -90.0, 0.3); return true;
+
+			case SDLK_z:
+				if (mods) break;
+				w.undoForAxis();
+				w.plot.axis.reset_center();
+				w.recalc(w.plot);
+				return true;
 		}
 		return false;
 	}

@@ -5,7 +5,7 @@
 #include <map>
 #include <algorithm>
 
-// all constant names must have balanced parantheses!
+// all constant names must have balanced parentheses!
 // keep the matching in readconst up-to-date with the names
 static const std::map<const std::string, std::pair<const double, const std::string>> constants
 {

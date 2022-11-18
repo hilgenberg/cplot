@@ -39,7 +39,8 @@ GUI::GUI(SDL_Window* window, SDL_GLContext context, PlotWindow &w)
 
 	auto &fd = font_data();
 	ImFontConfig fc; fc.FontDataOwnedByAtlas = false;
-	io.Fonts->AddFontFromMemoryTTF((void*)fd.data(), (int)fd.size(), 17.0f, &fc);
+	static const ImWchar ranges[] = { 0x0001, 0xFFFF, 0 }; // get all
+	io.Fonts->AddFontFromMemoryTTF((void *)fd.data(), (int)fd.size(), 18.0f, &fc, ranges);
 
 	menus.emplace_back(new_file_menu(*this));
 	menus.emplace_back(new_edit_menu(*this));
@@ -104,6 +105,7 @@ void GUI::update()
 	error_panel();
 	confirmation_panel();
 	prefs_panel();
+	help_panel();
 
 	#ifdef DEBUG
 	if (show_demo_window) ImGui::ShowDemoWindow(&show_demo_window);
@@ -166,6 +168,35 @@ bool GUI::handle_event(const SDL_Event &event)
 		[]{ quit = true; });
 		return true;
 	}
+	else if (event.type == SDL_KEYUP)
+	{
+		// workaround stuck modifier keys in imgui's SDL backend
+		auto key = event.key.keysym.sym;
+		switch (key)
+		{
+			case SDLK_LCTRL:
+			case SDLK_RCTRL:
+			{
+				ImGuiIO& io = ImGui::GetIO();
+    				io.AddKeyEvent(ImGuiMod_Ctrl, false);
+				break;
+			}
+			case SDLK_LALT:
+			case SDLK_RALT:
+			{
+				ImGuiIO& io = ImGui::GetIO();
+    				io.AddKeyEvent(ImGuiMod_Alt, false);
+				break;
+			}
+			case SDLK_LSHIFT:
+			case SDLK_RSHIFT:
+			{
+				ImGuiIO& io = ImGui::GetIO();
+    				io.AddKeyEvent(ImGuiMod_Shift, false);
+				break;
+			}
+		}
+	}
 	else if (event.type == SDL_KEYDOWN)
 	{
 		auto key = event.key.keysym.sym;
@@ -219,7 +250,6 @@ bool GUI::handle_event(const SDL_Event &event)
 
 	if (activate)
 	{
-		if (!visible) ImGui_ImplSDL2_ProcessEvent(&event);
 		visible = true;
 		redraw();
 	}

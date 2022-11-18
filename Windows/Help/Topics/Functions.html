@@ -191,13 +191,13 @@
 		<span class="x">f(x,y) = x*y</span>. Parameters and other functions can be used though.</p>
 
 	<h2>Names</h2>
-	<p>Names of functions, variables and parameters cannot contain spaces, commas, bars ('|'), control characters, parantheses, brackets, braces, unicode exponents or start with a digit. But other than that, the full unicode range is valid and there is no limit on the length.</p>
+	<p>Names of functions, variables and parameters cannot contain spaces, commas, bars ('|'), control characters, parentheses, brackets, braces, unicode exponents or start with a digit. But other than that, the full unicode range is valid and there is no limit on the length.</p>
 	
 	<h2>Expression Syntax<a name="Functions"></a></h2>
 
 	<h3>Basics</h3>
 	<p>
-		Parantheses are optional unless a function has more than one argument
+		Parentheses are optional unless a function has more than one argument
 		(<span class="x">sin(x)</span> and <span class="x">sinx</span> are the same).
 		Multiplication is implicit, so <span class="x">x*y</span> and <span class="x">xy</span> are the same.
 		Whitespace is for grouping, so <span class="x">(x+y)*(z+w)</span> can be written as <span class="x">x+y&nbsp;*&nbsp;z+w</span> and
@@ -216,11 +216,11 @@
 	</p>
 	<p>Unicode superscripts are read as power operators. For example <span class="x">x⁻⁴⁺⁵ⁱ</span> is equal to x^(-4+5i).</p>
 	
-	<h3>Parantheses and whitespace</h3>
+	<h3>Parentheses and whitespace</h3>
 	<p>
-		Any block of tokens (without mismatched parantheses) that is surrounded by
-		whitespace (beginning and end of the expression count as whitespace) and can be put inside parantheses without
-		creating syntax errors will be put in parantheses and then whitespace is removed.
+		Any block of tokens (without mismatched parentheses) that is surrounded by
+		whitespace (beginning and end of the expression count as whitespace) and can be put inside parentheses without
+		creating syntax errors will be put in parentheses and then whitespace is removed.
 	</p>
 	<p>
 		For example:<br />
@@ -229,7 +229,7 @@
 		<span class="x">x*⌴x+y⌴*⌴x</span> becomes <span class="x">(x*(x+y))*(x)</span>, which is <span class="x">x*(x+y)*x</span>,<br />
 		<span class="x">x⌴*x+y⌴x</span> becomes <span class="x">((x)*x+y)(x)</span>, which is <span class="x">(x*x+y)*x</span>.
 	</p>
-	<p>Parantheses work as usual for grouping subexpressions. Brackets and braces can be used as well and they must match: <span class="x">{sin[x]+cos[x]+1}</span> is ok, but <span class="x">{x+y)</span> is a syntax error.</p>
+	<p>Parentheses work as usual for grouping subexpressions. Brackets and braces can be used as well and they must match: <span class="x">{sin[x]+cos[x]+1}</span> is ok, but <span class="x">{x+y)</span> is a syntax error.</p>
 	<p>
 		Bars are the usual alternative syntax for the absolute value. When there are ambiguities, the parser will
 		try bars as closing bars first. For example: <span class="x">|x|y|x|</span> is <span class="x">abs(x) y abs(x)</span>

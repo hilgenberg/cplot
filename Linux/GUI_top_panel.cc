@@ -24,7 +24,7 @@ void GUI::top_panel()
 	window_flags |= ImGuiWindowFlags_NoCollapse;
 	window_flags |= ImGuiWindowFlags_NoSavedSettings;
 
-	ImGui::Begin("Graph Definition", &show_top_panel, window_flags);
+	ImGui::Begin("Top Panel", &show_top_panel, window_flags);
 
 	if (ImGui::BeginTable("##Layout", 2))
 	{
@@ -60,20 +60,20 @@ void GUI::top_panel()
 		//----------------------------------------------------------------------------------
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 2.0f / 9.0f);
 		constexpr int N = 12;
-		static const char *dom_asc[] = {
+		#if 0
+		static const char *dom_str[] = {
 			"R >> R", "R² >> R", "C >> C",
 			"R >> R²", "R >> R³", "S¹ >> R²", "S¹ >> R³",
-			"R² >> R³", "S² >> R³",
+			"R² >> R³", "S¹ x S¹ >> R³",
 			"R³ >> R", "R² >> R²", "R³ >> R³"};
-		assert(IM_ARRAYSIZE(dom_asc) == N);
-		#if 0
-		static const char *dom_utf[] = {
-			"R \u2192 R", "R\u00b2 \u2192 R", "C \u2192 C", 
-			"R \u2192 R\u00b2", "R \u2192 R\u00b3",  "S\u00b9 \u2192 R\u00b2", "S\u00b9 \u2192 R\u00b3", 
-			"R\u00b2 \u2192 R\u00b3", "S\u00b2 \u2192 R\u00b3", 
-			"R\u00b3 \u2192 R", "R\u00b2 \u2192 R\u00b2", "R\u00b3 \u2192 R\u00b3"};
-		assert(IM_ARRAYSIZE(dom_utf) == N);
+		#else
+		static const char *dom_str[] = {
+			"R \u2192 R",   "R² \u2192 R",  "C \u2192 C", 
+			"R \u2192 R²",  "R \u2192 R³",  "S¹ \u2192 R²", "S¹ \u2192 R³", 
+			"R² \u2192 R³", "S¹ x S¹ \u2192 R³", 
+			"R³ \u2192 R",  "R² \u2192 R²", "R³ \u2192 R³"};
 		#endif
+		assert(IM_ARRAYSIZE(dom_str) == N);
 		static GraphType dom_val[] = {
 			R_R, R2_R, C_C,
 			R_R2, R_R3, S1_R2, S1_R3,
@@ -84,7 +84,7 @@ void GUI::top_panel()
 		int orig = -1;
 		for (int i = 0; i < N; ++i) if (dom_val[i] == g->type()) { orig = i; break; }
 		int tmp = orig;
-		ImGui::Combo("##DomainCombo", &tmp, dom_asc, N);
+		ImGui::Combo("##DomainCombo", &tmp, dom_str, N);
 		if (tmp != orig) w.setDomain(dom_val[tmp]);
 		ImGui::SameLine();
 

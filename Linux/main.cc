@@ -5,7 +5,7 @@
 #include <SDL.h>
 #include <SDL_opengl.h>
 
-static const char *
+const char *
 	#include "../version.h"
 ;
 

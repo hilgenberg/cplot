@@ -275,20 +275,6 @@ bool PlotWindow::handle_key(SDL_Keysym keysym, bool release)
 	const int  alt   = (m & (KMOD_LALT|KMOD_RALT)) ? ALT : 0;
 	const int  mods  = shift + ctrl + alt;
 
-	auto view = [this](double x, double y)
-	{
-		switch (plot.axis_type())
-		{
-			case Axis::Invalid:
-			case Axis::Rect: return false;
-			default: break;
-		}
-		undoForCam();
-		plot.camera.set_angles(x, y, 0.0);
-		redraw();
-		return true;
-	};
-
 	if (!release) switch (key)
 	{
 		case SDLK_LEFT: case SDLK_RIGHT:
@@ -348,17 +334,6 @@ bool PlotWindow::handle_key(SDL_Keysym keysym, bool release)
 			if (!mods) return toggleClipLock();
 			if (mods == shift) return resetClipLock();
 			break;
-
-		case SDLK_t: view(0.0, shift ? -90.0 : 90.0); return true;
-		case SDLK_f: view(shift ? 180.0 : 0.0,  0.3); return true;
-		case SDLK_s: view(shift ? 90.0 : -90.0, 0.3); return true;
-
-		case SDLK_z:
-			if (mods) break;
-			undoForAxis();
-			plot.axis.reset_center();
-			recalc(plot);
-			return true;
 	}
 	else switch (key)
 	{

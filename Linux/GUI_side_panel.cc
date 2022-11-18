@@ -60,7 +60,7 @@ void GUI::side_panel()
 	
 	EnableGuard enable;
 
-	ImGui::Begin("Settings", &show_side_panel, window_flags);
+	ImGui::Begin("Side Panel", &show_side_panel, window_flags);
 
 	ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
 	if (!vf && (!color || g->mode() == GM_RiemannColor))

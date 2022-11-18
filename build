@@ -78,7 +78,7 @@ imgui_dir = "Linux/imgui"
 imgui_cc  = ["imgui.cpp", "imgui_demo.cpp", "imgui_draw.cpp", "imgui_tables.cpp", 
 	"imgui_widgets.cpp", "backends/imgui_impl_sdl.cpp", "backends/imgui_impl_opengl2.cpp",
 	"misc/cpp/imgui_stdlib.cpp", "../ImFileDialog/ImFileDialog.cpp"]
-
+font      = "Linux/Hack-Regular.ttf"
 ccflags  += f" -I{imgui_dir} -I{imgui_dir}/backends"
 
 del getf # done with that
@@ -216,7 +216,7 @@ rule link
 					obj.append(f"{base}/{f}.o")
 					glsl.append(name)
 
-		print(f"build {base}/font_data.cc: ttf Linux/imgui/misc/fonts/Cousine-Regular.ttf")
+		print(f"build {base}/font_data.cc: ttf {font}")
 		print(f"  name = font_data")
 		print(f"build {base}/font_data.o: cc {base}/font_data.cc{PCH_DEP}")
 		obj.append(f"{base}/font_data.o")
