@@ -1,0 +1,71 @@
+#!/usr/bin/env perl
+# usage: pass any arguments to print to stdout, otherwise this will 
+# create or overwrite PKGBUILD in current directory
+use strict;
+use warnings;
+
+chomp(my $commit = `git rev-parse HEAD`);
+chomp(my $version = `git describe --tags --abbrev=0 --match 'v*.*'`);
+chomp(my $tag_commit = `git rev-parse '$version'`);
+my $tagged = ($commit eq $tag_commit);
+$version =~ s/^v//;
+die "invalid version tag!" unless $version =~ /^\d+(\.\d+)+(\.?[a-zA-Z0-9]+)?$/;
+
+my $source = "commit=$commit";
+my $suffix = "";
+if (!$tagged) {
+	$suffix = "-git\nprovides=('cplot')\nconflicts=('cplot')";
+	$source = "branch=master";
+	$version = "0";
+}
+
+my $F;
+if (@ARGV) {
+	$F = *STDOUT;
+} else {
+	open($F,'>','PKGBUILD') or die $!;
+}
+
+print $F "# Maintainer: Torsten Hilgenberg <th\@zoon.cc>
+
+pkgname=cplot$suffix
+pkgver=$version
+pkgrel=1
+pkgdesc='Function plotter for real and complex mathematical functions'
+url='https://zoon.cc/cplot/'
+license=('MIT')
+arch=('x86_64')
+
+depends=('zlib' 'sdl2' 'libgl' 'glu' 'glew' 'glibc' 'pango' 'cairo')
+makedepends=('git' 'python>=3.0.0' 'ninja' 'boost')
+source=('git+https://github.com/hilgenberg/cplot#$source')
+sha256sums=('SKIP')
+";
+
+print $F q!
+pkgver() {
+	cd "$srcdir/cplot/"
+	git describe --long --tags --match 'v*.*' | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+}
+! unless $tagged;
+
+print $F '
+prepare() {
+	cd "$srcdir/cplot/"
+	git submodule update --init --recursive --depth 1
+}
+
+build() {
+	cd "$srcdir/cplot/"
+	./build release
+}
+
+package() {
+	cd "$srcdir/cplot/"
+	install -Dm755 -t "$pkgdir/usr/bin/" build_release/cplot
+	install -Dm644 -t "$pkgdir/usr/share/cplot/" Plot\ Examples/*.cplot
+	install -Dm644 -t "$pkgdir/usr/share/licenses/cplot/" LICENSE
+}
+';
+
+close($F);

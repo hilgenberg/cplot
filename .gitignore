@@ -1,25 +1,24 @@
-*.o
+####### Linux build #######
+/build_*/
+/build.ninja
+/PKGBUILD
 /cplot
+/gmon.out
+
+###### Windows build ######
+Windows/boost/*
+Windows/Build/*
+Windows/zlib/sln/
+
+########## Misc ###########
 /TODO
 /stuff/
-
 *.swp
 *.cc_
 *.h_
 *~
 
-/Gallery/
-/User Gallery/
-
-/build_*/
-/build.ninja
-
-/gmon.out
-Windows/boost/*
-Windows/Build/*
-Windows/zlib/sln/
-
-### Visual Studio stuff ###
+###### Visual Studio ######
 *.suo
 *.user
 *.userosscache
