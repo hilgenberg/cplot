@@ -76,7 +76,7 @@ void PlotWindow::animate(double t)
 
 	if (!params.empty())
 	{
-		for (int i : params) change_parameter(i, cnum(idx, -idy));
+		for (int i : params) change_parameter(i, cnum(idx, -idy)*dt);
 	}
 	else
 	{
@@ -364,7 +364,6 @@ void PlotWindow::reshape(int w_, int h_)
 	redraw();
 }
 
-
 void PlotWindow::draw()
 {
 	//if (last_frame <= 0.0) reshape();
@@ -435,11 +434,13 @@ void PlotWindow::translate(double dx, double dy, double dz, PlotWindow::Zoom wha
 	
 	if (type == Axis::Rect)
 	{
+		dx *= pixel;
+		dy *= pixel;
+		dx *= 5.0;
+		dy *= 5.0;
 		if (what == Inrange)
 		{
 			undoForInRange();
-			dx *= pixel;
-			dy *= pixel;
 			plot.axis.in_move(dx, -dy);
 			plot.axis.in_zoom(1.0/f);
 			plot.update(CH_IN_RANGE);
@@ -448,8 +449,6 @@ void PlotWindow::translate(double dx, double dy, double dz, PlotWindow::Zoom wha
 		{
 			auto &axis = plot.axis;
 			undoForAxis();
-			dx *= pixel;
-			dy *= pixel;
 			axis.move(-dx, dy, 0.0);
  
 			// zoom with dz, but keep (mx,my) where it is
@@ -517,7 +516,7 @@ void PlotWindow::change_parameter(int i, cnum delta)
 
 		case Integer:
 			if (last_param_change > 0.0 && now() - last_param_change < 0.25) return;
-			p->rvalue(p->rvalue() + delta.real());
+			p->rvalue(p->rvalue() + ((delta.real() > 0.0) - (delta.real() < 0.0)));
 			last_param_change = now();
 			break;
 
