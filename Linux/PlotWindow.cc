@@ -436,8 +436,6 @@ void PlotWindow::translate(double dx, double dy, double dz, PlotWindow::Zoom wha
 	{
 		dx *= pixel;
 		dy *= pixel;
-		dx *= 5.0;
-		dy *= 5.0;
 		if (what == Inrange)
 		{
 			undoForInRange();
@@ -504,6 +502,7 @@ void PlotWindow::change_parameter(int i, cnum delta)
 	Parameter *p = ps[i];
 	if (p->anim) return;
 
+	delta *= 0.025;
 	undoForParam(p);
 
 	static double last_param_change = -1.0; // increment integers every 0.25 seconds only
@@ -512,7 +511,7 @@ void PlotWindow::change_parameter(int i, cnum delta)
 		case Angle:
 		case ComplexAngle:
 			if (!p->angle_in_radians()) delta /= DEGREES;
-			p->rvalue(p->rvalue() + 0.1*delta.real()); break;
+			p->rvalue(p->rvalue() + delta.real()); break;
 
 		case Integer:
 			if (last_param_change > 0.0 && now() - last_param_change < 0.25) return;
@@ -522,14 +521,14 @@ void PlotWindow::change_parameter(int i, cnum delta)
 
 		case Real:
 			if (defined(p->min()) && defined(p->max())) delta *= (p->max()-p->min())*0.4;
-			p->value(p->value() + delta * 0.1);
+			p->value(p->value() + delta);
 			break;
 			
 		case Complex:
 			if (defined(p->rmax())) delta *= 2.0*p->rmax()*0.4;
 			else if (defined(p->min()) && defined(p->max())) delta *= (p->max()-p->min())*0.4;
 			else if (defined(p->imin()) && defined(p->imax())) delta *= (p->imax()-p->imin())*0.4;
-			p->value(p->value() + delta * 0.1);
+			p->value(p->value() + delta);
 			break;
 	}
 	
