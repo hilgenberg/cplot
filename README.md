@@ -2,7 +2,7 @@
 
 Linux (formerly Windows, formerly Mac) function plotter. Screenshots and Windows binaries are on the [homepage](http://zoon.cc/cplot/).
 
-<p align="center"><img src="Windows/Help/Media/CPlot64@2x.png?raw=true" alt="icon"/></p>
+<p align="center"><img src="Linux/screenshot.png?raw=true" alt="interface"/></p>
 
 Supports various projection modes and function types, natural expression syntax (sin xy instead of Sin[x*y] f.e.), blending between functions (identity and your target function for example), realtime parameter variation (where parameters are things like a mass or spring constant, order of a pole, etc), ...
 
