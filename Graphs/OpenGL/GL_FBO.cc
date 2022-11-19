@@ -161,6 +161,10 @@ void GL_FBO::bind() const
 void GL_FBO::draw(bool blend, float factor) const
 {
 	assert(fbo && texture);
+	assert(factor <= 1.0f+1e-8f);
+	assert(factor > 0.0f);
+	assert(blend || fabs(factor-1.0f) < 1e-8f);
+
 	if (!fbo || !texture){ assert(false); return; }
 	
 	glMatrixMode(GL_TEXTURE);    glLoadIdentity();
@@ -184,10 +188,10 @@ void GL_FBO::draw(bool blend, float factor) const
 	}
 	else if (factor < 1.0f-1e-8)
 	{
+		assert(false);
 		glEnable(GL_BLEND);
 		glBlendColor(0.0f, 0.0f, 0.0f, factor);
 		glBlendFunc(GL_CONSTANT_ALPHA, GL_ZERO);
-		glBlendFunc(GL_ZERO, GL_CONSTANT_ALPHA);
 	}
 	else
 	{

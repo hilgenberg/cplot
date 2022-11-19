@@ -87,7 +87,11 @@ void GL_RM::end_subframe()
 				aa_accum.acc_add(aa_buffer, 1.0f/aa_passes);
 			}
 			
-			if (aa_pass == aa_passes)
+			if (aa_pass != aa_passes)
+			{
+				glFlush();
+			}
+			else
 			{
 				glBindFramebuffer(GL_FRAMEBUFFER, 0);
 				aa_accum.draw(false);
