@@ -50,5 +50,8 @@ protected:
 	void status(); // draw status bar
 	float current_status_height = 0.0f;
 	mutable GL_StringCache labelCache;
+	struct StatusField { double x0, x1, y0, y1; };
+	std::vector<StatusField> status_fields; // for matching clicks in status bar to parameters
+	int dragged_param = 0;
 };
 

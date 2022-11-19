@@ -58,6 +58,8 @@ void GUI::help_panel()
 		ImGui::Bullet(); ImGui::TextWrapped("Mouse: Dragging with left, right, or both buttons. Right for axis, middle for preimage range.");
 		ImGui::Bullet(); ImGui::TextWrapped("Mouse: Scroll wheel(s), combined with mouse buttons or modifier keys.");
 		ImGui::Bullet(); ImGui::TextWrapped("Trackpad: Combined with modifier keys.");
+		SPC;
+		ImGui::TextWrapped("Parameters can be changed by dragging them in the status bar at the bottom. Hold Alt and/or Control to slow down, Shift to speed up the changes.");
 	}
 
 	if (ImGui::CollapsingHeader("Hotkeys"))

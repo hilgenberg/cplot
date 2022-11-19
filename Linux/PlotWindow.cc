@@ -171,6 +171,16 @@ bool PlotWindow::handle_event(const SDL_Event &e)
 			bool ctrl    = (m & (KMOD_LCTRL|KMOD_RCTRL));
 			bool alt     = (m & (KMOD_LALT|KMOD_RALT));
 			
+			if (dragged_param)
+			{
+				double f = 1.0;
+				if (shift) f *= 10.0;
+				if (alt)   f *=  0.1;
+				if (ctrl)  f *=  0.1;
+				change_parameter(dragged_param-1, cnum(f*dx, f*dy));
+				return true;
+			}
+
 			if (shift)
 			{
 				dz = absmax(dx, dy);
@@ -188,7 +198,21 @@ bool PlotWindow::handle_event(const SDL_Event &e)
 			return true;
 		}
 		case SDL_MOUSEBUTTONDOWN:
+		{
+			double x = e.button.x, y = e.button.y;
+
+			for (int i = 0, n = (int)status_fields.size(); i < n; ++i)
+			{
+				const auto &S = status_fields[i];
+				if (x < S.x0 || x > S.x1) continue;
+				if (y < S.y0 || y > S.y1) continue;
+				dragged_param = i+1;
+				break;
+			}
+			return true;
+		}
 		case SDL_MOUSEBUTTONUP:
+			dragged_param = 0;
 			return true;
 		case SDL_MOUSEWHEEL:
 		{
@@ -498,7 +522,7 @@ void PlotWindow::change_parameter(int i, cnum delta)
 	std::set<Parameter*> aps(plot.used_parameters());
 	if ((size_t)i >= aps.size()) return;
 	std::vector<Parameter*> ps(aps.begin(), aps.end());
-	std::sort(ps.begin(), ps.end(), [&](Parameter *a, Parameter *b)->bool{ return a->name() < b->name(); });
+	std::sort(ps.begin(), ps.end(), [&](Parameter *a, Parameter *b)->bool { return a->name() < b->name(); });
 	Parameter *p = ps[i];
 	if (p->anim) return;
 
@@ -538,10 +562,12 @@ void PlotWindow::change_parameter(int i, cnum delta)
 void PlotWindow::status()
 {
 	current_status_height = 0.0f;
+	status_fields.clear();
+
 	std::set<Parameter*> aps(plot.used_parameters());
 	if (aps.empty()) return;
 	std::vector<Parameter*> ps(aps.begin(), aps.end());
-	std::sort(ps.begin(), ps.end(), [&](Parameter *a, Parameter *b)->bool{ return a->name() < b->name(); });
+	std::sort(ps.begin(), ps.end(), [&](Parameter *a, Parameter *b)->bool { return a->name() < b->name(); });
 
 	bool dark = plot.axis.options.background_color.lightness() < 0.55;
 	double fs = 17.0f;
@@ -601,13 +627,16 @@ void PlotWindow::status()
 	x = hspace; double y = vspace;
 	for (GL_String *s : labels)
 	{
-		if (x > hspace && x + s->w() + hspace > w){ x = hspace; y += lh + vspace; }
+		const double sw = s->w(), sh = s->h();
+		if (x > hspace && x + sw + hspace > w){ x = hspace; y += lh + vspace; }
 		#ifdef DRAW_STATUS_AT_TOP
-		s->draw2d(x, y, s->w(), s->h());
+		s->draw2d(x, y, sw, sh);
+		status_fields.push_back({x, x+sw, y, y+sh});
 		#else
-		s->draw2d(x, y0+y, s->w(), s->h());
+		s->draw2d(x, y0+y, sw, sh);
+		status_fields.push_back({x, x+sw, y0+y, y0+y+sh});
 		#endif
-		x += s->w() + 2.0*hspace;
+		x += sw + 2.0*hspace;
 	}
 	glMatrixMode(GL_PROJECTION); glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);  glPopMatrix();
