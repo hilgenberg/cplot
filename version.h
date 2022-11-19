@@ -1,1 +1,1 @@
-VERSION="2.0α"
+VERSION="2.0"
