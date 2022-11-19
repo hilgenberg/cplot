@@ -26,6 +26,14 @@ void GUI::prefs_panel()
 		redraw();
 	}
 
+	b0 = Preferences::depthSort(); b = b0;
+	ImGui::Checkbox("Depth Sorting", &b);
+	if (b != b0)
+	{
+		Preferences::depthSort(b);
+		redraw();
+	}
+
 	ImGui::Spacing();
 	ImGui::Spacing();
 	ImGui::Spacing();
