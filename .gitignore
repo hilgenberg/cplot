@@ -13,6 +13,7 @@ Windows/zlib/sln/
 ########## Misc ###########
 /TODO
 /stuff/
+/homepage/
 *.swp
 *.cc_
 *.h_
