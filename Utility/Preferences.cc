@@ -10,6 +10,9 @@ static bool have_changes = false; // were any defaults changed?
 static bool normals_   = false;
 static bool dynamic_   = true;
 static bool depthSort_ = true;
+static bool showFPS_   = false;
+static bool vsync_     = true;
+static int  fps_       = 60;
 static int  threads_   = -1;
 const int n_cores = (int)std::thread::hardware_concurrency();
 
@@ -41,6 +44,9 @@ namespace Preferences
 		normals_   = false;
 		dynamic_   = true;
 		depthSort_ = true;
+		showFPS_   = false;
+		vsync_     = true;
+		fps_       = 60;
 		threads_   = -1;
 		load(); have_changes = false;
 		return true;
@@ -54,6 +60,15 @@ namespace Preferences
 
 	bool drawNormals() { return normals_; }
 	void drawNormals(bool value) { SET(normals_); }
+
+	bool showFPS() { return showFPS_; }
+	void showFPS(bool value) { SET(showFPS_); }
+
+	bool vsync() { return vsync_; }
+	void vsync(bool value) { SET(vsync_); }
+
+	int  fps() { return fps_; }
+	void fps(int value) { SET(fps_); }
 
 	bool depthSort() { return depthSort_; }
 	void depthSort(bool value) { SET(depthSort_); }
@@ -158,9 +173,12 @@ static bool load()
 		else if (key == "dynamic"  ) parse(v, dynamic_);
 		else if (key == "depthSort") parse(v, depthSort_);
 		else if (key == "threads"  ) parse(v, threads_);
+		else if (key == "showFPS"  ) parse(v, showFPS_);
+		else if (key == "vsync"    ) parse(v, vsync_);
+		else if (key == "fps"      ) parse(v, fps_);
 		else
 		{
-			fprintf(stderr, "Invalid key: %s\n", key.c_str());
+			fprintf(stderr, "Ignoring invalid key in preference file: %s\n", key.c_str());
 		}
 	}
 	fclose (file);
@@ -182,6 +200,9 @@ static bool save()
 	fprintf(file, "normals=%s\n", normals_ ? "on" : "off");
 	fprintf(file, "dynamic=%s\n", dynamic_ ? "on" : "off");
 	fprintf(file, "depthSort=%s\n", depthSort_ ? "on" : "off");
+	fprintf(file, "showFPS=%s\n", showFPS_ ? "on" : "off");
+	fprintf(file, "fps=%d\n", fps_);
+	fprintf(file, "vsync=%s\n", vsync_ ? "on" : "off");
 	fprintf(file, "threads=%d\n", threads_);
 	fclose (file);
 	have_changes = false;

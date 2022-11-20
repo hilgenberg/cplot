@@ -241,7 +241,10 @@ bool GUI::handle_event(const SDL_Event &event)
 			case SDLK_ESCAPE:
 				if (mods || ImGui::IsPopupOpen("", ImGuiPopupFlags_AnyPopupId + ImGuiPopupFlags_AnyPopupLevel))
 					break;
-				visible = !visible;
+				if (show_prefs_panel)
+					show_prefs_panel = false;
+				else
+					visible = !visible;
 				redraw();
 				w.redraw();
 				return true;

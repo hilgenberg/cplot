@@ -64,15 +64,15 @@ int main(int argc, char *argv[])
 	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
 	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,  8);
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
-	 //SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE,   16);
-	 //SDL_GL_SetAttribute(SDL_GL_ACCUM_GREEN_SIZE, 16);
-	 //SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE,  16);
-	 //SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE, 16);
+	//SDL_GL_SetAttribute(SDL_GL_ACCUM_RED_SIZE,   16);
+	//SDL_GL_SetAttribute(SDL_GL_ACCUM_GREEN_SIZE, 16);
+	//SDL_GL_SetAttribute(SDL_GL_ACCUM_BLUE_SIZE,  16);
+	//SDL_GL_SetAttribute(SDL_GL_ACCUM_ALPHA_SIZE, 16);
 	SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 	SDL_Window* window = SDL_CreateWindow("CPlot", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, window_flags);
 	SDL_GLContext gl_context = SDL_GL_CreateContext(window);
 	SDL_GL_MakeCurrent(window, gl_context);
-	SDL_GL_SetSwapInterval(1); // Enable vsync
+	SDL_GL_SetSwapInterval(Preferences::vsync());
 
 	if (glewInit() != GLEW_OK)
 	{
@@ -117,30 +117,11 @@ int main(int argc, char *argv[])
 			w.reshape(W, H);
 			GL_CHECK;
 	
-			double t1 = w.next_frame_schedule();
-			if (t1 > 0.0)
+			if (w.animating() || w.needs_redraw() || gui.needs_redraw())
 			{
 				gui.update();
 				GL_CHECK;
-
-				double t = now();
-				while (t < t1)
-				{
-					if (quit) break;
-					sleep(t1 - t);
-					t = now();
-				}
-				if (quit) break;
-
-				w.animate(t);
-				GL_CHECK;
-				gui.draw();
-				GL_CHECK;
-				SDL_GL_SwapWindow(window);
-			}
-			else if (w.needs_redraw() || gui.needs_redraw())
-			{
-				gui.update();
+				w.animate();
 				GL_CHECK;
 				w.draw();
 				GL_CHECK;
@@ -148,10 +129,9 @@ int main(int argc, char *argv[])
 				GL_CHECK;
 				SDL_GL_SwapWindow(window);
 			}
-			GL_CHECK;
-
-			if (!(w.animating() || w.needs_redraw() || gui.needs_redraw()))
+			else
 			{
+				w.waiting();
 				constexpr double SLEEP_MIN = 1.0 / 1000, SLEEP_MAX = 1.0 / 30;
 				double st = SLEEP_MIN;
 				while (!SDL_WaitEventTimeout(NULL, (int)(st*1000)))

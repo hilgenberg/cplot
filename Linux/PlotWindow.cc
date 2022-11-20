@@ -13,8 +13,6 @@ extern volatile bool quit;
 #define ScrollLeftButton  7
 #define ScrollRightButton 6
 
-#define FPS 90
-
 static inline double absmax(double a, double b){ return fabs(a) > fabs(b) ? a : b; }
 
 PlotWindow::PlotWindow(SDL_Window* window, GL_Context &context)
@@ -33,14 +31,26 @@ PlotWindow::PlotWindow(SDL_Window* window, GL_Context &context)
 }
 PlotWindow::~PlotWindow(){ }
 
-void PlotWindow::stop_animations(){ tnf = -1.0; }
-void PlotWindow::start_animations(){ if (tnf <= 0.0) tnf = now() + 1.0/FPS; }
+void PlotWindow::start_animations() { if (tnf <= 0.0) last_frame = tnf = now(); }
 
-void PlotWindow::animate(double t)
+void PlotWindow::animate()
 {
-	assert(tnf > 0.0 && t >= tnf);
-	const double spf = 1.0/FPS;
-	double dt = std::min(std::max(1.0, (t - last_frame)/spf), 5.0);
+	if (tnf <= 0.0) return;
+
+	double t = now();
+	while (t < tnf)
+	{
+		sleep(tnf - t);
+		t = now();
+		if (quit) return;
+	}
+
+	int fps = Preferences::fps();
+	tnf = (fps <= 0) ? t : t + 0.99 / fps;
+
+	double dt = std::min(std::max(1e-42, t - last_frame), 0.25);
+	last_frame = t;
+
 	double dx = 0.0, dy = 0.0, dz = 0.0;
 	int idx = 0, idy = 0, idz = 0;
 	std::set<int> params;
@@ -48,7 +58,7 @@ void PlotWindow::animate(double t)
 	for (auto &i : ikeys)
 	{
 		double &inertia = i.second;
-		inertia += (0.03 + inertia*0.04)*dt;
+		inertia += (3.0 + inertia*4.0)*dt;
 		inertia = std::min(inertia, 5.0);
 		
 		switch (i.first)
@@ -62,6 +72,7 @@ void PlotWindow::animate(double t)
 			default: assert(false); break;
 		}
 	}
+
 	for (auto k : keys)
 	{
 		switch (k)
@@ -74,13 +85,14 @@ void PlotWindow::animate(double t)
 		}
 	}
 
+	double f = dt * 100.0;
 	if (!params.empty())
 	{
-		for (int i : params) change_parameter(i, cnum(idx, -idy)*dt);
+		for (int i : params) change_parameter(i, cnum(idx, -idy)*f);
 	}
 	else
 	{
-		dx *= dt; dy *= dt; dz *= dt;
+		dx *= f; dy *= f; dz *= f;
 		auto type = plot.axis.type();
 
 		SDL_Keymod m = SDL_GetModState();
@@ -111,18 +123,14 @@ void PlotWindow::animate(double t)
 		p->animate(t);
 		++pani;
 		plot.recalc(p);
+		redraw();
 	}
-
-	draw();
 
 	if (!pani && ikeys.empty() && plot.axis_type() != Axis::Invalid)
 	{
-		stop_animations();
+		tnf = -1.0;
 		return;
 	}
-
-	double t1 = std::max(now(), t + spf);
-	tnf += std::max(0.0, spf * std::ceil((t1-tnf)/spf-0.01));
 }
 
 bool PlotWindow::handle_event(const SDL_Event &e)
@@ -390,8 +398,8 @@ void PlotWindow::reshape(int w_, int h_)
 
 void PlotWindow::draw()
 {
-	//if (last_frame <= 0.0) reshape();
-	last_frame = now();
+	fps.frame();
+	
 	if (w <= 0 || h <= 0) return;
 
 	if (plot.axis_type() == Axis::Invalid)
@@ -412,7 +420,7 @@ void PlotWindow::draw()
 		glColor4f(y, y, y, 1.0f);
 		auto tri = [&x0,&y0](double r, double a){ for (int i=0; i<3; ++i, a += 2.0*M_PI/3.0) glVertex2d(x0+r*cos(a), y0+r*sin(a)); };
 		glBegin(GL_TRIANGLES);
-		double a = last_frame*2.0*M_PI / 12.0;
+		double a = now() * 2.0*M_PI / 12.0;
 		tri(r,a);
 		a += M_PI;
 		for (int i = 0; i < 3; ++i, a += 2.0*M_PI/3.0)
@@ -564,8 +572,10 @@ void PlotWindow::status()
 	current_status_height = 0.0f;
 	status_fields.clear();
 
+	bool show_fps = animating() && Preferences::showFPS();
+
 	std::set<Parameter*> aps(plot.used_parameters());
-	if (aps.empty()) return;
+	if (!show_fps && aps.empty()) return;
 	std::vector<Parameter*> ps(aps.begin(), aps.end());
 	std::sort(ps.begin(), ps.end(), [&](Parameter *a, Parameter *b)->bool { return a->name() < b->name(); });
 
@@ -584,6 +594,15 @@ void PlotWindow::status()
 	double vspace = fs/4.0, hspace = fs/2.0;
 	double lh = 0.0, x = hspace;
 	int rows = 1, i = 0;
+	if (show_fps)
+	{
+		labelCache.font(0);
+		GL_String *s = labelCache.get(format("FPS = %d", (int)std::round(fps.fps())));
+		labels.push_back(s);
+		if (s->h() > lh) lh = s->h();
+		if (x > hspace && x + s->w() + hspace > w){ x = hspace; ++rows; }
+		x += s->w() + 2.0*hspace;
+	}
 	for (Parameter *p : ps)
 	{
 		bool sel = (i < 10 && keys.count(i==9 ? SDLK_0 : SDLK_1+i));
@@ -609,6 +628,7 @@ void PlotWindow::status()
 	glColor4d(c, c, c, dark ? 0.85 : 0.7);
 	glBegin(GL_QUADS);
 	#ifdef DRAW_STATUS_AT_TOP
+	constexpr double y0 = 0.0;
 	glVertex2d(0, 0);
 	glVertex2d(w, 0);
 	glVertex2d(w, rows*lh+vspace*(rows+1));
@@ -629,13 +649,9 @@ void PlotWindow::status()
 	{
 		const double sw = s->w(), sh = s->h();
 		if (x > hspace && x + sw + hspace > w){ x = hspace; y += lh + vspace; }
-		#ifdef DRAW_STATUS_AT_TOP
-		s->draw2d(x, y, sw, sh);
-		status_fields.push_back({x, x+sw, y, y+sh});
-		#else
 		s->draw2d(x, y0+y, sw, sh);
-		status_fields.push_back({x, x+sw, y0+y, y0+y+sh});
-		#endif
+		s->draw2d(x, y0+y, sw, sh);
+		if (show_fps) show_fps = false; else status_fields.push_back({x, x+sw, y0+y, y0+y+sh});
 		x += sw + 2.0*hspace;
 	}
 	glMatrixMode(GL_PROJECTION); glPopMatrix();

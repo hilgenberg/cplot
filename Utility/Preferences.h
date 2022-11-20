@@ -24,6 +24,15 @@ namespace Preferences
 
 	#ifdef __linux__
 	std::filesystem::path directory();
+
+	bool showFPS();
+	void showFPS(bool value);
+
+	int  fps();
+	void fps(int value);
+
+	bool vsync();
+	void vsync(bool value);
 	#endif
 
 	bool drawNormals(); // debugging
