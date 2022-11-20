@@ -238,7 +238,7 @@ void GUI::side_panel()
 		const bool hasTex = g && (color || g->hasFill());
 		const bool hasRef = g && !color && !twoD && g->hasNormals();
 
-		SLIDER(hasTex, "Texture", g->options.texture_opacity, 0.0, 1.0, setTextureStrength);
+		if (!color) SLIDER(hasTex, "Texture", g->options.texture_opacity, 0.0, 1.0, setTextureStrength);
 		static const char *tex_items[] = { "Custom", "Color", "XOR", "Grey XOR", "Checker", "Plasma", "Color2", "Phase", "Units" };
 		{
 			int orig = g ? g->options.texture.is_pattern() : -10;
@@ -251,17 +251,20 @@ void GUI::side_panel()
 		if (color) POPUP(1, "##TextureMode", TextureProjection, g->options.texture_projection, setTextureMode, 
 			"Tiled Texture", "Centered  Texture", "Riemann Texture", "Spherical Texture");
 
-		ImGui::Spacing();
-		ImGui::Spacing();
-
-		SLIDER(hasRef, "Reflection", g->options.reflection_opacity, 0.0, 1.0, setReflectionStrength);
+		if (!color)
 		{
-			int orig = g ? g->options.reflection_texture.is_pattern() : -10;
-			int d = (orig==0 ? 0 : 1); orig -= d;
-			int tmp = orig;
-			enable(hasRef);
-			ImGui::Combo("##ReflectionTextureCombo", &tmp, tex_items+d, IM_ARRAYSIZE(tex_items)-d);
-			if (enable && tmp != orig) w.setReflectionTexture((GL_ImagePattern)(tmp+d));
+			ImGui::Spacing();
+			ImGui::Spacing();
+
+			SLIDER(hasRef, "Reflection", g->options.reflection_opacity, 0.0, 1.0, setReflectionStrength);
+			{
+				int orig = g ? g->options.reflection_texture.is_pattern() : -10;
+				int d = (orig==0 ? 0 : 1); orig -= d;
+				int tmp = orig;
+				enable(hasRef);
+				ImGui::Combo("##ReflectionTextureCombo", &tmp, tex_items+d, IM_ARRAYSIZE(tex_items)-d);
+				if (enable && tmp != orig) w.setReflectionTexture((GL_ImagePattern)(tmp+d));
+			}
 		}
 	}
 
