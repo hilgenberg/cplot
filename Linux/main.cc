@@ -20,6 +20,7 @@ int main(int argc, char *argv[])
 {
 	const char *arg0 = argv[0]; // program name without path
 	for (const char *s = arg0; *s; ++s) if (*s == '/') arg0 = s+1;
+	const char *file_arg = NULL;
 	
 	if (argc > 2 || (argc == 2 && (!strcasecmp(argv[1], "--help") || !strcmp(argv[1], "-h"))))
 	{
@@ -35,6 +36,7 @@ int main(int argc, char *argv[])
 			"\n", arg0, VERSION);
 		return 0;
 	}
+	if (argc == 2) file_arg = argv[1];
 
 	Preferences::reset();
 	
@@ -92,7 +94,7 @@ int main(int argc, char *argv[])
 		PlotWindow w(window, context);
 		GUI gui(window, gl_context, w);
 
-		for (int i = 1; i < argc; ++i) w.load(argv[i]);
+		if (file_arg) w.load(file_arg);
 		GL_CHECK;
 
 		while (!quit)
