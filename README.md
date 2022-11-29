@@ -8,8 +8,11 @@ Supports various projection modes and function types, natural expression syntax 
 
 ### Linux build:
 
+On Arch: `sudo pacman -S --needed git python ninja boost zlib sdl2 libgl glu glew pango cairo`.<br>
+On Debian: `sudo apt install git python3 ninja-build libboost-dev libz-dev libsdl2-dev libgl-dev libglu-dev libglew-dev libpango-1.0-dev libcairo2-dev`.
+
+Then build with:
 ```Shell
-sudo pacman -S --needed git python ninja boost zlib sdl2 libgl glu glew pango cairo
 git clone https://github.com/hilgenberg/cplot
 cd cplot
 git submodule update --init --recursive

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import os
 import sys
 import fnmatch
@@ -185,7 +185,7 @@ rule pch
   description = \033[32mHH\033[m $in
 
 rule link
-  command = g++ $lflags $in -o $out
+  command = g++ $in $lflags -o $out
   description = \033[32mLL\033[m $out
 
 """)
@@ -225,6 +225,7 @@ rule link
 				f0 = os.path.basename(f)
 				print(f"build {base}/{f0}.o: cc {os.path.join(imgui_dir, f)}{PCH_DEP}")
 				obj.append(f"{base}/{f0}.o")
+
 		print(f"build {base}/{target}: link {' '.join(obj)}")
 
 		if not os.path.lexists("shaders.h") and glsl:

@@ -6,6 +6,7 @@
 #include "../Graphs/Geometry/Axis.h"
 #include "../Graphs/Geometry/Camera.h"
 #include "../Engine/Namespace/all.h"
+#include <SDL2/SDL_version.h>
 extern volatile bool quit;
 
 #define ScrollUpButton    5
@@ -228,10 +229,10 @@ bool PlotWindow::handle_event(const SDL_Event &e)
 			if (type == Axis::Invalid) return false;
 
 			SDL_Keymod m = SDL_GetModState();
-			bool shift   = (m & (KMOD_LSHIFT|KMOD_RSHIFT));
 			bool ctrl    = (m & (KMOD_LCTRL|KMOD_RCTRL));
 			bool alt     = (m & (KMOD_LALT|KMOD_RALT));
-
+			#if SDL_VERSION_ATLEAST(2,0,18)
+			bool shift   = (m & (KMOD_LSHIFT|KMOD_RSHIFT));
 			if (e.wheel.preciseX != e.wheel.x || e.wheel.preciseY != e.wheel.y)
 			{
 				double dx = -5.0*e.wheel.preciseX, dy = 5.0*e.wheel.preciseY, dz = 0.0;
@@ -254,6 +255,7 @@ bool PlotWindow::handle_event(const SDL_Event &e)
 				}
 			}
 			else
+			#endif
 			{
 				int mx = -1, my = -1;
 				auto buttons = SDL_GetMouseState(&mx, &my);
