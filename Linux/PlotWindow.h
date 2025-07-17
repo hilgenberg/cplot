@@ -13,6 +13,7 @@ public:
 	PlotWindow(SDL_Window* window, GL_Context &context);
 	virtual ~PlotWindow();
 	void load(const std::string &path) override { Document::load(path); redraw(); }
+	void load_default() override { Document::load_default(); redraw(); }
 
 	bool needs_redraw() const{ return need_redraw; }
 	bool animating() const{ return tnf > 0.0; }

@@ -64,6 +64,13 @@ void Document::load(const std::string &p)
 	path = p;
 	ut.file_was_loaded();
 }
+void Document::load_default()
+{
+	if (plot.number_of_graphs()) return;
+	addGraph();
+	Graph *g = plot.current_graph(); if (!g) { assert(false); return; }
+	g->f1("sinx");
+}
 
 void Document::recalc(Plot &plot)
 {

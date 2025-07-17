@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
 		PlotWindow w(window, context);
 		GUI gui(window, gl_context, w);
 
-		if (file_arg) w.load(file_arg);
+		if (file_arg) w.load(file_arg); else { w.load_default(); gui.show(); }
 		GL_CHECK;
 
 		while (!quit)

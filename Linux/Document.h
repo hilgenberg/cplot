@@ -9,6 +9,7 @@ struct Document
 	Document() : plot(rns), need_redraw(true) { }
 
 	virtual void load(const std::string &path);
+	virtual void load_default();
 	void clear();
 	void save() const{ saveAs(path); }
 	void saveAs(const std::string &path) const;
